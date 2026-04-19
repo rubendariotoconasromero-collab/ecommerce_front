@@ -1,0 +1,78 @@
+/* ========================================================
+   SISTEMA DE DISEÑO BASE (THEMING)
+======================================================== */
+
+:root {
+  /* 1. Colores de Marca (Modifica esto para cambiar todo el tema) */
+  --brand-primary: #4f46e5;       /* Un índigo moderno (estilo Tailwind) */
+  --brand-primary-hover: #4338ca; 
+  --brand-secondary: #10b981;     /* Verde esmeralda para éxitos/pagos */
+
+  /* 2. Colores de Fondo y Texto */
+  --bg-main: #f3f4f6;             /* Gris muy claro para el fondo del sistema */
+  --bg-card: #ffffff;             /* Blanco puro para las tarjetas */
+  --text-main: #1f2937;
+  --text-muted: #6b7280;
+
+  /* 3. Formas y Sombras */
+  --border-radius-lg: 1rem;       /* Bordes más redondeados */
+  --border-radius-md: 0.5rem;
+  --box-shadow-custom: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+}
+
+/* ========================================================
+   APLICACIÓN GLOBAL
+======================================================== */
+
+body {
+  background-color: var(--bg-main) !important;
+  color: var(--text-main);
+  /* Fuente moderna (Si el usuario la tiene, sino usa la de sistema) */
+  font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+}
+
+/* ========================================================
+   CLASES UTILITARIAS PROPIAS (Para reusar en todo Vue)
+======================================================== */
+
+/* Tarjetas base para todo el E-commerce */
+.card-custom {
+  background-color: var(--bg-card);
+  border: none;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--box-shadow-custom);
+}
+
+/* Botón principal del sistema */
+.btn-brand {
+  background-color: var(--brand-primary);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-md);
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  transition: all 0.3s ease;
+}
+
+.btn-brand:hover, .btn-brand:focus {
+  background-color: var(--brand-primary-hover);
+  color: white;
+  transform: translateY(-2px); /* Pequeño salto al pasar el mouse */
+  box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.4);
+}
+
+/* Inputs personalizados */
+.form-control-custom {
+  border-radius: var(--border-radius-md);
+  border: 1px solid #d1d5db;
+}
+
+.form-control-custom:focus {
+  border-color: var(--brand-primary);
+  /* Anillo de enfoque con el color de la marca pero transparente */
+  box-shadow: 0 0 0 0.25rem rgba(79, 70, 229, 0.25); 
+}
+
+/* Textos */
+.text-muted-custom { color: var(--text-muted); }
+.text-brand { color: var(--brand-primary); }
