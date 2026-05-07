@@ -1,107 +1,177 @@
 <template>
-  <div class="d-flex bg-main min-vh-100">
-    
+  <div class="admin-wrapper d-flex min-vh-100">
+    <!-- Sidebar (Premium SaaS Sidebar) -->
     <aside 
-      class="bg-dark text-white shadow-sm d-flex flex-column transition-all"
+      class="sidebar-container d-flex flex-column transition-all shadow-lg"
       :class="{ 'sidebar-collapsed': isCollapsed }"
-      style="width: 260px; z-index: 1040; transition: all 0.3s;"
     >
-      <div class="p-3 d-flex align-items-center justify-content-between border-bottom bg-white w-100" style="height: 73px;">
-        
-        <div class="d-flex align-items-center overflow-hidden" style="max-width: 80%;">
+      <!-- Sidebar Header (Logo con Contraste Elevado) -->
+      <div class="sidebar-header d-flex align-items-center justify-content-center border-bottom bg-white sticky-top">
+        <div class="logo-area d-flex align-items-center justify-content-center w-100 px-3">
           <img 
             v-if="!isCollapsed"
             src="/src/assets/images/logo.png" 
             alt="Logo Empresa" 
-            class="img-fluid" 
-            style="max-height: 60px; object-fit: contain;"
+            class="sidebar-logo animate__animated animate__fadeIn"
           >
-          <img 
-            v-else
-            src="https://via.placeholder.com/40x40?text=L" 
-            alt="Icono Empresa" 
-            class="img-fluid" 
-            style="max-height: 35px; object-fit: contain; margin: 0 auto;"
-          >
+          <div v-else class="collapsed-logo-pill animate__animated animate__zoomIn">
+            <span class="fw-bold">C</span>
+          </div>
         </div>
-        
-        <button class="btn btn-sm d-none d-md-block" @click="isCollapsed = !isCollapsed">
-          <i class="bi" :class="isCollapsed ? 'bi-chevron-right' : 'bi-chevron-left'"></i>
-        </button>
       </div>
 
-      <div class="flex-grow-1 overflow-auto py-3">
-        <ul class="nav flex-column mb-auto px-2">
+      <!-- Menú de Navegación (Jerarquía Visual Mejorada) -->
+      <nav class="sidebar-nav flex-grow-1 overflow-auto py-4 px-3">
+        <ul class="nav flex-column gap-2">
           
-          <li class="nav-item mb-1">
-            <router-link :to="{ name: 'dashboard' }" class="nav-link nav-link-custom" active-class="active">
-              <i class="bi bi-grid-1x2"></i>
-              <span class="ms-2" v-if="!isCollapsed">Dashboard</span>
+          <li class="nav-item">
+            <router-link :to="{ name: 'dashboard' }" class="nav-link-custom" exact-active-class="active">
+              <i class="bi bi-speedometer2 icon-main"></i>
+              <span class="ms-3 nav-text" v-if="!isCollapsed">Dashboard</span>
             </router-link>
           </li>
 
-          <li class="nav-item mb-1 sidebar-heading small fw-bold px-3 mt-3 mb-2" v-if="!isCollapsed">OPERACIONES</li>
-          
-          <li class="nav-item mb-1">
-            <router-link to="/admin/pedidos" class="nav-link nav-link-custom" active-class="active">
-              <i class="bi bi-cart3"></i>
-              <span class="ms-2" v-if="!isCollapsed">Pedidos</span>
-            </router-link>
+          <!-- Grupo: Operaciones -->
+          <li class="nav-item" v-if="authStore.hasPermission('modulo-pedidos')">
+            <div 
+              class="nav-link-custom group-header" 
+              :class="{ 'active-group': isGroupActive('operaciones'), 'is-open': openGroups.operaciones }"
+              @click="toggleGroup('operaciones')"
+            >
+              <i class="bi bi-rocket-takeoff icon-main"></i>
+              <span class="ms-3 nav-text" v-if="!isCollapsed">Operaciones</span>
+              <i v-if="!isCollapsed" class="bi bi-chevron-right ms-auto arrow-icon"></i>
+            </div>
+            <ul v-if="openGroups.operaciones && !isCollapsed" class="nav-sub flex-column">
+              <li class="nav-item">
+                <router-link to="/admin/pedidos" class="nav-link-sub" active-class="active">
+                  Pedidos Recientes
+                </router-link>
+              </li>
+            </ul>
           </li>
 
-          <li class="nav-item mb-1 sidebar-heading small fw-bold px-3 mt-3 mb-2" v-if="!isCollapsed && (authStore.hasPermission('ver-usuarios') || authStore.hasPermission('ver-roles'))">
-            ADMINISTRACIÓN
+          <!-- Grupo: Catálogo -->
+          <li class="nav-item" v-if="authStore.hasPermission('modulo-categorias') || authStore.hasPermission('modulo-productos')">
+            <div 
+              class="nav-link-custom group-header" 
+              :class="{ 'active-group': isGroupActive('catalogo'), 'is-open': openGroups.catalogo }"
+              @click="toggleGroup('catalogo')"
+            >
+              <i class="bi bi-box-seam icon-main"></i>
+              <span class="ms-3 nav-text" v-if="!isCollapsed">Inventario</span>
+              <i v-if="!isCollapsed" class="bi bi-chevron-right ms-auto arrow-icon"></i>
+            </div>
+            <ul v-if="openGroups.catalogo && !isCollapsed" class="nav-sub flex-column">
+              <li class="nav-item" v-if="authStore.hasPermission('modulo-categorias')">
+                <router-link :to="{ name: 'categorias' }" class="nav-link-sub" active-class="active">
+                  Categorías
+                </router-link>
+              </li>
+              <li class="nav-item" v-if="authStore.hasPermission('modulo-productos')">
+                <router-link :to="{ name: 'productos' }" class="nav-link-sub" active-class="active">
+                  Productos
+                </router-link>
+              </li>
+            </ul>
           </li>
-          
-          <li class="nav-item mb-1" v-if="authStore.hasPermission('ver-usuarios')">
-            <router-link :to="{ name: 'usuarios' }" class="nav-link nav-link-custom" active-class="active">
-              <i class="bi bi-people"></i>
-              <span class="ms-2" v-if="!isCollapsed">Usuarios</span>
-            </router-link>
+
+          <!-- Grupo: Administración -->
+          <li class="nav-item" v-if="authStore.hasPermission('modulo-usuarios') || authStore.hasPermission('modulo-roles')">
+            <div 
+              class="nav-link-custom group-header" 
+              :class="{ 'active-group': isGroupActive('admin'), 'is-open': openGroups.admin }"
+              @click="toggleGroup('admin')"
+            >
+              <i class="bi bi-shield-check icon-main"></i>
+              <span class="ms-3 nav-text" v-if="!isCollapsed">Seguridad</span>
+              <i v-if="!isCollapsed" class="bi bi-chevron-right ms-auto arrow-icon"></i>
+            </div>
+            <ul v-if="openGroups.admin && !isCollapsed" class="nav-sub flex-column">
+              <li class="nav-item" v-if="authStore.hasPermission('modulo-usuarios')">
+                <router-link :to="{ name: 'usuarios' }" class="nav-link-sub" active-class="active">
+                  Usuarios
+                </router-link>
+              </li>
+              <li class="nav-item" v-if="authStore.hasPermission('modulo-roles')">
+                <router-link :to="{ name: 'roles' }" class="nav-link-sub" active-class="active">
+                  Roles & Permisos
+                </router-link>
+              </li>
+              <li class="nav-item" v-if="authStore.hasPermission('modulo-configuracion')">
+                <router-link :to="{ name: 'configuracion' }" class="nav-link-sub" active-class="active">
+                  Configuración
+                </router-link>
+              </li>
+            </ul>
           </li>
-
-          <li class="nav-item mb-1" v-if="authStore.hasPermission('ver-usuarios')"> <router-link :to="{ name: 'roles' }" class="nav-link nav-link-custom" active-class="active">
-              <i class="bi bi-shield-lock"></i>
-              <span class="ms-2" v-if="!isCollapsed">Roles y Permisos</span>
-            </router-link>
-          </li>
-
-
-
         </ul>
+      </nav>
+
+      <!-- Selector de Temas (Premium UI) -->
+      <div class="sidebar-footer p-3 mt-auto" v-if="!isCollapsed">
+        <div class="theme-picker d-flex justify-content-between p-1 bg-light rounded-pill border">
+          <button @click="setTheme('light')" class="btn-theme-pill" :class="{ active: currentTheme === 'light' }">
+            <i class="bi bi-sun-fill"></i>
+          </button>
+          <button @click="setTheme('semidark')" class="btn-theme-pill" :class="{ active: currentTheme === 'semidark' }">
+            <i class="bi bi-circle-half"></i>
+          </button>
+          <button @click="setTheme('dark')" class="btn-theme-pill" :class="{ active: currentTheme === 'dark' }">
+            <i class="bi bi-moon-stars-fill"></i>
+          </button>
+        </div>
       </div>
     </aside>
 
-    <main class="flex-grow-1 d-flex flex-column overflow-hidden">
+    <!-- Área de Contenido Principal -->
+    <main class="main-content flex-grow-1 d-flex flex-column overflow-hidden">
       
-      <header class="bg-white shadow-sm px-4 py-3 d-flex align-items-center justify-content-between z-1">
-        <button class="btn btn-light d-md-none" @click="isCollapsed = !isCollapsed">
-          <i class="bi bi-list fs-5"></i>
-        </button>
-
-        <div class="d-none d-md-block">
-          <h5 class="mb-0 fw-bold">Panel de Control</h5>
+      <!-- Glassmorphism Navbar -->
+      <header class="navbar-container glass-header border-bottom px-4 d-flex align-items-center justify-content-between sticky-top">
+        <div class="d-flex align-items-center">
+          <button class="btn btn-toggle-modern me-3 shadow-sm" @click="isCollapsed = !isCollapsed">
+            <i class="bi" :class="isCollapsed ? 'bi-list' : 'bi-text-indent-left'"></i>
+          </button>
+          
+          <div class="header-breadcrumb d-none d-md-block animate__animated animate__fadeIn">
+            <div class="d-flex align-items-center gap-2 mb-0">
+              <!-- <span class="badge bg-soft-info text-uppercase" style="font-size: 0.65rem;">Workspace</span> -->
+              <h5 class="mb-0 fw-bold">{{ currentRouteName }}</h5>
+            </div>
+          </div>
         </div>
 
-        <div class="dropdown">
-          <button class="btn btn-light dropdown-toggle d-flex align-items-center border-0" type="button" data-bs-toggle="dropdown">
-            <div class="bg-brand text-white rounded-circle d-flex justify-content-center align-items-center me-2" style="width: 32px; height: 32px;">
-              {{ authStore.user?.name.charAt(0).toUpperCase() }}
-            </div>
-            <span class="d-none d-sm-block">{{ authStore.user?.name }}</span>
-          </button>
-          <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2">
-            <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Mi Perfil</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><button class="dropdown-item text-danger" @click="handleLogout"><i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión</button></li>
-          </ul>
+        <div class="navbar-actions d-flex align-items-center gap-3">
+          <button class="btn btn-icon-only text-muted"><i class="bi bi-bell"></i></button>
+          
+          <div class="dropdown">
+            <button class="btn btn-profile-premium d-flex align-items-center gap-3 border shadow-sm px-3 py-1 bg-white" type="button" data-bs-toggle="dropdown">
+              <div class="user-avatar-modern bg-brand text-white fw-bold">
+                {{ authStore.user?.name.charAt(0).toUpperCase() }}
+              </div>
+              <div class="user-info text-start d-none d-sm-block">
+                <p class="user-name mb-0 fw-bold">{{ authStore.user?.name }}</p>
+                <p class="user-role mb-0 text-muted small">Super Admin</p>
+              </div>
+              <i class="bi bi-chevron-down small text-muted"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-xl border-0 mt-3 p-2">
+              <li><a class="dropdown-item rounded-2 py-2" href="#"><i class="bi bi-person-circle me-2"></i>Mi Perfil</a></li>
+              <li><hr class="dropdown-divider mx-2"></li>
+              <li><button class="dropdown-item text-danger rounded-2 py-2" @click="handleLogout"><i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión</button></li>
+            </ul>
+          </div>
         </div>
       </header>
 
-      <div class="flex-grow-1 p-4 overflow-auto">
+      <!-- Viewport (Área de Trabajo) -->
+      <div class="content-viewport flex-grow-1 p-4 overflow-auto bg-main">
         <router-view v-slot="{ Component }">
-          <transition name="fade" mode="out-in">
-            <component :is="Component" />
+          <transition name="page-fade" mode="out-in">
+            <div :key="$route.path" class="h-100 container-fluid px-0">
+              <component :is="Component" />
+            </div>
           </transition>
         </router-view>
       </div>
@@ -111,68 +181,180 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed, reactive, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 
 const router = useRouter();
+const route = useRoute();
 const authStore = useAuthStore();
-const isCollapsed = ref(false); // Controla si el sidebar está abierto o cerrado
+
+const isCollapsed = ref(false);
+const currentTheme = ref(localStorage.getItem('app-theme') || 'light');
+const openGroups = reactive({ operaciones: false, catalogo: false, admin: false });
+
+const currentRouteName = computed(() => route.meta.title || route.name || 'Panel');
+
+const setTheme = (theme) => {
+  currentTheme.value = theme;
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('app-theme', theme);
+};
+
+const toggleGroup = (group) => {
+  if (isCollapsed.value) isCollapsed.value = false;
+  openGroups[group] = !openGroups[group];
+};
+
+const isGroupActive = (group) => {
+  const routes = {
+    operaciones: ['pedidos'],
+    catalogo: ['categorias', 'productos'],
+    admin: ['usuarios', 'roles', 'configuracion']
+  };
+  return routes[group]?.includes(route.name);
+};
 
 const handleLogout = async () => {
   await authStore.logout();
   router.push({ name: 'login' });
 };
+
+onMounted(() => {
+  setTheme(currentTheme.value);
+  if (isGroupActive('operaciones')) openGroups.operaciones = true;
+  if (isGroupActive('catalogo')) openGroups.catalogo = true;
+  if (isGroupActive('admin')) openGroups.admin = true;
+});
 </script>
 
 <style scoped>
-/* Estilos específicos para el Layout */
-.bg-main { background-color: var(--bg-main); }
-.bg-brand { background-color: var(--brand-primary); }
+/* SIDEBAR PREMIUM */
+.sidebar-container {
+  width: 270px;
+  background-color: var(--bg-sidebar);
+  border-right: 1px solid var(--border-color);
+  z-index: 1040;
+}
 
-/* Estilos adaptados para Fondo Oscuro (Dark Sidebar) */
+.sidebar-collapsed { width: 85px !important; }
+
+.sidebar-header { height: 80px; }
+
+.sidebar-logo { max-height: 50px; width: auto; object-fit: contain; }
+
+.collapsed-logo-pill {
+  width: 40px;
+  height: 40px;
+  background: var(--color-primary);
+  border-radius: 12px;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  box-shadow: 0 4px 10px var(--color-primary-glass);
+}
+
+/* NAV LINKS PREMIUM */
 .nav-link-custom {
-  color: rgba(255, 255, 255, 0.7); /* Texto gris claro translúcido */
-  border-radius: var(--border-radius-md);
-  padding: 0.6rem 1rem;
+  color: var(--sidebar-link);
+  border-radius: var(--radius-md);
+  padding: 0.8rem 1.2rem;
   font-weight: 500;
   display: flex;
   align-items: center;
-  transition: all 0.2s;
+  transition: var(--transition-base);
+  cursor: pointer;
 }
 
 .nav-link-custom:hover {
-  background-color: rgba(255, 255, 255, 0.1); /* Brillo blanco sutil */
-  color: #ffffff; /* Texto blanco puro al pasar el mouse */
+  background-color: var(--color-primary-soft);
+  color: var(--color-primary);
 }
 
-.nav-link-custom.active {
-  background-color: var(--brand-primary); /* Fondo del color de la marca */
-  color: #ffffff;
-  font-weight: 600;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+.nav-link-custom.active, .nav-link-custom.active-group {
+  background-color: var(--sidebar-bg-active);
+  color: var(--text-inverse) !important;
+  box-shadow: 0 4px 12px var(--color-primary-glass);
 }
 
-.sidebar-collapsed {
-  width: 70px !important;
+.nav-sub {
+  margin-left: 2.2rem;
+  padding-left: 1rem;
+  border-left: 1px dashed var(--border-color);
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  gap: 0.25rem;
+  display: flex;
 }
 
-/* Títulos de las secciones del menú */
-.sidebar-heading {
-  color: rgba(255, 255, 255, 0.4);
-  letter-spacing: 0.5px;
+.nav-link-sub {
+  font-size: 0.85rem;
+  padding: 0.4rem 0.8rem;
+  color: var(--sidebar-link);
+  text-decoration: none;
+  border-radius: 6px;
+  transition: var(--transition-fast);
 }
 
-.sidebar-collapsed {
-  width: 70px !important;
+.nav-link-sub:hover, .nav-link-sub.active {
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
 }
 
-.bg-main { background-color: var(--bg-main); }
-.bg-brand { background-color: var(--brand-primary); }
-.fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
-.fade-enter-from, .fade-leave-to { opacity: 0; }
+.arrow-icon { font-size: 0.75rem; transition: transform 0.3s ease; opacity: 0.5; }
+.is-open .arrow-icon { transform: rotate(90deg); opacity: 1; }
 
-/* Animación de transición entre páginas */
-.fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
-.fade-enter-from, .fade-leave-to { opacity: 0; }
+/* NAVBAR COMPONENTS */
+.navbar-container { height: 80px; z-index: 1030; }
+
+.btn-toggle-modern {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+}
+
+.btn-profile-premium { border-radius: 50px; }
+
+.user-avatar-modern {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+}
+
+/* THEME PICKER PILL */
+.theme-picker { width: 100%; }
+.btn-theme-pill {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 0.5rem;
+  border-radius: 50px;
+  color: var(--slate-400);
+  transition: var(--transition-base);
+}
+.btn-theme-pill.active {
+  background: white;
+  color: var(--color-primary);
+  box-shadow: var(--shadow-sm);
+}
+.sidebar-dark .btn-theme-pill.active { background: var(--slate-800); color: white; }
+
+/* TRANSITIONS */
+.page-fade-enter-active, .page-fade-leave-active { transition: var(--transition-base); }
+.page-fade-enter-from { opacity: 0; transform: scale(0.98); }
+.page-fade-leave-to { opacity: 0; transform: scale(1.02); }
 </style>

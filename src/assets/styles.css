@@ -1,78 +1,167 @@
-/* ========================================================
-   SISTEMA DE DISEÑO BASE (THEMING)
-======================================================== */
-
-:root {
-  /* 1. Colores de Marca (Modifica esto para cambiar todo el tema) */
-  --brand-primary: #4f46e5;       /* Un índigo moderno (estilo Tailwind) */
-  --brand-primary-hover: #4338ca; 
-  --brand-secondary: #10b981;     /* Verde esmeralda para éxitos/pagos */
-
-  /* 2. Colores de Fondo y Texto */
-  --bg-main: #f3f4f6;             /* Gris muy claro para el fondo del sistema */
-  --bg-card: #ffffff;             /* Blanco puro para las tarjetas */
-  --text-main: #1f2937;
-  --text-muted: #6b7280;
-
-  /* 3. Formas y Sombras */
-  --border-radius-lg: 1rem;       /* Bordes más redondeados */
-  --border-radius-md: 0.5rem;
-  --box-shadow-custom: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-}
+@import './themes.css';
 
 /* ========================================================
-   APLICACIÓN GLOBAL
+   BASE & TYPOGRAPHY
 ======================================================== */
 
 body {
-  background-color: var(--bg-main) !important;
+  background-color: var(--bg-body) !important;
   color: var(--text-main);
-  /* Fuente moderna (Si el usuario la tiene, sino usa la de sistema) */
-  font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-main);
+  font-weight: 700;
+  letter-spacing: -0.025em;
 }
 
 /* ========================================================
-   CLASES UTILITARIAS PROPIAS (Para reusar en todo Vue)
+   COMPONENTS: CARDS
 ======================================================== */
 
-/* Tarjetas base para todo el E-commerce */
-.card-custom {
-  background-color: var(--bg-card);
-  border: none;
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--box-shadow-custom);
+.card {
+  background-color: var(--bg-card) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-md) !important;
+  overflow: hidden;
+  transition: var(--transition-base);
 }
 
-/* Botón principal del sistema */
-.btn-brand {
-  background-color: var(--brand-primary);
-  color: white;
-  border: none;
-  border-radius: var(--border-radius-md);
+.card:hover {
+  box-shadow: var(--shadow-lg) !important;
+}
+
+.card-header {
+  background-color: transparent !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  padding: 1.25rem 1.5rem;
+}
+
+/* ========================================================
+   COMPONENTS: TABLES (SaaS STYLE)
+======================================================== */
+
+.table-responsive {
+  border-radius: var(--radius-md);
+}
+
+.table {
+  color: var(--text-main) !important;
+  margin-bottom: 0;
+}
+
+.table thead th {
+  background-color: var(--bg-hover) !important;
+  color: var(--text-muted);
   font-weight: 600;
-  letter-spacing: 0.3px;
-  transition: all 0.3s ease;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-color) !important;
 }
 
-.btn-brand:hover, .btn-brand:focus {
-  background-color: var(--brand-primary-hover);
-  color: white;
-  transform: translateY(-2px); /* Pequeño salto al pasar el mouse */
-  box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.4);
+.table tbody td {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-light) !important;
+  font-size: 0.9rem;
 }
 
-/* Inputs personalizados */
-.form-control-custom {
-  border-radius: var(--border-radius-md);
-  border: 1px solid #d1d5db;
+.table-hover tbody tr:hover {
+  background-color: var(--bg-hover) !important;
 }
 
-.form-control-custom:focus {
-  border-color: var(--brand-primary);
-  /* Anillo de enfoque con el color de la marca pero transparente */
-  box-shadow: 0 0 0 0.25rem rgba(79, 70, 229, 0.25); 
+/* ========================================================
+   COMPONENTS: BUTTONS
+======================================================== */
+
+.btn {
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  padding: 0.6rem 1.2rem;
+  transition: var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
-/* Textos */
-.text-muted-custom { color: var(--text-muted); }
-.text-brand { color: var(--brand-primary); }
+.btn-brand {
+  background-color: var(--color-primary) !important;
+  color: #ffffff !important;
+  border: none;
+}
+
+.btn-brand:hover {
+  background-color: var(--color-primary-hover) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--color-primary-glass);
+}
+
+.btn-light {
+  background-color: var(--bg-hover) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-main) !important;
+}
+
+.btn-light:hover {
+  background-color: var(--border-color) !important;
+}
+
+/* ========================================================
+   COMPONENTS: FORMS
+======================================================== */
+
+.form-label {
+  color: var(--text-main);
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.form-control, .form-select {
+  background-color: var(--bg-input) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-main) !important;
+  padding: 0.7rem 1rem;
+  border-radius: var(--radius-md) !important;
+  transition: var(--transition-fast);
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--color-primary) !important;
+  box-shadow: 0 0 0 4px var(--color-primary-soft) !important;
+}
+
+/* ========================================================
+   COMPONENTS: BADGES
+======================================================== */
+
+.badge {
+  padding: 0.4em 0.8em;
+  font-weight: 600;
+  border-radius: 6px;
+}
+
+.bg-soft-success { background: rgba(16, 185, 129, 0.1); color: var(--color-success); }
+.bg-soft-danger { background: rgba(239, 68, 68, 0.1); color: var(--color-danger); }
+.bg-soft-warning { background: rgba(245, 158, 11, 0.1); color: var(--color-warning); }
+.bg-soft-info { background: rgba(14, 165, 233, 0.1); color: var(--color-info); }
+
+/* ========================================================
+   UTILITIES
+======================================================== */
+
+.glass-header {
+  background: var(--bg-navbar) !important;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+
+.text-muted { color: var(--text-muted) !important; }
+.text-brand { color: var(--color-primary) !important; }
+.bg-main { background-color: var(--bg-body); }

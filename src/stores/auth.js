@@ -10,6 +10,8 @@ export const useAuthStore = defineStore('auth', {
     getters: {
         isAuthenticated: (state) => !!state.token,
         hasPermission: (state) => (permissionSlug) => {
+            // Si el usuario es null al recargar, esto da false. 
+            // Por eso debemos cargar al usuario antes de evaluar esto en el router.
             if (!state.user || !state.user.roles) return false;
             return state.user.roles.some(role => 
                 role.permissions.some(perm => perm.slug === permissionSlug)
@@ -29,10 +31,11 @@ export const useAuthStore = defineStore('auth', {
         async fetchUser() {
             try {
                 const response = await api.get('/me');
-                this.user = response.data;
+                this.user = response.data; // Aquí se recupera el usuario con sus roles al dar F5
             } catch (error) {
                 this.token = null;
                 localStorage.removeItem('access_token');
+                throw error; // Lanzamos el error para que el router lo atrape
             }
         },
 

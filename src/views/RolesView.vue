@@ -10,43 +10,34 @@
       </button>
     </div>
 
-    <div class="row g-4">
-      <div v-if="isLoading" class="col-12 text-center py-5">
-        <div class="spinner-border text-brand" role="status"></div>
-      </div>
-
-      <div v-else v-for="role in roles" :key="role.id" class="col-12 col-md-6 col-xl-4">
-        <div class="card card-custom h-100">
-          <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start mb-3">
-              <div>
-                <h5 class="fw-bold mb-0 text-brand">{{ role.name }}</h5>
-                <span class="badge bg-light text-muted border small">{{ role.slug }}</span>
-              </div>
-              <div class="dropdown">
-                <button class="btn btn-light btn-sm" data-bs-toggle="dropdown">
-                  <i class="bi bi-three-dots-vertical"></i>
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
-                  <li><a class="dropdown-item" href="#" @click.prevent="openModal(role)"><i class="bi bi-pencil me-2"></i>Editar</a></li>
-                  <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item text-danger" href="#" @click.prevent="deleteRole(role)"><i class="bi bi-trash me-2"></i>Eliminar</a></li>
-                </ul>
-              </div>
-            </div>
-
-            <p class="text-muted-custom small mb-3">
-              Este rol tiene <strong>{{ role.permissions?.length || 0 }}</strong> permisos asignados.
-            </p>
-
-            <div class="d-flex align-items-center text-muted small">
-              <i class="bi bi-people me-2"></i>
-              {{ role.users_count || 0 }} usuarios asignados
-            </div>
-          </div>
+    <!-- BaseDataGrid for Roles -->
+    <BaseDataGrid
+      :items="roles"
+      :columns="gridColumns"
+      :loading="isLoading"
+      title-key="name"
+      subtitle-key="slug"
+      main-col-label="ROL / IDENTIFICADOR"
+      empty-title="No hay roles registrados"
+      empty-icon="bi bi-shield-slash"
+      @edit="openModal"
+      @delete="deleteRole"
+    >
+      <!-- Permissions Count Column -->
+      <template #col-permissions_count="{ item }">
+        <div class="text-muted small">
+          <strong>{{ item.permissions?.length || 0 }}</strong> permisos asignados
         </div>
-      </div>
-    </div>
+      </template>
+
+      <!-- Users Count Column -->
+      <template #col-users_count="{ value }">
+        <div class="d-flex align-items-center text-muted small">
+          <i class="bi bi-people me-2"></i>
+          {{ value || 0 }} usuarios
+        </div>
+      </template>
+    </BaseDataGrid>
 
     <div class="modal fade" id="roleModal" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
@@ -108,6 +99,7 @@ import api from '../plugins/axios';
 import { Modal } from 'bootstrap';
 import { Toast, ConfirmAlert } from '../plugins/swal';
 import Swal from 'sweetalert2';
+import BaseDataGrid from '../components/base/BaseDataGrid.vue';
 
 const roles = ref([]);
 const permissionsGrouped = ref({});
@@ -115,6 +107,11 @@ const isLoading = ref(true);
 const isSaving = ref(false);
 const isEditing = ref(false);
 let modalInstance = null;
+
+const gridColumns = [
+  { label: 'PERMISOS', key: 'permissions_count', align: 'center' },
+  { label: 'USUARIOS', key: 'users_count', align: 'center' }
+];
 
 const form = reactive({
   id: null,
