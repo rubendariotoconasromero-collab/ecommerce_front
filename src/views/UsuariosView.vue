@@ -12,6 +12,24 @@
         </nav>
       </div>
       <div class="col-12 col-md-auto ms-auto d-flex gap-2">
+        <div class="btn-group shadow-sm">
+          <button 
+            class="btn btn-light" 
+            :class="{ active: currentLayout === 'table' }"
+            @click="currentLayout = 'table'"
+            title="Vista de Tabla"
+          >
+            <i class="bi bi-list-ul"></i>
+          </button>
+          <button 
+            class="btn btn-light" 
+            :class="{ active: currentLayout === 'card' }"
+            @click="currentLayout = 'card'"
+            title="Vista de Cuadrícula"
+          >
+            <i class="bi bi-grid-3x3-gap"></i>
+          </button>
+        </div>
         <BaseButton variant="light" icon="bi bi-arrow-clockwise" @click="fetchUsers" />
         <BaseButton variant="brand" icon="bi bi-plus-lg" class="px-4" @click="openModal(null)">
           Nuevo Usuario
@@ -21,6 +39,7 @@
 
     <!-- DataGrid Moderno (Reemplaza a la tabla tradicional) -->
     <BaseDataGrid
+      :layout="currentLayout"
       :items="usersData.data"
       :columns="gridColumns"
       :loading="isLoadingData"
@@ -155,6 +174,7 @@ import BaseDataGrid from '../components/base/BaseDataGrid.vue';
 const usersData = ref({ data: [], current_page: 1, last_page: 1, total: 0 });
 const rolesList = ref([]);
 const isLoadingData = ref(true);
+const currentLayout = ref('table');
 const isSaving = ref(false);
 const isEditing = ref(false);
 const showModal = ref(false);

@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
     <div
-      class="modal fade"
+      class="modal fade shadow-lg"
       :class="{ show: modelValue, 'd-block': modelValue }"
       tabindex="-1"
       aria-hidden="true"
@@ -9,15 +9,15 @@
     >
       <div class="modal-backdrop fade show" @click="close"></div>
       <div class="modal-dialog modal-dialog-centered" :class="sizeClass">
-        <div class="modal-content border-0 shadow-xl rounded-4 animate__animated animate__zoomIn animate__faster">
-          <div v-if="title" class="modal-header border-0 pb-0 px-4 pt-4">
-            <h5 class="modal-title fw-bold text-dark d-flex align-items-center gap-2">
+        <div class="modal-content border-0 shadow-xl rounded-4 animate__animated animate__zoomIn animate__faster bg-body">
+          <div v-if="title || $slots.header" class="modal-header border-0 pb-0 px-4 pt-4">
+            <h5 class="modal-title fw-bold text-body-emphasis d-flex align-items-center gap-2">
               <slot name="icon" />
               {{ title }}
             </h5>
-            <button type="button" class="btn-close" @click="close"></button>
+            <button type="button" class="btn-close shadow-none" @click="close"></button>
           </div>
-          <div class="modal-body p-4">
+          <div class="modal-body px-4 py-3">
             <slot />
           </div>
           <div v-if="$slots.footer" class="modal-footer border-0 p-4 pt-0">
@@ -55,9 +55,13 @@ const close = () => {
 <style scoped>
 .modal-backdrop {
   z-index: -1;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
 }
 .d-block {
-  background: rgba(0, 0, 0, 0.5);
   display: block !important;
+}
+.modal-content {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 </style>

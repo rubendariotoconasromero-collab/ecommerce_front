@@ -7,16 +7,27 @@
 body {
   background-color: var(--bg-body) !important;
   color: var(--text-main);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 0.9375rem; /* 15px base for modern balance */
+  line-height: 1.6;
   transition: background-color 0.3s ease;
 }
 
 h1, h2, h3, h4, h5, h6 {
   color: var(--text-main);
-  font-weight: 700;
-  letter-spacing: -0.025em;
+  font-weight: 800;
+  letter-spacing: -0.04em; /* Tighter for modern premium feel */
+  line-height: 1.2;
 }
+
+h1 { font-size: 2.5rem; }
+h2 { font-size: 2rem; }
+h3 { font-size: 1.75rem; }
+h4 { font-size: 1.5rem; }
+h5 { font-size: 1.25rem; }
+h6 { font-size: 1rem; }
 
 /* ========================================================
    COMPONENTS: CARDS
@@ -130,6 +141,10 @@ h1, h2, h3, h4, h5, h6 {
   padding: 0.7rem 1rem;
   border-radius: var(--radius-md) !important;
   transition: var(--transition-fast);
+}
+
+.form-select {
+  padding-right: 2.25rem; /* Space for the arrow */
 }
 
 .form-control:focus, .form-select:focus {

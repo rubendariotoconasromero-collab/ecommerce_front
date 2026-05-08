@@ -1,11 +1,12 @@
 <template>
   <div class="base-loader py-5 text-center">
     <div 
-      class="spinner-grow text-brand" 
+      class="spinner-border text-primary" 
       :class="sizeClass" 
+      style="border-width: 3px;"
       role="status"
     ></div>
-    <p v-if="text" class="mt-3 text-muted small fw-medium">{{ text }}</p>
+    <p v-if="text" class="mt-3 text-body-secondary small fw-medium">{{ text }}</p>
   </div>
 </template>
 
@@ -24,6 +25,15 @@ const props = defineProps({
 });
 
 const sizeClass = computed(() => {
-  return props.size !== 'md' ? `spinner-grow-${props.size}` : '';
+  if (props.size === 'sm') return 'spinner-border-sm';
+  if (props.size === 'lg') return 'spinner-border-lg';
+  return '';
 });
 </script>
+
+<style scoped>
+.spinner-border-lg {
+  width: 3rem;
+  height: 3rem;
+}
+</style>

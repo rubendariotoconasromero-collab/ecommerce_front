@@ -6,7 +6,7 @@
       :class="{ 'sidebar-collapsed': isCollapsed }"
     >
       <!-- Sidebar Header (Logo con Contraste Elevado) -->
-      <div class="sidebar-header d-flex align-items-center justify-content-center border-bottom bg-white sticky-top">
+      <div class="sidebar-header d-flex align-items-center justify-content-center border-bottom bg-body sticky-top">
         <div class="logo-area d-flex align-items-center justify-content-center w-100 px-3">
           <img 
             v-if="!isCollapsed"
@@ -110,7 +110,7 @@
 
       <!-- Selector de Temas (Premium UI) -->
       <div class="sidebar-footer p-3 mt-auto" v-if="!isCollapsed">
-        <div class="theme-picker d-flex justify-content-between p-1 bg-light rounded-pill border">
+        <div class="theme-picker d-flex justify-content-between p-1 bg-body-tertiary rounded-pill border">
           <button @click="setTheme('light')" class="btn-theme-pill" :class="{ active: currentTheme === 'light' }">
             <i class="bi bi-sun-fill"></i>
           </button>
@@ -130,33 +130,37 @@
       <!-- Glassmorphism Navbar -->
       <header class="navbar-container glass-header border-bottom px-4 d-flex align-items-center justify-content-between sticky-top">
         <div class="d-flex align-items-center">
-          <button class="btn btn-toggle-modern me-3 shadow-sm" @click="isCollapsed = !isCollapsed">
-            <i class="bi" :class="isCollapsed ? 'bi-list' : 'bi-text-indent-left'"></i>
+          <button class="btn btn-toggle-modern me-3 shadow-sm" @click="isCollapsed = !isCollapsed" :title="isCollapsed ? 'Expandir menú' : 'Contraer menú'">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="toggle-icon">
+              <rect x="3" y="5" width="18" height="14" rx="3" stroke="currentColor" stroke-width="2" />
+              <path d="M9 5V19" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+              <path v-if="!isCollapsed" d="M14 10L12 12L14 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="animate__animated animate__fadeInLeft animate__faster" />
+              <path v-else d="M12 10L14 12L12 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="animate__animated animate__fadeInRight animate__faster" />
+            </svg>
           </button>
           
           <div class="header-breadcrumb d-none d-md-block animate__animated animate__fadeIn">
             <div class="d-flex align-items-center gap-2 mb-0">
-              <!-- <span class="badge bg-soft-info text-uppercase" style="font-size: 0.65rem;">Workspace</span> -->
-              <h5 class="mb-0 fw-bold">{{ currentRouteName }}</h5>
+              <h5 class="mb-0 fw-bold text-body-emphasis">{{ currentRouteName }}</h5>
             </div>
           </div>
         </div>
 
         <div class="navbar-actions d-flex align-items-center gap-3">
-          <button class="btn btn-icon-only text-muted"><i class="bi bi-bell"></i></button>
+          <button class="btn btn-icon-only text-body-secondary"><i class="bi bi-bell"></i></button>
           
           <div class="dropdown">
-            <button class="btn btn-profile-premium d-flex align-items-center gap-3 border shadow-sm px-3 py-1 bg-white" type="button" data-bs-toggle="dropdown">
+            <button class="btn btn-profile-premium d-flex align-items-center gap-3 border shadow-sm px-3 py-1 bg-body" type="button" data-bs-toggle="dropdown">
               <div class="user-avatar-modern bg-brand text-white fw-bold">
                 {{ authStore.user?.name.charAt(0).toUpperCase() }}
               </div>
               <div class="user-info text-start d-none d-sm-block">
-                <p class="user-name mb-0 fw-bold">{{ authStore.user?.name }}</p>
-                <p class="user-role mb-0 text-muted small">Super Admin</p>
+                <p class="user-name mb-0 fw-bold text-body-emphasis">{{ authStore.user?.name }}</p>
+                <p class="user-role mb-0 text-body-secondary small">Super Admin</p>
               </div>
-              <i class="bi bi-chevron-down small text-muted"></i>
+              <i class="bi bi-chevron-down small text-body-secondary"></i>
             </button>
-            <ul class="dropdown-menu dropdown-menu-end shadow-xl border-0 mt-3 p-2">
+            <ul class="dropdown-menu dropdown-menu-end shadow-xl border-0 mt-3 p-2 animate__animated animate__fadeIn animate__faster">
               <li><a class="dropdown-item rounded-2 py-2" href="#"><i class="bi bi-person-circle me-2"></i>Mi Perfil</a></li>
               <li><hr class="dropdown-divider mx-2"></li>
               <li><button class="dropdown-item text-danger rounded-2 py-2" @click="handleLogout"><i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión</button></li>
@@ -168,11 +172,9 @@
       <!-- Viewport (Área de Trabajo) -->
       <div class="content-viewport flex-grow-1 p-4 overflow-auto bg-main">
         <router-view v-slot="{ Component }">
-          <transition name="page-fade" mode="out-in">
-            <div :key="$route.path" class="h-100 container-fluid px-0">
-              <component :is="Component" />
-            </div>
-          </transition>
+          <div :key="$route.path" class="h-100 container-fluid px-0">
+            <component :is="Component" />
+          </div>
         </router-view>
       </div>
 
@@ -235,6 +237,7 @@ onMounted(() => {
   background-color: var(--bg-sidebar);
   border-right: 1px solid var(--border-color);
   z-index: 1040;
+  flex-shrink: 0; /* Evita que el sidebar se encoja si el contenido principal es muy ancho */
 }
 
 .sidebar-collapsed { width: 85px !important; }
@@ -261,11 +264,12 @@ onMounted(() => {
   color: var(--sidebar-link);
   border-radius: var(--radius-md);
   padding: 0.8rem 1.2rem;
-  font-weight: 500;
+  font-weight: 600; /* Slightly bolder for Plus Jakarta Sans */
   display: flex;
   align-items: center;
   transition: var(--transition-base);
   cursor: pointer;
+  letter-spacing: -0.01em;
 }
 
 .nav-link-custom:hover {
@@ -309,17 +313,43 @@ onMounted(() => {
 /* NAVBAR COMPONENTS */
 .navbar-container { height: 80px; z-index: 1030; }
 
+.main-content {
+  min-width: 0; /* Fundamental para que el contenido no empuje al sidebar en flexbox */
+}
+
 .btn-toggle-modern {
-  width: 42px;
-  height: 42px;
-  border-radius: 10px;
-  background: var(--bg-card);
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: var(--bg-body);
   border: 1px solid var(--border-color);
-  color: var(--text-muted);
+  color: var(--text-body-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.3rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  padding: 0;
+}
+
+.btn-toggle-modern:hover {
+  background: var(--bg-hover);
+  color: var(--color-primary);
+  border-color: var(--color-primary-glass);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.btn-toggle-modern:active {
+  transform: scale(0.95);
+}
+
+.toggle-icon {
+  transition: transform 0.3s ease;
+}
+
+.sidebar-collapsed + .main-content .btn-toggle-modern .toggle-icon {
+  transform: rotate(0deg);
 }
 
 .btn-profile-premium { border-radius: 50px; }
@@ -347,11 +377,14 @@ onMounted(() => {
   transition: var(--transition-base);
 }
 .btn-theme-pill.active {
-  background: white;
+  background: var(--bg-card);
   color: var(--color-primary);
   box-shadow: var(--shadow-sm);
 }
-.sidebar-dark .btn-theme-pill.active { background: var(--slate-800); color: white; }
+[data-theme="dark"] .btn-theme-pill.active { 
+  background: var(--slate-800); 
+  color: white; 
+}
 
 /* TRANSITIONS */
 .page-fade-enter-active, .page-fade-leave-active { transition: var(--transition-base); }

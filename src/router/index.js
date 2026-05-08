@@ -3,6 +3,7 @@ import { useAuthStore } from '../stores/auth'
 import Swal from 'sweetalert2' // ¡Importante! Faltaba importar esto para tu alerta
 
 import LoginView from '../views/LoginView.vue'
+import HomeView from '../views/HomeView.vue'
 import AdminLayout from '../components/AdminLayout.vue'
 import DashboardView from '../views/DashboardView.vue'
 import UsuariosView from '../views/UsuariosView.vue'
@@ -12,6 +13,11 @@ import ProductosView from '../views/ProductosView.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    {
+      path: '/',
+      name: 'home',
+      component: HomeView,
+    },
     {
       path: '/login',
       name: 'login',
@@ -62,12 +68,11 @@ const router = createRouter({
         },
       ],
     },
-    { path: '/', redirect: '/admin' },
   ],
 })
 
 // Guardián de seguridad refactorizado: AHORA ES ASÍNCRONO (async)
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to) => {
   const authStore = useAuthStore()
   
   // SOLUCIÓN AL PROBLEMA F5: Recuperar datos del usuario si hay token pero no hay usuario en memoria
@@ -76,34 +81,33 @@ router.beforeEach(async (to, from, next) => {
       await authStore.fetchUser() // Esperamos a que lleguen los datos de Laravel
     } catch (error) {
       // Si el token ya expiró o es inválido en el backend, lo mandamos al login
-      return next({ name: 'login' })
+      return { name: 'login' }
     }
   }
 
   // 1. Verificación básica de Auth
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    return next({ name: 'login' })
+    return { name: 'login' }
   } 
   
   if (to.meta.requiresGuest && authStore.isAuthenticated) {
-    return next({ name: 'dashboard' })
+    return { name: 'dashboard' }
   }
 
   // 2. Verificación de Permiso por Módulo
   if (to.meta.permission) {
-    // Ahora esta verificación funcionará perfecto porque fetchUser() ya trajo los roles
     if (!authStore.hasPermission(to.meta.permission)) {
       Swal.fire({
         icon: 'error',
         title: 'Acceso Denegado',
         text: 'No tienes permisos para entrar a este módulo.',
-        confirmButtonColor: '#0d6efd' // Color Bootstrap 5 primary
+        confirmButtonColor: '#0d6efd'
       })
-      return next({ name: 'dashboard' }) 
+      return { name: 'dashboard' }
     }
   }
 
-  next()
+  return true // Permite la navegación
 })
 
 export default router
