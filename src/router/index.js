@@ -4,6 +4,8 @@ import Swal from 'sweetalert2' // ¡Importante! Faltaba importar esto para tu al
 
 import LoginView from '../views/LoginView.vue'
 import HomeView from '../views/HomeView.vue'
+import CatalogView from '../views/CatalogView.vue'
+import ProductDetailView from '../views/ProductDetailView.vue'
 import AdminLayout from '../components/AdminLayout.vue'
 import DashboardView from '../views/DashboardView.vue'
 import UsuariosView from '../views/UsuariosView.vue'
@@ -17,6 +19,17 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: HomeView,
+    },
+    {
+      path: '/catalogo',
+      name: 'catalogo',
+      component: CatalogView,
+    },
+    {
+      path: '/producto/:id',
+      name: 'producto-detalle',
+      component: ProductDetailView,
+      props: true
     },
     {
       path: '/login',

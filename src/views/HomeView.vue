@@ -1,36 +1,7 @@
 <template>
   <div class="landing-page bg-body">
-    <!-- Navbar Pública Premium (Glassmorphism) -->
-    <nav class="navbar navbar-expand-lg fixed-top glass-navbar py-3 px-md-5">
-      <div class="container-fluid">
-        <a class="navbar-brand d-flex align-items-center gap-2" href="#">
-          <!-- <img src="/src/assets/images/logo.png" alt="Logo" class="landing-logo"> -->
-          <span class="fw-bold text-body-emphasis fs-4 d-none d-sm-block">CodeSoft</span>
-        </a>
-        
-        <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#landingNav">
-          <i class="bi bi-list fs-1 text-body-emphasis"></i>
-        </button>
-
-        <div class="collapse navbar-collapse" id="landingNav">
-          <ul class="navbar-nav mx-auto gap-lg-4 mb-2 mb-lg-0 fw-medium">
-            <li class="nav-item"><a class="nav-link text-body-emphasis" href="#hero" @click.prevent="scrollTo('#hero')">Inicio</a></li>
-            <li class="nav-item"><a class="nav-link text-body-secondary" href="#categorias" @click.prevent="scrollTo('#categorias')">Categorías</a></li>
-            <li class="nav-item"><a class="nav-link text-body-secondary" href="#productos" @click.prevent="scrollTo('#productos')">Catálogo</a></li>
-            <li class="nav-item"><a class="nav-link text-body-secondary" href="#nosotros" @click.prevent="scrollTo('#nosotros')">Nosotros</a></li>
-          </ul>
-          
-          <div class="d-flex align-items-center gap-3">
-            <router-link :to="{ name: 'login' }" class="btn btn-link text-body-emphasis text-decoration-none fw-semibold">
-              Iniciar Sesión
-            </router-link>
-            <BaseButton variant="brand" class="px-4 py-2 rounded-pill shadow" @click="scrollTo('#productos')">
-              Explorar Catálogo
-            </BaseButton>
-          </div>
-        </div>
-      </div>
-    </nav>
+    <!-- Public Navbar Reutilizable -->
+    <PublicNavbar />
 
     <!-- Hero Section: Impacto Total -->
     <header id="hero" class="hero-section min-vh-100 d-flex align-items-center pt-5 overflow-hidden position-relative">
@@ -43,64 +14,68 @@
       </div>
 
       <div class="container position-relative z-1">
-        <div class="row align-items-center gy-5">
-          <div class="col-lg-6 animate__animated animate__fadeInLeft">
-            <BaseBadge variant="primary" soft class="mb-3 px-3 py-2 rounded-pill">
-              ✨ Bienvenido a la nueva era de compras
-            </BaseBadge>
-            <h1 class="display-3 fw-800 text-body-emphasis mb-4 lh-1">
-              {{ settings.hero_title || 'Impulsamos tu industria con calidad premium' }}
-            </h1>
-            <p class="lead text-body-secondary mb-5 pe-lg-5">
-              {{ settings.hero_subtitle || 'Descubre nuestro catálogo exclusivo de productos plásticos diseñados para el máximo rendimiento y durabilidad.' }}
-            </p>
-            <div class="d-flex flex-wrap gap-3">
-              <BaseButton size="lg" variant="brand" class="px-5 rounded-pill shadow-lg" @click="scrollTo('#productos')">
-                Comenzar ahora
-              </BaseButton>
-              <BaseButton size="lg" variant="outline-brand" class="px-5 rounded-pill">
-                Ver Vídeo <i class="bi bi-play-circle ms-2"></i>
-              </BaseButton>
-            </div>
-            
-            <div class="mt-5 d-flex align-items-center gap-4 animate__animated animate__fadeIn animate__delay-1s">
-              <div class="d-flex align-items-center">
-                <div class="avatar-stack">
-                  <div class="avatar-sm bg-primary text-white border-2 border-body">A</div>
-                  <div class="avatar-sm bg-success text-white border-2 border-body">B</div>
-                  <div class="avatar-sm bg-info text-white border-2 border-body">C</div>
-                </div>
-                <div class="ms-3">
-                  <div class="fw-bold small text-body-emphasis">+1,200 Clientes</div>
-                  <div class="smaller text-body-secondary">Confían en nosotros</div>
-                </div>
+        <template v-if="isLoading">
+          <div class="row align-items-center gy-5">
+            <div class="col-lg-6">
+              <div class="skeleton-badge mb-3"></div>
+              <div class="skeleton-title mb-4"></div>
+              <div class="skeleton-text mb-5"></div>
+              <div class="d-flex gap-3">
+                <div class="skeleton-btn"></div>
+                <div class="skeleton-btn"></div>
               </div>
             </div>
+            <div class="col-lg-6">
+              <div class="skeleton-hero-img"></div>
+            </div>
           </div>
-          <div class="col-lg-6 position-relative animate__animated animate__fadeInRight">
-            <div class="hero-visual-wrapper position-relative text-center text-lg-end">
-              <!-- Glow Effect Background -->
-              <div class="hero-glow position-absolute top-50 start-50 translate-middle"></div>
-              <img 
-                :src="settings.hero_image_url || '/src/assets/images/hero-mockup.png'" 
-                @error="handleImageError"
-                alt="Premium Product" 
-                class="img-fluid position-relative z-1 hero-img floating-anim shadow-2xl rounded-4"
-              >
-              
-              <!-- Floating Card -->
-              <div class="floating-card bg-body-tertiary border p-3 rounded-4 shadow-xl position-absolute animate__animated animate__zoomIn animate__delay-2s">
-                <div class="d-flex align-items-center gap-3">
-                  <div class="p-2 bg-success-subtle rounded-3"><i class="bi bi-shield-check text-success fs-4"></i></div>
-                  <div>
-                    <div class="fw-bold small">Calidad Certificada</div>
-                    <div class="smaller text-body-secondary">Normas ISO 9001</div>
+        </template>
+        <template v-else>
+          <div class="row align-items-center gy-5">
+            <div class="col-lg-6 animate__animated animate__fadeInLeft">
+              <BaseBadge variant="primary" soft class="mb-3 px-3 py-2 rounded-pill">
+                ✨ Bienvenido a la nueva era de compras
+              </BaseBadge>
+              <h1 class="display-3 fw-800 mb-4 lh-1">
+                {{ settings.hero_title || 'Impulsamos tu industria con calidad premium' }}
+              </h1>
+              <p class="lead text-body-secondary mb-5 pe-lg-5">
+                {{ settings.hero_subtitle || 'Descubre nuestro catálogo exclusivo de productos plásticos diseñados para el máximo rendimiento y durabilidad.' }}
+              </p>
+              <div class="d-flex flex-wrap gap-3">
+                <BaseButton size="lg" variant="brand" class="px-5 rounded-pill shadow-lg" @click="scrollTo('#productos')">
+                  Comenzar ahora
+                </BaseButton>
+                <router-link :to="{ name: 'catalogo' }" class="btn btn-outline-primary px-5 rounded-pill text-decoration-none fw-bold">
+                  Ver Catálogo <i class="bi bi-arrow-right ms-2"></i>
+                </router-link>
+              </div>
+            </div>
+            <div class="col-lg-6 position-relative animate__animated animate__fadeInRight">
+              <div class="hero-visual-wrapper position-relative text-center text-lg-end">
+                <!-- Glow Effect Background -->
+                <div class="hero-glow position-absolute top-50 start-50 translate-middle"></div>
+                <img
+                  :src="settings.hero_image_url || '/src/assets/images/hero-mockup.png'"
+                  @error="handleImageError"
+                  alt="Premium Product"
+                  class="img-fluid position-relative z-1 hero-img floating-anim shadow-2xl rounded-4"
+                >
+
+                <!-- Floating Card -->
+                <div class="floating-card bg-body-tertiary border p-3 rounded-4 shadow-xl position-absolute animate__animated animate__zoomIn animate__delay-2s">
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="p-2 bg-success-subtle rounded-3"><i class="bi bi-shield-check text-success fs-4"></i></div>
+                    <div>
+                      <div class="fw-bold small">Calidad Certificada</div>
+                      <div class="smaller text-body-secondary">Normas ISO 9001</div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        </template>
       </div>
     </header>
 
@@ -119,14 +94,16 @@
     <!-- Beneficios: Rediseño Moderno -->
     <section class="py-10 bg-white position-relative z-1">
       <div class="container">
-        <div class="row g-5 justify-content-center">
+        <div class="row g-4 justify-content-center">
           <div class="col-lg-3 col-md-6" v-for="(benefit, index) in benefits" :key="index">
-            <div class="benefit-card p-5 rounded-5 text-center transition-all h-100 border-0 bg-transparent animate__animated animate__fadeIn" :style="{ animationDelay: `${index * 0.1}s` }">
-              <div class="benefit-icon-wrapper mb-4 mx-auto shadow-sm">
-                <i :class="[benefit.icon, 'fs-1 text-primary']"></i>
+            <div class="benefit-card-stable group h-100">
+              <div class="benefit-card-inner p-5 rounded-5 text-center transition-premium h-100 border-glass-light animate__animated animate__fadeIn" :style="{ animationDelay: `${index * 0.1}s` }">
+                <div class="benefit-icon-premium mb-4 mx-auto shadow-sm transition-all">
+                  <i :class="[benefit.icon, 'fs-1 text-primary']"></i>
+                </div>
+                <h5 class="fw-800 text-body-emphasis mb-3">{{ benefit.title }}</h5>
+                <p class="text-body-secondary mb-0 lh-base smaller">{{ benefit.desc }}</p>
               </div>
-              <h5 class="fw-800 text-body-emphasis mb-3">{{ benefit.title }}</h5>
-              <p class="text-body-secondary mb-0 lh-base">{{ benefit.desc }}</p>
             </div>
           </div>
         </div>
@@ -152,39 +129,40 @@
           </template>
           <template v-else>
             <div class="col-xl-3 col-lg-4 col-md-6" v-for="(cat, index) in categories" :key="index">
-              <div class="modern-category-card group animate__animated animate__fadeInUp" :style="{ animationDelay: `${index * 0.1}s` }">
-                <div class="card-inner overflow-hidden rounded-5 shadow-hover h-100 position-relative">
-                  <!-- Product Count Badge -->
-                  <div class="category-badge-floating z-3">
-                    <span class="glass-pill px-3 py-1 smaller fw-800 text-white">
-                      {{ cat.products_count }} ITEMS
-                    </span>
-                  </div>
-                  
-                  <!-- Background Image -->
-                  <div class="category-img-container">
-                    <img 
-                      :src="cat.image || '/src/assets/images/category-placeholder.jpg'" 
-                      @error="handleImageError"
-                      class="category-img transition-slow" 
-                      alt="Categoría"
-                    >
-                  </div>
+              <router-link :to="{ name: 'catalogo', query: { category: cat.id } }" class="category-link">
+                <div class="modern-category-card group animate__animated animate__fadeInUp" :style="{ animationDelay: `${index * 0.1}s` }">
+                  <div class="card-inner">
+                    <!-- Product Count Badge -->
+                    <div class="category-badge-floating">
+                      <span class="glass-pill">
+                        {{ cat.products_count }} ITEMS
+                      </span>
+                    </div>
 
-                  <!-- Gradient Overlay -->
-                  <div class="category-overlay-modern position-absolute inset-0 z-1"></div>
+                    <!-- Background Image -->
+                    <div class="category-img-container">
+                      <img
+                        :src="cat.image || '/src/assets/images/category-placeholder.jpg'"
+                        @error="handleImageError"
+                        class="category-img transition-slow"
+                        :alt="cat.name"
+                      >
+                    </div>
 
-                  <!-- Content Area -->
-                  <div class="category-content-modern d-flex flex-column justify-content-end p-4 z-2">
-                    <h3 class="text-white fw-800 mb-2 category-title-modern text-truncate w-100">{{ cat.name }}</h3>
-                    <div class="category-action-hidden transition-all">
-                      <BaseButton variant="light" size="sm" class="glass-button rounded-pill px-4 py-2 fw-bold w-fit">
-                        Explorar <i class="fa-solid fa-arrow-right-long ms-1"></i>
-                      </BaseButton>
+                    <!-- Gradient Overlay -->
+                    <div class="category-overlay-modern position-absolute inset-0 z-1"></div>
+
+                    <!-- Content Area -->
+                    <div class="category-content-modern">
+                      <h3 class="category-title-modern">{{ cat.name }}</h3>
+                      <div class="category-action-hidden d-flex align-items-center gap-2">
+                        <span class="text-white-75 smaller fw-600">Explorar</span>
+                        <i class="bi bi-arrow-right text-white"></i>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              </router-link>
             </div>
           </template>
         </div>
@@ -195,7 +173,7 @@
     <section id="productos" class="py-10 bg-body-tertiary position-relative overflow-hidden">
       <!-- Decoración de fondo sutil -->
       <div class="position-absolute top-0 end-0 p-5 opacity-10 rotate-12 d-none d-xl-block">
-        <i class="fa-solid fa-cubes-stacked display-1 text-primary"></i>
+        <!-- <i class="bi bi-boxes display-1 text-primary"></i> -->
       </div>
 
       <div class="container py-5">
@@ -206,9 +184,9 @@
             <p class="text-body-secondary mb-0 fs-5">Los productos preferidos por nuestros clientes este mes.</p>
           </div>
           <div class="d-none d-md-block">
-            <BaseButton variant="outline-brand" class="rounded-pill px-4 py-3 group">
-              Ver Catálogo Completo <i class="fa-solid fa-arrow-right ms-2 transition-all group-hover:translate-x-1"></i>
-            </BaseButton>
+            <router-link :to="{ name: 'catalogo' }" class="btn btn-outline-primary rounded-pill px-4 py-3 group text-decoration-none fw-bold">
+              Ver Catálogo Completo <i class="bi bi-arrow-right ms-2 transition-all group-hover:translate-x-1"></i>
+            </router-link>
           </div>
         </div>
 
@@ -220,41 +198,46 @@
           </template>
           <template v-else>
             <div class="col-xl-3 col-lg-4 col-md-6" v-for="(product, index) in featuredProducts" :key="index">
-              <div class="modern-product-card group animate__animated animate__fadeInUp" :style="{ animationDelay: `${index * 0.1}s` }">
-                <div class="card h-100 border-0 bg-transparent">
+              <div class="premium-product-card group animate__animated animate__fadeInUp" :style="{ animationDelay: `${index * 0.1}s` }">
+                <div class="card-inner-premium h-100 shadow-sm transition-all overflow-hidden bg-white border-0 rounded-4">
                   <!-- Image Wrapper -->
-                  <div class="product-visual-container position-relative mb-4">
+                  <div class="product-visual-wrapper position-relative overflow-hidden p-3 bg-white">
                     <BaseBadge v-if="product.is_new" variant="primary" class="position-absolute top-3 start-3 z-3 px-3 py-1 shadow-sm rounded-pill smaller fw-bold">NUEVO</BaseBadge>
                     
-                    <div class="product-img-frame rounded-5 bg-white shadow-sm overflow-hidden d-flex align-items-center justify-content-center p-4 transition-all">
-                      <img 
-                        :src="product.image || '/src/assets/images/product-placeholder.png'" 
+                    <div class="product-img-main-container d-flex align-items-center justify-content-center p-2">
+                      <img
+                        :src="product.image || '/src/assets/images/product-placeholder.png'"
                         @error="handleImageError"
-                        class="img-fluid product-main-img transition-slow" 
+                        class="img-fluid product-display-img transition-all"
                         :alt="product.name"
                       >
-                      
-                      <!-- Quick Actions Hover -->
-                      <div class="product-quick-actions position-absolute inset-0 d-flex align-items-center justify-content-center opacity-0 transition-all">
-                        <div class="d-flex gap-2 transform-scale-up">
-                          <button class="btn btn-white btn-icon-lg rounded-circle shadow-lg" title="Vista Rápida">
-                            <i class="fa-regular fa-eye"></i>
-                          </button>
-                          <button class="btn btn-brand btn-icon-lg rounded-circle shadow-lg" title="Agregar al Carrito">
-                            <i class="fa-solid fa-cart-plus"></i>
-                          </button>
-                        </div>
-                      </div>
+                    </div>
+
+                    <!-- Action Overlay -->
+                    <div class="product-overlay-actions d-flex flex-column gap-2 position-absolute top-3 end-3 opacity-0 transition-all translate-x-10">
+                      <button class="btn btn-icon-glass shadow-sm" title="Vista Rápida">
+                        <i class="bi bi-eye"></i>
+                      </button>
+                      <button class="btn btn-icon-glass shadow-sm" title="Favoritos">
+                        <i class="bi bi-heart"></i>
+                      </button>
                     </div>
                   </div>
 
                   <!-- Info Area -->
-                  <div class="product-info-container text-center px-2">
-                    <div class="text-primary smaller text-uppercase fw-800 tracking-wider mb-2 opacity-75">{{ product.category }}</div>
-                    <h5 class="fw-800 text-body-emphasis mb-3 text-truncate-2 h-2.5rem px-2 lh-sm">{{ product.name }}</h5>
+                  <div class="product-body-premium p-4 pt-2 text-center">
+                    <div class="text-primary smaller fw-800 tracking-wider mb-2 opacity-50">{{ product.category }}</div>
+                    <h5 class="product-title-premium fw-800 mb-2 text-truncate-2">{{ product.name }}</h5>
                     
-                    <div class="d-flex align-items-center justify-content-center gap-3">
-                      <div class="fs-4 fw-800 text-brand">Bs. {{ product.price }}</div>
+                    <div class="price-container-premium mb-4">
+                      <span class="currency-symbol fs-6 opacity-75">Bs.</span>
+                      <span class="price-value fs-3 fw-900 text-dark">{{ product.price }}</span>
+                    </div>
+
+                    <div class="d-grid">
+                      <router-link :to="{ name: 'producto-detalle', params: { id: product.id } }" class="btn btn-premium-action rounded-pill py-2 fw-bold">
+                        Ver Detalles <i class="bi bi-arrow-right ms-2"></i>
+                      </router-link>
                     </div>
                   </div>
                 </div>
@@ -265,7 +248,9 @@
 
         <!-- Botón móvil -->
         <div class="d-md-none text-center mt-5">
-          <BaseButton variant="brand" class="w-100 rounded-pill py-3">Ver Catálogo Completo</BaseButton>
+          <router-link :to="{ name: 'catalogo' }" class="btn btn-primary w-100 rounded-pill py-3 fw-bold text-decoration-none">
+            Ver Catálogo Completo
+          </router-link>
         </div>
       </div>
     </section>
@@ -280,7 +265,7 @@
               <img src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=1000&auto=format&fit=crop" class="img-fluid rounded-5 shadow-2xl position-relative z-1" alt="Innovación">
               <div class="floating-badge-spotlight position-absolute bottom-0 start-0 mb-4 ms-4 z-2 animate__animated animate__bounceIn animate__delay-1s">
                 <div class="bg-white text-dark p-3 rounded-4 shadow-lg d-flex align-items-center gap-3">
-                  <div class="bg-primary-soft p-2 rounded-3 text-primary"><i class="fa-solid fa-microchip fs-4"></i></div>
+                  <div class="bg-primary-soft p-2 rounded-3 text-primary"><i class="bi bi-cpu fs-4"></i></div>
                   <div>
                     <div class="fw-800 smaller">ECO-TECH</div>
                     <div class="smallest opacity-75">Materiales Sostenibles</div>
@@ -291,7 +276,7 @@
           </div>
           <div class="col-lg-5 order-lg-1 animate__animated animate__fadeInLeft">
             <h4 class="text-primary fw-800 mb-3 tracking-wider text-uppercase small">Nuestra Obra Maestra</h4>
-            <h2 class="display-3 fw-800 mb-4 lh-1">Ingeniería de polímeros reinventada</h2>
+            <h2 class="text-primary display-3 fw-800 mb-4 lh-1">Ingeniería de polímeros reinventada</h2>
             <p class="fs-4 text-white-50 mb-5">
               Hemos desarrollado una nueva línea de productos industriales que combinan resistencia extrema con un 40% menos de huella de carbono.
             </p>
@@ -334,159 +319,155 @@
     </section>
 
     <!-- Sobre Nosotros: Sección Nueva Premium -->
-    <section id="nosotros" class="py-10 bg-body-tertiary">
+    <section id="nosotros" class="py-10 section-linen position-relative">
       <div class="container py-5">
         <div class="row align-items-center gy-5">
-          <div class="col-lg-6 animate__animated animate__fadeInLeft">
-            <BaseBadge variant="warning" soft class="mb-3 px-3 py-2 rounded-pill fw-bold">Sobre Nosotros</BaseBadge>
+          <div class="col-lg-7 animate__animated animate__fadeInLeft">
+            <BaseBadge variant="warning" soft class="mb-3 px-3 py-2 rounded-pill fw-bold text-uppercase tracking-wider">Trayectoria y Confianza</BaseBadge>
             <h2 class="display-4 fw-800 text-body-emphasis mb-4 lh-1">Liderando la industria con innovación constante</h2>
-            <p class="fs-5 text-body-secondary mb-5">
+            <p class="fs-5 text-body-secondary mb-5 pe-lg-5">
               Desde hace más de una década, nos dedicamos a transformar el mercado de soluciones plásticas. Nuestra misión es simple: proporcionar productos de alta calidad que impulsen la eficiencia de nuestros clientes industriales y la comodidad en los hogares.
             </p>
-            
-            <div class="row g-4 mb-5">
-              <div class="col-sm-6">
+
+            <!-- Stats Horizontal Row -->
+            <div class="d-flex flex-wrap align-items-center gap-4 gap-md-5 mb-5">
+              <div class="stat-item-horizontal">
                 <div class="d-flex align-items-center gap-3">
-                  <div class="p-3 bg-primary-soft rounded-4 text-primary fs-3"><i class="bi bi-award"></i></div>
+                  <div class="p-2 bg-primary-soft rounded-3 text-primary fs-4"><i class="bi bi-award"></i></div>
                   <div>
-                    <div class="fw-800 fs-4 mb-0">+10 Años</div>
-                    <div class="small text-muted">De experiencia</div>
+                    <div class="fw-900 fs-4 mb-0">+10 Años</div>
+                    <div class="smallest text-uppercase tracking-tighter text-muted fw-bold">Experiencia</div>
                   </div>
                 </div>
               </div>
-              <div class="col-sm-6">
+              <div class="stat-item-horizontal border-start-md ps-md-4">
                 <div class="d-flex align-items-center gap-3">
-                  <div class="p-3 bg-success-soft rounded-4 text-success fs-3"><i class="bi bi-globe"></i></div>
+                  <div class="p-2 bg-success-soft rounded-3 text-success fs-4"><i class="bi bi-globe"></i></div>
                   <div>
-                    <div class="fw-800 fs-4 mb-0">Nacional</div>
-                    <div class="small text-muted">Presencia total</div>
+                    <div class="fw-900 fs-4 mb-0">Nacional</div>
+                    <div class="smallest text-uppercase tracking-tighter text-muted fw-bold">Presencia</div>
+                  </div>
+                </div>
+              </div>
+              <div class="stat-item-horizontal border-start-md ps-md-4">
+                <div class="d-flex align-items-center gap-3">
+                  <div class="p-2 bg-warning-soft rounded-3 text-warning fs-4"><i class="bi bi-emoji-smile"></i></div>
+                  <div>
+                    <div class="fw-900 fs-4 mb-0">99%</div>
+                    <div class="smallest text-uppercase tracking-tighter text-muted fw-bold">Satisfacción</div>
                   </div>
                 </div>
               </div>
             </div>
-            
-            <BaseButton variant="outline-brand" size="lg" class="rounded-pill px-5">Nuestra Historia</BaseButton>
-          </div>
-          <div class="col-lg-6 position-relative animate__animated animate__fadeInRight">
-            <div class="about-visual-grid position-relative">
-              <div class="row g-3">
-                <div class="col-7">
-                  <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=600&auto=format&fit=crop" class="img-fluid rounded-5 shadow-lg mb-3" alt="Fábrica">
-                  <img src="https://images.unsplash.com/photo-1565793298595-6a879b1d9492?q=80&w=600&auto=format&fit=crop" class="img-fluid rounded-5 shadow-lg" alt="Logística">
-                </div>
-                <div class="col-5 pt-5">
-                  <img src="https://images.unsplash.com/photo-1553413077-190dd305871c?q=80&w=600&auto=format&fit=crop" class="img-fluid rounded-5 shadow-lg mb-3" alt="Almacén">
-                  <div class="bg-brand rounded-5 p-4 text-white shadow-xl d-flex flex-column justify-content-center text-center h-50">
-                    <div class="display-5 fw-800 mb-0">99%</div>
-                    <div class="small opacity-75">Satisfacción del Cliente</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
 
-    <!-- Newsletter / CTA: Sección Nueva Premium -->
-    <section class="py-10 bg-brand position-relative overflow-hidden">
-      <!-- Background Abstract Shapes -->
-      <div class="position-absolute top-0 start-0 w-100 h-100 opacity-10">
-        <div class="liquid-blob blob-1" style="width: 600px; height: 600px; background: white; top: -20%; left: -10%;"></div>
-        <div class="liquid-blob blob-2" style="width: 500px; height: 500px; background: white; bottom: -20%; right: -10%;"></div>
-      </div>
-
-      <div class="container position-relative z-1 text-center py-5">
-        <div class="max-w-700 mx-auto animate__animated animate__fadeInUp">
-          <h2 class="display-3 fw-800 text-white mb-4 lh-1">¿Listo para elevar tu estándar industrial?</h2>
-          <p class="fs-5 text-white opacity-75 mb-5">
-            Únete a cientos de empresas que ya confían en nuestra calidad y tecnología para sus procesos.
-          </p>
+            <BaseButton variant="outline-brand" size="lg" class="rounded-pill px-5 fw-bold">Descubre Nuestra Historia</BaseButton>
+          </div>
           
-          <div class="newsletter-form-wrapper bg-white p-2 rounded-pill shadow-2xl d-flex align-items-center max-w-500 mx-auto">
-            <input type="email" class="form-control border-0 bg-transparent px-4 py-3 shadow-none" placeholder="Tu correo corporativo...">
-            <button class="btn btn-brand px-5 py-3 rounded-pill fw-bold shadow-lg">
-              Empezar <i class="bi bi-rocket-takeoff ms-2"></i>
-            </button>
+          <div class="col-lg-5 animate__animated animate__fadeInRight">
+            <div class="about-visual-refined position-relative">
+              <div class="image-stack">
+                <div class="image-frame-premium main-frame">
+                  <img src="https://images.unsplash.com/photo-1553413077-190dd305871c?q=80&w=600&auto=format&fit=crop" class="img-fluid rounded-4 shadow-2xl" alt="Fábrica Industrial">
+                </div>
+                <div class="image-frame-premium secondary-frame d-none d-md-block">
+                  <img src="https://images.unsplash.com/photo-1553413077-190dd305871c?q=80&w=600&auto=format&fit=crop" class="img-fluid rounded-4 shadow-xl" alt="Almacén Premium">
+                </div>
+              </div>
+            </div>
           </div>
-          <p class="smaller text-white opacity-50 mt-4 italic">Al suscribirte, aceptas nuestros términos y políticas de privacidad.</p>
         </div>
       </div>
     </section>
 
-    <!-- Footer: Rediseño Premium -->
-    <footer class="footer pt-10 pb-5 bg-dark text-white border-top border-secondary border-opacity-10">
-      <div class="container">
-        <div class="row g-5 mb-10">
-          <div class="col-lg-4">
-            <div class="d-flex align-items-center gap-3 mb-4">
-              <div class="footer-logo-box p-2 bg-brand rounded-3">
-                <i class="bi bi-lightning-charge-fill fs-3"></i>
+    <!-- Footer: Rediseño Premium Corporativo -->
+    <footer class="footer-premium bg-dark-deep position-relative overflow-hidden">
+      <!-- Elementos decorativos de fondo -->
+      <div class="footer-glass-glow"></div>
+      
+      <div class="container position-relative z-1 pt-10 pb-5">
+        <div class="row g-5 mb-8">
+          <!-- Columna 1: Branding & Bio -->
+          <div class="col-lg-4 col-md-6">
+            <div class="footer-brand-wrapper mb-4">
+              <div class="d-flex align-items-center gap-3">
+                <div class="brand-icon-neon">
+                  <i class="bi bi-lightning-charge-fill"></i>
+                </div>
+                <span class="brand-text-premium">CodeSoft</span>
               </div>
-              <span class="fw-bold fs-3 tracking-tighter">CodeSoft</span>
             </div>
-            <p class="text-white-50 mb-5 fs-6 lh-lg pe-lg-5">
-              {{ settings.about_description || 'Líderes globales en soluciones plásticas de alta ingeniería. Comprometidos con la sostenibilidad y la innovación constante.' }}
+            <p class="footer-bio-text mb-5">
+              {{ settings.about_description || 'Líderes globales en soluciones plásticas de alta ingeniería. Comprometidos con la sostenibilidad y la innovación constante para la industria 4.0.' }}
             </p>
-            <div class="d-flex gap-3">
-              <a href="#" class="social-link"><i class="bi bi-facebook fs-5"></i></a>
-              <a href="#" class="social-link"><i class="bi bi-instagram fs-5"></i></a>
-              <a href="#" class="social-link"><i class="bi bi-linkedin fs-5"></i></a>
-              <a href="#" class="social-link"><i class="bi bi-twitter-x fs-5"></i></a>
+            <div class="social-grid-premium">
+              <a href="#" class="social-neon-link" data-color="blue"><i class="bi bi-facebook"></i></a>
+              <a href="#" class="social-neon-link" data-color="purple"><i class="bi bi-instagram"></i></a>
+              <a href="#" class="social-neon-link" data-color="cyan"><i class="bi bi-linkedin"></i></a>
+              <a href="#" class="social-neon-link" data-color="red"><i class="bi bi-twitter-x"></i></a>
             </div>
           </div>
-          
+
+          <!-- Columna 2: Navegación -->
           <div class="col-lg-2 col-6">
-            <h6 class="fw-800 text-white mb-4 text-uppercase tracking-wider smaller">Empresa</h6>
-            <ul class="list-unstyled d-flex flex-column gap-3">
-              <li><a href="#" class="footer-link-modern">Sobre Nosotros</a></li>
-              <li><a href="#" class="footer-link-modern">Nuestra Fábrica</a></li>
-              <li><a href="#" class="footer-link-modern">Sostenibilidad</a></li>
-              <li><a href="#" class="footer-link-modern">Carreras</a></li>
+            <h6 class="footer-heading-premium">Compañía</h6>
+            <ul class="footer-list-premium">
+              <li><a href="#">Sobre Nosotros</a></li>
+              <li><a href="#">Nuestra Fábrica</a></li>
+              <li><a href="#">Sostenibilidad</a></li>
+              <li><a href="#">Innovación</a></li>
             </ul>
           </div>
-          
+
+          <!-- Columna 3: Soporte -->
           <div class="col-lg-2 col-6">
-            <h6 class="fw-800 text-white mb-4 text-uppercase tracking-wider smaller">Soporte</h6>
-            <ul class="list-unstyled d-flex flex-column gap-3">
-              <li><a href="#" class="footer-link-modern">Centro de Ayuda</a></li>
-              <li><a href="#" class="footer-link-modern">Garantía</a></li>
-              <li><a href="#" class="footer-link-modern">Envíos</a></li>
-              <li><a href="#" class="footer-link-modern">Contacto</a></li>
+            <h6 class="footer-heading-premium">Ecosistema</h6>
+            <ul class="footer-list-premium">
+              <li><a href="#">Centro de Ayuda</a></li>
+              <li><a href="#">Garantía Pro</a></li>
+              <li><a href="#">Logística Global</a></li>
+              <li><a href="#">Contacto</a></li>
             </ul>
           </div>
-          
-          <div class="col-lg-4">
-            <h6 class="fw-800 text-white mb-4 text-uppercase tracking-wider smaller">Contacto Directo</h6>
-            <div class="d-flex flex-column gap-4">
-              <div class="d-flex align-items-start gap-3">
-                <i class="bi bi-geo-alt text-brand fs-5"></i>
-                <p class="text-white-50 small mb-0">Parque Industrial, Av. Los Próceres #450, Santa Cruz, Bolivia</p>
+
+          <!-- Columna 4: Contacto & Newsletter Sutil -->
+          <div class="col-lg-4 col-md-6">
+            <h6 class="footer-heading-premium">Contacto Global</h6>
+            <div class="footer-contact-info">
+              <div class="contact-item-premium">
+                <i class="bi bi-geo-alt-fill neon-text-blue"></i>
+                <span>Parque Industrial, Av. Los Próceres #450</span>
               </div>
-              <div class="d-flex align-items-start gap-3">
-                <i class="bi bi-telephone text-brand fs-5"></i>
-                <p class="text-white-50 small mb-0">+591 3 345 6789<br><span class="smaller opacity-50">Lunes a Viernes, 8:00 - 18:00</span></p>
+              <div class="contact-item-premium">
+                <i class="bi bi-telephone-fill neon-text-purple"></i>
+                <span>+591 3 345 6789</span>
               </div>
-              <div class="d-flex align-items-start gap-3">
-                <i class="bi bi-envelope text-brand fs-5"></i>
-                <p class="text-white-50 small mb-0">ventas@codesoft.com.bo</p>
+              <div class="contact-item-premium">
+                <i class="bi bi-envelope-at-fill neon-text-cyan"></i>
+                <span>corporativo@codesoft.com.bo</span>
+              </div>
+            </div>
+            
+            <div class="mt-4 pt-2">
+              <div class="glass-input-group">
+                <input type="email" placeholder="Boletín corporativo..." class="glass-input">
+                <button class="glass-btn-arrow"><i class="bi bi-arrow-right"></i></button>
               </div>
             </div>
           </div>
         </div>
-        
-        <div class="footer-bottom border-top border-secondary border-opacity-10 pt-5 mt-5">
+
+        <div class="footer-bottom-premium pt-5 border-top-glass">
           <div class="row align-items-center">
-            <div class="col-md-6 text-center text-md-start mb-4 mb-md-0">
-              <p class="text-white-50 smaller mb-0">
-                &copy; 2026 CodeSoft. {{ settings.footer_text || 'Todos los derechos reservados.' }}
+            <div class="col-md-6 text-center text-md-start">
+              <p class="copyright-text">
+                &copy; 2026 <span class="fw-bold">CodeSoft</span>. {{ settings.footer_text || 'Excelencia en Polímeros.' }}
               </p>
             </div>
-            <div class="col-md-6">
-              <div class="d-flex justify-content-center justify-content-md-end gap-4 text-white-50 smaller">
-                <a href="#" class="footer-link-modern">Privacidad</a>
-                <a href="#" class="footer-link-modern">Términos</a>
-                <a href="#" class="footer-link-modern">Cookies</a>
+            <div class="col-md-6 mt-3 mt-md-0">
+              <div class="footer-legal-links justify-content-center justify-content-md-end">
+                <a href="#">Privacidad</a>
+                <a href="#">Términos</a>
+                <a href="#">Compliance</a>
               </div>
             </div>
           </div>
@@ -495,8 +476,8 @@
     </footer>
 
     <!-- Botón Volver Arriba -->
-    <button 
-      class="btn-scroll-top shadow-xl transition-all" 
+    <button
+      class="btn-scroll-top shadow-xl transition-all"
       @click="scrollToTop"
       :class="{ 'show': scrollY > 500 }"
     >
@@ -511,6 +492,7 @@ import api from '../plugins/axios';
 import BaseButton from '../components/base/BaseButton.vue';
 import BaseBadge from '../components/base/BaseBadge.vue';
 import BaseSkeletonCard from '../components/base/BaseSkeletonCard.vue';
+import PublicNavbar from '../components/PublicNavbar.vue';
 
 const settings = ref({});
 const categories = ref([]);
@@ -574,8 +556,9 @@ const fetchCategories = async () => {
   try {
     const response = await api.get('/public/categories?active=true');
     categories.value = response.data.slice(0, 4).map(c => ({
-      name: c.name,
-      products_count: c.products_count,
+      id: c.id,
+      name: c.name || c.nombre || c.title || 'Categoría',
+      products_count: c.products_count || c.productsCount || 0,
       image: c.image_url || 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?q=80&w=600&auto=format&fit=crop'
     }));
   } catch (error) {
@@ -619,12 +602,31 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+/* ========================================================
+   TYPOGRAPHY & SPACING
+======================================================== */
 .fw-800 { font-weight: 800; }
 .py-10 { padding-top: 7rem; padding-bottom: 7rem; }
 .mb-6 { margin-bottom: 4rem; }
 .max-w-600 { max-width: 600px; }
 .tracking-wider { letter-spacing: 0.1em; }
 .shadow-hover { transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); }
+
+/* Enhanced Typography */
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+p {
+  line-height: 1.7;
+}
+
+.lead {
+  font-size: 1.15rem;
+  font-weight: 400;
+  line-height: 1.75;
+}
 
 /* NAVBAR */
 .glass-navbar {
@@ -633,6 +635,11 @@ onUnmounted(() => {
   -webkit-backdrop-filter: blur(15px);
   border-bottom: 1px solid var(--border-color);
   z-index: 1100;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-navbar:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
 }
 
 /* HERO IMPROVEMENTS */
@@ -642,6 +649,27 @@ onUnmounted(() => {
   background: var(--color-primary);
   filter: blur(150px);
   opacity: 0.2;
+  animation: glow-pulse 4s ease-in-out infinite;
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.25; }
+}
+
+/* Hero image enhancement */
+.hero-img {
+  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.1));
+  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.floating-anim {
+  animation: floating 3s ease-in-out infinite;
+}
+
+@keyframes floating {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
 }
 
 /* MODERN CATEGORY CARDS */
@@ -649,28 +677,46 @@ onUnmounted(() => {
   height: 480px;
   cursor: pointer;
   perspective: 1000px;
+  transition: all 0.4s ease;
+}
+
+@media (max-width: 992px) {
+  .modern-category-card {
+    height: 400px;
+  }
+}
+
+@media (max-width: 576px) {
+  .modern-category-card {
+    height: 320px;
+  }
 }
 
 .card-inner {
-  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   background: var(--bg-card);
+  border-radius: 2.5rem;
+  overflow: hidden;
+  position: relative;
+  height: 100%;
 }
 
 .modern-category-card:hover .card-inner {
-  transform: translateY(-12px);
-  box-shadow: 0 30px 60px rgba(0,0,0,0.12) !important;
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 0 40px 80px rgba(0,0,0,0.25);
 }
 
 .category-img-container {
   height: 100%;
   width: 100%;
+  overflow: hidden;
 }
 
 .category-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform: scale(1.02);
+  transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .modern-category-card:hover .category-img {
@@ -678,100 +724,319 @@ onUnmounted(() => {
 }
 
 .category-overlay-modern {
-  background: linear-gradient(to bottom, transparent 30%, rgba(0,0,0,0.85) 100%);
+  background: linear-gradient(to bottom, 
+    transparent 0%, 
+    rgba(0,0,0,0) 40%, 
+    rgba(0,0,0,0.4) 70%, 
+    rgba(0,0,0,0.9) 100%);
+  transition: all 0.5s ease;
+}
+
+.modern-category-card:hover .category-overlay-modern {
+  background: linear-gradient(to bottom, 
+    transparent 0%, 
+    rgba(0,0,0,0.1) 30%, 
+    rgba(0,0,0,0.6) 60%, 
+    rgba(0,0,0,1) 100%);
 }
 
 .category-badge-floating {
   position: absolute;
-  top: 1.5rem;
-  right: 1.5rem;
-}
-
-.glass-pill {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 50px;
-}
-
-.glass-button {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white !important;
-  transition: all 0.3s ease;
-}
-
-.glass-button:hover {
-  background: white !important;
-  color: black !important;
-  transform: scale(1.05);
-}
-
-.category-title-modern {
-  font-size: 2rem;
-  letter-spacing: -0.02em;
-}
-
-/* MODERN PRODUCT CARDS */
-.modern-product-card {
-  transition: all 0.4s ease;
-}
-
-.product-img-frame {
-  aspect-ratio: 1/1;
-  position: relative;
-}
-
-.modern-product-card:hover .product-img-frame {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.08) !important;
-}
-
-.product-main-img {
-  max-height: 85%;
-  object-fit: contain;
-}
-
-.modern-product-card:hover .product-main-img {
-  transform: scale(1.08);
-}
-
-.product-quick-actions {
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(4px);
+  top: 2rem;
+  right: 2rem;
   z-index: 10;
 }
 
-.modern-product-card:hover .product-quick-actions {
-  opacity: 1 !important;
+.glass-pill {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50px;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: rgb(65, 65, 65);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
-.btn-icon-lg {
-  width: 50px;
-  height: 50px;
+.category-content-modern {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 2.5rem;
+  z-index: 2;
+  transition: all 0.4s ease;
+}
+
+@media (max-width: 576px) {
+  .category-content-modern {
+    padding: 1.5rem;
+  }
+}
+
+.category-title-modern {
+  font-size: 2.25rem;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  color: white;
+  font-weight: 850;
+  margin-bottom: 1.25rem;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+@media (max-width: 992px) {
+  .category-title-modern {
+    font-size: 1.75rem;
+  }
+}
+
+.modern-category-card:hover .category-title-modern {
+  transform: translateY(-5px);
+}
+
+.category-action-hidden {
+  opacity: 0;
+  transform: translateY(15px);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modern-category-card:hover .category-action-hidden {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ABOUT SECTION REFINED */
+.section-linen {
+  background-color: #fcfcfc;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%23000000' fill-opacity='0.03' d='M1 3h1v1H1V3zm2-2h1v1H2V1z'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.stat-item-horizontal {
+  transition: all 0.3s ease;
+}
+
+.stat-item-horizontal:hover {
+  transform: translateY(-3px);
+}
+
+@media (min-width: 768px) {
+  .border-start-md {
+    border-left: 1px solid var(--border-light) !important;
+  }
+}
+
+.image-stack {
+  position: relative;
+  padding-bottom: 60px;
+}
+
+.image-frame-premium {
+  border: 1px solid #d4af37; /* Fina línea dorada */
+  padding: 8px;
+  background: white;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.main-frame {
+  position: relative;
+  z-index: 2;
+  transform: rotate(-2deg);
+}
+
+.secondary-frame {
+  position: absolute;
+  top: 60px;
+  right: -40px;
+  width: 80%;
+  z-index: 1;
+  transform: rotate(4deg);
+}
+
+.premium-product-card:hover .secondary-frame {
+  transform: rotate(6deg) translate(10px, 10px);
+}
+
+.image-frame-premium:hover {
+  transform: rotate(0deg) scale(1.02);
+  z-index: 10;
+  box-shadow: 0 30px 60px rgba(212, 175, 55, 0.15) !important;
+}
+
+.about-visual-refined::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  width: 100px;
+  height: 100px;
+  background: radial-gradient(circle, #d4af37 0%, transparent 70%);
+  opacity: 0.1;
+  z-index: 0;
+}
+
+/* BENEFIT CARDS STABLE & MODERN */
+.benefit-card-stable {
+  cursor: default;
+}
+
+.benefit-card-inner {
+  background: white;
+  border: 1px solid #f1f5f9;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.benefit-card-stable:hover .benefit-card-inner {
+  transform: translateY(-10px);
+  box-shadow: 0 30px 60px rgba(0,0,0,0.06);
+  border-color: var(--color-primary-soft);
+}
+
+.benefit-icon-premium {
+  width: 70px;
+  height: 70px;
+  background: #f8fafc;
+  border-radius: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.btn-white {
+.benefit-card-stable:hover .benefit-icon-premium {
+  background: var(--color-primary);
+  transform: scale(1.1) rotate(8deg);
+  box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2);
+}
+
+.benefit-card-stable:hover .benefit-icon-premium i {
+  color: white !important;
+}
+
+.transition-premium {
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.border-glass-light {
+  border: 1px solid rgba(0,0,0,0.03);
+}
+
+/* PREMIUM PRODUCT CARDS */
+.premium-product-card {
+  perspective: 1000px;
+}
+
+.card-inner-premium {
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   background: white;
-  color: var(--slate-900);
+  position: relative;
+  border: 1px solid var(--border-light) !important;
 }
 
-.text-truncate-2 {
+.premium-product-card:hover .card-inner-premium {
+  transform: translateY(-12px);
+  box-shadow: 0 40px 80px rgba(0,0,0,0.1) !important;
+  border-color: var(--color-primary-soft) !important;
+}
+
+.product-img-main-container {
+  aspect-ratio: 1/1;
+  overflow: hidden;
+  border-radius: 1.5rem;
+  background: #f8fafc;
+  transition: all 0.5s ease;
+}
+
+.premium-product-card:hover .product-img-main-container {
+  background: white;
+}
+
+.product-display-img {
+  max-height: 85%;
+  object-fit: contain;
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.premium-product-card:hover .product-display-img {
+  transform: scale(1.15);
+}
+
+.product-overlay-actions {
+  z-index: 10;
+}
+
+.premium-product-card:hover .product-overlay-actions {
+  opacity: 1 !important;
+  transform: translateX(0);
+}
+
+.translate-x-10 {
+  transform: translateX(10px);
+}
+
+.btn-icon-glass {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(0,0,0,0.05);
+  border-radius: 12px;
+  color: var(--slate-900);
+  transition: all 0.3s ease;
+}
+
+.btn-icon-glass:hover {
+  background: var(--color-primary);
+  color: white;
+  transform: scale(1.1);
+}
+
+.product-title-premium {
+  font-size: 1.15rem;
+  color: #1e293b;
+  line-height: 1.4;
+  height: 3.2rem;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.h-2.5rem { height: 3.5rem; }
+.price-container-premium {
+  color: var(--color-primary);
+}
+
+.price-value {
+  letter-spacing: -0.02em;
+}
+
+.btn-premium-action {
+  background: #f1f5f9;
+  color: #475569;
+  border: none;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.premium-product-card:hover .btn-premium-action {
+  background: var(--color-primary);
+  color: white;
+  box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2);
+}
+
+.smaller { font-size: 0.75rem; }
+.smallest { font-size: 0.65rem; }
 
 /* ANIMATIONS & TRANSITIONS */
-.transition-slow { transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+.transition-slow { transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
 .transform-scale-up { transform: translateY(20px); transition: all 0.4s ease; }
 .modern-product-card:hover .transform-scale-up { transform: translateY(0); }
 
@@ -785,69 +1050,128 @@ onUnmounted(() => {
   justify-content: center;
   border-radius: 12px;
   color: white;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .social-link:hover {
   background: var(--color-primary);
-  transform: translateY(-5px) scale(1.1);
-  box-shadow: 0 10px 20px var(--color-primary-glass);
+  transform: translateY(-6px) scale(1.15);
+  box-shadow: 0 12px 28px rgba(79, 70, 229, 0.4);
+  border-color: var(--color-primary);
 }
 
 /* PREMIUM LIQUID BACKGROUND */
-.bg-gradient-subtle {
-  background: radial-gradient(circle at 10% 20%, rgba(79, 70, 229, 0.03) 0%, transparent 40%),
-              radial-gradient(circle at 90% 80%, rgba(14, 165, 233, 0.03) 0%, transparent 40%);
-}
-
 .premium-liquid-bg {
   pointer-events: none;
-  filter: blur(70px);
-  opacity: 0.8;
+  background: var(--bs-body-bg);
+  overflow: hidden;
+}
+
+.liquid-blob {
+  position: absolute;
+  filter: blur(60px);
+  border-radius: 50%;
+  opacity: 0.45;
+  transition: all 1s ease;
+}
+
+.blob-1 {
+  width: 700px;
+  height: 700px;
+  background: var(--color-primary);
+  top: -15%;
+  left: -10%;
+  animation: liquid-move-1 12s infinite alternate;
+}
+
+.blob-2 {
+  width: 600px;
+  height: 600px;
+  background: #0ea5e9;
+  bottom: -15%;
+  right: -5%;
+  animation: liquid-move-2 15s infinite alternate;
+}
+
+.blob-3 {
+  width: 500px;
+  height: 500px;
+  background: #a855f7;
+  top: 30%;
+  left: 20%;
+  animation: liquid-move-3 10s infinite alternate;
+}
+
+@keyframes liquid-move-1 {
+  0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+  50% { transform: translate(120px, 60px) scale(1.15) rotate(45deg); }
+  100% { transform: translate(60px, 120px) scale(0.95) rotate(90deg); }
+}
+
+@keyframes liquid-move-2 {
+  0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+  50% { transform: translate(-100px, -50px) scale(1.25) rotate(-45deg); }
+  100% { transform: translate(-50px, -100px) scale(0.85) rotate(-90deg); }
+}
+
+@keyframes liquid-move-3 {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(70px, -70px) scale(1.1); }
+  100% { transform: translate(-70px, 70px) scale(0.9); }
+}
+
+.liquid-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, transparent 0%, var(--bs-body-bg) 90%);
+  opacity: 0.5;
+}
+
+/* HERO SKELETONS */
+.skeleton-badge {
+  width: 200px;
+  height: 32px;
+  background: var(--bg-hover);
+  border-radius: 50px;
+  animation: skeleton-loading 1.5s infinite;
+}
+
+.skeleton-title {
+  width: 100%;
+  height: 120px;
+  background: var(--bg-hover);
+  border-radius: 1rem;
+  animation: skeleton-loading 1.5s infinite;
+}
+
+.skeleton-text {
+  width: 90%;
+  height: 60px;
+  background: var(--bg-hover);
+  border-radius: 0.5rem;
+  animation: skeleton-loading 1.5s infinite;
+}
+
+.skeleton-btn {
+  width: 160px;
+  height: 48px;
+  background: var(--bg-hover);
+  border-radius: 50px;
+  animation: skeleton-loading 1.5s infinite;
+}
+
+.skeleton-hero-img {
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: var(--bg-hover);
+  border-radius: 2rem;
+  animation: skeleton-loading 1.5s infinite;
 }
 
 /* UTILITIES */
 .rounded-5 { border-radius: 2rem !important; }
 .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
-
-/* BENEFIT CARDS */
-.benefit-card {
-  background: var(--bg-card);
-  border: 1px solid transparent;
-  transition: all 0.4s ease;
-}
-
-.benefit-card:hover {
-  background: white;
-  border-color: var(--color-primary-soft);
-  transform: translateY(-10px);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.05);
-}
-
-.benefit-icon-wrapper {
-  width: 80px;
-  height: 80px;
-  background: var(--color-primary-soft);
-  border-radius: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.4s ease;
-}
-
-.benefit-card:hover .benefit-icon-wrapper {
-  background: var(--color-primary);
-  transform: rotate(10deg);
-}
-
-.benefit-card:hover .benefit-icon-wrapper i {
-  color: white !important;
-}
-
-/* ABOUT SECTION */
-.bg-primary-soft { background: var(--color-primary-soft); }
-.bg-success-soft { background: rgba(16, 185, 129, 0.1); }
-.bg-brand { background: var(--color-primary) !important; }
 
 /* NEWSLETTER */
 .max-w-700 { max-width: 700px; }
@@ -855,29 +1179,305 @@ onUnmounted(() => {
 
 .newsletter-form-wrapper {
   border: 1px solid rgba(255,255,255,0.1);
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border-radius: 50px;
+  background: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.newsletter-form-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.newsletter-form-wrapper:focus-within::before {
+  left: 100%;
 }
 
 .newsletter-form-wrapper:focus-within {
   transform: scale(1.02);
-  box-shadow: 0 0 30px rgba(0,0,0,0.15);
+  box-shadow: 0 0 30px rgba(79, 70, 229, 0.2);
+}
+
+.newsletter-form-wrapper input {
+  transition: all 0.3s ease;
+  color: var(--text-main) !important;
+}
+
+.newsletter-form-wrapper input:focus {
+  text-shadow: 0 0 8px rgba(79, 70, 229, 0.1);
+}
+
+.newsletter-form-wrapper button {
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.newsletter-form-wrapper:hover button {
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.3);
+}
+
+/* FOOTER PREMIUM RE-DESIGN */
+.bg-dark-deep {
+  background-color: #050505;
+}
+
+.footer-premium {
+  padding-top: 8rem;
+  padding-bottom: 4rem;
+  color: #a1a1aa;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  margin-top: 2rem;
+}
+
+.footer-glass-glow {
+  position: absolute;
+  top: -150px;
+  left: 10%;
+  width: 300px;
+  height: 300px;
+  background: var(--color-primary);
+  filter: blur(150px);
+  opacity: 0.1;
+  pointer-events: none;
+}
+
+.brand-icon-neon {
+  width: 45px;
+  height: 45px;
+  background: rgba(79, 70, 229, 0.1);
+  border: 1px solid rgba(79, 70, 229, 0.3);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+  font-size: 1.5rem;
+  box-shadow: 0 0 20px rgba(79, 70, 229, 0.2);
+}
+
+.brand-text-premium {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: #ffffff;
+}
+
+.footer-bio-text {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #71717a;
+  max-width: 320px;
+}
+
+.social-grid-premium {
+  display: flex;
+  gap: 12px;
+}
+
+.social-neon-link {
+  width: 40px;
+  height: 40px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #71717a;
+  font-size: 1.1rem;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.social-neon-link:hover {
+  transform: translateY(-5px);
+  color: #ffffff;
+}
+
+.social-neon-link[data-color="blue"]:hover { border-color: #3b82f6; box-shadow: 0 0 15px rgba(59, 130, 246, 0.3); }
+.social-neon-link[data-color="purple"]:hover { border-color: #a855f7; box-shadow: 0 0 15px rgba(168, 85, 247, 0.3); }
+.social-neon-link[data-color="cyan"]:hover { border-color: #06b6d4; box-shadow: 0 0 15px rgba(6, 182, 212, 0.3); }
+.social-neon-link[data-color="red"]:hover { border-color: #ef4444; box-shadow: 0 0 15px rgba(239, 68, 68, 0.3); }
+
+.footer-heading-premium {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-uppercase: uppercase;
+  letter-spacing: 0.1em;
+  color: #ffffff;
+  margin-bottom: 1.5rem;
+}
+
+.footer-list-premium {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-list-premium li {
+  margin-bottom: 0.75rem;
+}
+
+.footer-list-premium a {
+  color: #71717a;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.footer-list-premium a:hover {
+  color: #ffffff;
+  padding-left: 5px;
+}
+
+.footer-contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.contact-item-premium {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.9rem;
+  color: #71717a;
+}
+
+.contact-item-premium i {
+  font-size: 1.1rem;
+}
+
+.neon-text-blue { color: #3b82f6; text-shadow: 0 0 8px rgba(59, 130, 246, 0.5); }
+.neon-text-purple { color: #a855f7; text-shadow: 0 0 8px rgba(168, 85, 247, 0.5); }
+.neon-text-cyan { color: #06b6d4; text-shadow: 0 0 8px rgba(6, 182, 212, 0.5); }
+
+.glass-input-group {
+  display: flex;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 4px;
+  transition: all 0.3s ease;
+}
+
+.glass-input-group:focus-within {
+  border-color: rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.05);
+}
+
+.glass-input {
+  background: transparent;
+  border: none;
+  padding: 10px 15px;
+  color: #ffffff;
+  font-size: 0.9rem;
+  flex-grow: 1;
+  outline: none;
+}
+
+.glass-btn-arrow {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: #ffffff;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.glass-btn-arrow:hover {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 15px rgba(79, 70, 229, 0.4);
+}
+
+.border-top-glass {
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.copyright-text {
+  font-size: 0.85rem;
+  color: #52525b;
+}
+
+.footer-legal-links {
+  display: flex;
+  gap: 24px;
+}
+
+.footer-legal-links a {
+  color: #52525b;
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: color 0.3s ease;
+}
+
+.footer-legal-links a:hover {
+  color: #ffffff;
+}
+
+@media (max-width: 991px) {
+  .footer-premium {
+    text-align: center;
+  }
+  .footer-brand-wrapper, .social-grid-premium, .footer-contact-info, .footer-legal-links {
+    justify-content: center;
+  }
+  .footer-bio-text {
+    margin-left: auto;
+    margin-right: auto;
+  }
 }
 
 /* FOOTER MODERN */
 .footer-link-modern {
   color: rgba(255,255,255,0.5);
   text-decoration: none;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   font-size: 0.95rem;
+  position: relative;
+}
+
+.footer-link-modern::before {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--color-primary);
+  transition: width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.footer-link-modern:hover::before {
+  width: 100%;
 }
 
 .footer-link-modern:hover {
   color: var(--color-primary);
-  padding-left: 5px;
+  transform: translateX(2px);
 }
 
 .footer-logo-box {
-  box-shadow: 0 8px 16px var(--color-primary-glass);
+  box-shadow: 0 8px 16px rgba(79, 70, 229, 0.2);
+  transition: all 0.3s ease;
+}
+
+.footer-logo-box:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 24px rgba(79, 70, 229, 0.3);
 }
 
 /* SCROLL TOP */
@@ -899,6 +1499,8 @@ onUnmounted(() => {
   opacity: 0;
   visibility: hidden;
   transform: translateY(20px);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
 }
 
 .btn-scroll-top.show {
@@ -910,8 +1512,10 @@ onUnmounted(() => {
 .btn-scroll-top:hover {
   background: var(--color-primary-hover);
   transform: translateY(-5px);
+  box-shadow: 0 12px 28px rgba(79, 70, 229, 0.4);
 }
 
+/* TRACKING WIDER */
 .tracking-tighter { letter-spacing: -0.05em; }
 
 /* SKELETONS */
@@ -920,10 +1524,71 @@ onUnmounted(() => {
   background: linear-gradient(90deg, var(--bg-hover) 25%, var(--border-light) 50%, var(--bg-hover) 75%);
   background-size: 200% 100%;
   animation: skeleton-loading 1.5s infinite;
+  border-radius: 2rem;
 }
 
 @keyframes skeleton-loading {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
+}
+
+/* Enhanced Hover States */
+.btn {
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+/* Spotlight enhancements */
+.spotlight-visual {
+  position: relative;
+}
+
+.spotlight-glow {
+  width: 400px;
+  height: 400px;
+  background: var(--color-primary);
+  filter: blur(100px);
+  opacity: 0.15;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: glow-pulse 4s ease-in-out infinite;
+}
+
+.floating-badge-spotlight {
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.floating-badge-spotlight:hover {
+  transform: scale(1.08) translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+}
+
+/* Text color enhancements */
+.text-white-50 {
+  transition: opacity 0.3s ease;
+}
+
+/* List enhancements */
+ul li {
+  transition: all 0.3s ease;
+}
+
+ul li:hover {
+  padding-left: 4px;
+}
+
+/* Image enhancements */
+img {
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
 }
 </style>
