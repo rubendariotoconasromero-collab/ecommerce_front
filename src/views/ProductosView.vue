@@ -1,32 +1,33 @@
 <template>
   <div class="animate__animated animate__fadeIn">
     <!-- Header: Título y Acciones -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-4">
       <div>
-        <h3 class="fw-bold mb-0 text-body-emphasis text-gradient-primary">Catálogo de Productos</h3>
-        <p class="text-body-secondary small mb-0">Gestiona precios, tiempos de producción e inventario</p>
+        <BaseBadge variant="success" soft class="mb-2 px-3 py-1 rounded-pill fw-bold">Control de Inventario</BaseBadge>
+        <h2 class="fw-800 mb-0 text-body-emphasis lh-1">Catálogo de Productos</h2>
+        <p class="text-body-secondary mt-2 mb-0">Gestiona precios, tiempos de producción y visibilidad comercial.</p>
       </div>
-      <div class="d-flex gap-2">
-        <div class="btn-group shadow-sm">
+      <div class="d-flex align-items-center gap-3">
+        <div class="premium-segmented-control shadow-sm p-1 rounded-pill bg-light border">
           <button 
-            class="btn btn-light" 
-            :class="{ active: currentLayout === 'table' }"
+            class="btn btn-icon-sm rounded-circle transition-all" 
+            :class="{ 'bg-white shadow-sm text-primary': currentLayout === 'table', 'text-muted': currentLayout !== 'table' }"
             @click="currentLayout = 'table'"
             title="Vista de Tabla"
           >
-            <i class="bi bi-list-ul"></i>
+            <i class="fa-solid fa-list-ul"></i>
           </button>
           <button 
-            class="btn btn-light" 
-            :class="{ active: currentLayout === 'card' }"
+            class="btn btn-icon-sm rounded-circle transition-all" 
+            :class="{ 'bg-white shadow-sm text-primary': currentLayout === 'card' }"
             @click="currentLayout = 'card'"
             title="Vista de Cuadrícula"
           >
-            <i class="bi bi-grid-3x3-gap"></i>
+            <i class="fa-solid fa-table-cells-large"></i>
           </button>
         </div>
-        <BaseButton variant="brand" icon="bi bi-plus-circle" @click="openModal(null)">
-          Nuevo Producto
+        <BaseButton variant="brand" class="rounded-pill px-4 py-2 fw-bold shadow-brand-sm" @click="openModal(null)">
+          <i class="fa-solid fa-circle-plus me-2"></i> Nuevo Producto
         </BaseButton>
       </div>
     </div>
@@ -43,7 +44,7 @@
       main-col-label="PRODUCTO / SKU"
       main-col-width="30%"
       empty-title="No se encontraron productos"
-      empty-icon="bi bi-box-seam"
+      empty-icon="fa-solid fa-box-open"
       @edit="openModal"
       @delete="deleteProduct"
       @page-change="fetchData"
@@ -51,31 +52,39 @@
     >
       <!-- Custom Filters Slot -->
       <template #filters>
-        <div class="d-flex gap-2">
-          <select class="form-select form-select-sm shadow-none" v-model="filters.category_id" @change="fetchData(1)" style="width: 180px;">
-            <option value="">Todas las Categorías</option>
-            <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
-          </select>
-          <select class="form-select form-select-sm shadow-none" v-model="filters.active" @change="fetchData(1)" style="width: 150px;">
-            <option value="">Todos los Estados</option>
-            <option value="true">Activos</option>
-            <option value="false">Inactivos</option>
-          </select>
-          <BaseButton variant="light" size="sm" icon="bi bi-arrow-counterclockwise" @click="resetFilters" />
+        <div class="d-flex flex-wrap gap-2">
+          <div class="input-group-premium">
+            <span class="input-group-text bg-transparent border-end-0"><i class="fa-solid fa-filter small text-primary"></i></span>
+            <select class="form-select form-select-sm border-start-0 shadow-none ps-0" v-model="filters.category_id" @change="fetchData(1)" style="width: 180px;">
+              <option value="">Todas las Categorías</option>
+              <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+            </select>
+          </div>
+          <div class="input-group-premium">
+            <span class="input-group-text bg-transparent border-end-0"><i class="fa-solid fa-toggle-on small text-primary"></i></span>
+            <select class="form-select form-select-sm border-start-0 shadow-none ps-0" v-model="filters.active" @change="fetchData(1)" style="width: 150px;">
+              <option value="">Todos los Estados</option>
+              <option value="true">Activos</option>
+              <option value="false">Inactivos</option>
+            </select>
+          </div>
+          <BaseButton variant="light" size="sm" class="rounded-circle p-0" style="width: 38px; height: 38px;" @click="resetFilters">
+            <i class="fa-solid fa-rotate-left"></i>
+          </BaseButton>
         </div>
       </template>
 
       <!-- Avatar Column Customization -->
       <template #item-avatar="{ item }">
-        <div class="product-preview-circle overflow-hidden border shadow-sm bg-body-tertiary">
+        <div class="product-premium-frame overflow-hidden shadow-sm border-2 border-white bg-white">
           <img 
             v-if="item.images && item.images.length > 0" 
             :src="item.images.find(i => i.is_primary)?.url || item.images.find(i => i.is_primary)?.image_url || item.images[0].url || item.images[0].image_url" 
             alt="Prod" 
-            class="w-100 h-100 object-fit-cover"
+            class="w-100 h-100 object-fit-contain p-1 transition-slow"
           >
-          <div v-else class="w-100 h-100 d-flex align-items-center justify-content-center text-body-secondary">
-            <i class="bi bi-image fs-5"></i>
+          <div v-else class="w-100 h-100 d-flex align-items-center justify-content-center text-muted opacity-30">
+            <i class="fa-solid fa-image fs-4"></i>
           </div>
         </div>
       </template>
@@ -83,112 +92,112 @@
 
       <!-- Featured Column -->
       <template #col-is_featured="{ value }">
-        <BaseBadge v-if="value" variant="warning" soft class="px-2 py-1">
-          <i class="bi bi-star-fill me-1"></i> Destacado
-        </BaseBadge>
-        <span v-else class="text-body-secondary smaller">-</span>
+        <div v-if="value" class="badge rounded-pill bg-warning-soft text-warning px-3 py-2 border border-warning border-opacity-10 fw-800 smaller">
+          <i class="fa-solid fa-star me-1"></i> Destacado
+        </div>
+        <span v-else class="text-body-secondary smallest opacity-50">-</span>
       </template>
 
       <!-- Category Column -->
       <template #col-category_id="{ item }">
-        <BaseBadge v-if="item.category" variant="secondary" soft class="fw-medium border">
+        <span v-if="item.category" class="badge rounded-pill bg-light border text-dark fw-800 px-3 py-2">
           {{ item.category.name }}
-        </BaseBadge>
-        <span v-else class="text-body-secondary smaller">Sin categoría</span>
+        </span>
+        <span v-else class="text-body-secondary smaller italic">Sin clasificar</span>
       </template>
 
       <!-- Cost Price -->
       <template #col-cost_price="{ value }">
-        <span class="text-body-secondary small">Bs. {{ parseFloat(value).toLocaleString() }}</span>
+        <span class="text-body-secondary small fw-bold">Bs. {{ parseFloat(value).toLocaleString() }}</span>
       </template>
 
       <!-- Sale Price -->
       <template #col-sale_price="{ value }">
-        <span class="fw-bold text-brand">Bs. {{ parseFloat(value).toLocaleString() }}</span>
+        <span class="fw-800 text-brand fs-6">Bs. {{ parseFloat(value).toLocaleString() }}</span>
       </template>
 
       <!-- Lead Time -->
       <template #col-production_lead_time_days="{ value }">
-        <div v-if="value > 0" class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill">
-          <i class="bi bi-clock-history me-1"></i> {{ value }} Días
+        <div v-if="value > 0" class="badge bg-primary-soft text-primary border border-primary border-opacity-10 rounded-pill px-3 py-2 fw-800 smaller">
+          <i class="fa-regular fa-clock me-1"></i> {{ value }} Días
         </div>
-        <div v-else class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">
-          Stock Inmediato
+        <div v-else class="badge bg-success-soft text-success border border-success border-opacity-10 rounded-pill px-3 py-2 fw-800 smaller">
+          <i class="fa-solid fa-bolt-lightning me-1"></i> Inmediato
         </div>
       </template>
 
       <!-- Status Badge -->
       <template #item-status="{ item }">
-        <div v-if="item.is_active" class="d-flex align-items-center text-success small fw-bold">
-          <span class="status-dot bg-success me-2"></span> Activo
-        </div>
-        <div v-else class="d-flex align-items-center text-body-secondary small fw-bold">
-          <span class="status-dot bg-secondary me-2"></span> Inactivo
+        <div class="d-flex align-items-center">
+          <div :class="['status-indicator', item.is_active ? 'active' : 'inactive']"></div>
+          <span class="smaller fw-800 text-uppercase tracking-tighter" :class="item.is_active ? 'text-success' : 'text-danger'">
+            {{ item.is_active ? 'Activo' : 'Pausado' }}
+          </span>
         </div>
       </template>
 
       <!-- Custom Actions -->
       <template #item-actions="{ item }">
-        <li><button class="dropdown-item rounded-2 py-2" @click="openModal(item)"><i class="bi bi-pencil me-2 text-primary"></i>Editar</button></li>
+        <li><button class="dropdown-item rounded-3 py-2" @click="openModal(item)"><i class="fa-regular fa-pen-to-square me-2 text-primary"></i>Editar Ficha</button></li>
         <li>
-          <router-link :to="{ name: 'producto-imagenes', params: { id: item.id } }" class="dropdown-item rounded-2 py-2 text-success">
-            <i class="bi bi-images me-2"></i>Gestionar Imágenes
+          <router-link :to="{ name: 'producto-imagenes', params: { id: item.id } }" class="dropdown-item rounded-3 py-2 text-success">
+            <i class="fa-regular fa-images me-2"></i>Galería Visual
           </router-link>
         </li>
-        <li><hr class="dropdown-divider mx-2"></li>
-        <li><button class="dropdown-item text-danger rounded-2 py-2" @click="deleteProduct(item)"><i class="bi bi-trash3 me-2"></i>Eliminar</button></li>
+        <li><hr class="dropdown-divider mx-2 opacity-50"></li>
+        <li><button class="dropdown-item text-danger rounded-3 py-2" @click="deleteProduct(item)"><i class="fa-solid fa-trash-can me-2"></i>Purgar Catálogo</button></li>
       </template>
     </BaseDataGrid>
 
     <!-- Product Modal -->
-    <BaseModal v-model="showModal" :title="isEditing ? 'Editar Producto' : 'Nuevo Producto'" size="lg">
-      <form @submit.prevent="saveProduct" id="productForm">
+    <BaseModal v-model="showModal" :title="isEditing ? 'Configuración de Producto' : 'Nuevo Registro Maestro'" size="lg">
+      <form @submit.prevent="saveProduct" id="productForm" class="p-2">
         <div class="row g-4">
           <div class="col-md-8">
-            <BaseInput v-model="form.name" label="Nombre del Producto" placeholder="Ej: Botella PET 500ml Cristal" required />
+            <BaseInput v-model="form.name" label="Denominación del Producto" placeholder="Ej: Componente Industrial PET 500ml" required class="premium-input" />
           </div>
           <div class="col-md-4">
-            <BaseInput v-model="form.sku" label="Código SKU" placeholder="PROD-001" required />
+            <BaseInput v-model="form.sku" label="Identificador SKU" placeholder="PROD-AX-001" required class="premium-input" />
           </div>
 
           <div class="col-md-6">
-            <BaseSelect v-model="form.category_id" label="Categoría" required>
-              <option value="" disabled>Seleccione una categoría...</option>
+            <BaseSelect v-model="form.category_id" label="Clasificación" required class="premium-select">
+              <option value="" disabled>Seleccione una categoría estratégica...</option>
               <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
             </BaseSelect>
           </div>
 
           <div class="col-md-6">
-            <BaseInput v-model="form.production_lead_time_days" type="number" label="Días de Producción" placeholder="0 para entrega inmediata" min="0" />
+            <BaseInput v-model="form.production_lead_time_days" type="number" label="Ciclo de Producción (Días)" placeholder="0 = Entrega Instantánea" min="0" class="premium-input" />
           </div>
 
-          <div class="col-12"><div class="separator-text">Precios y Finanzas</div></div>
+          <div class="col-12"><div class="premium-separator-text">Ingeniería Económica y Costos</div></div>
 
           <div class="col-md-4">
-            <BaseInput v-model="form.base_price" type="number" step="0.01" label="Precio Base (Bs.)" required />
+            <BaseInput v-model="form.base_price" type="number" step="0.01" label="Valor Base (Bs.)" required class="premium-input" />
           </div>
           <div class="col-md-4">
-            <BaseInput v-model="form.cost_price" type="number" step="0.01" label="Costo Directo (Bs.)" required />
+            <BaseInput v-model="form.cost_price" type="number" step="0.01" label="Costo Operativo (Bs.)" required class="premium-input" />
           </div>
           <div class="col-md-4">
-            <BaseInput v-model="form.sale_price" type="number" step="0.01" label="Precio de Venta (Bs.)" required />
+            <BaseInput v-model="form.sale_price" type="number" step="0.01" label="Precio de Mercado (Bs.)" required class="premium-input" />
           </div>
 
           <div class="col-12">
-            <label class="form-label small fw-semibold text-body-secondary text-uppercase mb-1 ms-1">Descripción Técnica</label>
-            <textarea class="form-control bg-body-tertiary border-0 shadow-none" rows="3" v-model="form.description" placeholder="Especificaciones, material, peso..."></textarea>
+            <label class="form-label smaller fw-800 text-body-secondary text-uppercase tracking-tighter mb-2 ms-1">Especificaciones y Narrativa Técnica</label>
+            <textarea class="form-control premium-textarea" rows="3" v-model="form.description" placeholder="Detalles de fabricación, materialidad, certificaciones..."></textarea>
           </div>
 
           <div class="col-12 mt-2">
-            <div class="p-3 bg-body-tertiary rounded-4 d-flex gap-4">
-              <div class="form-check form-switch custom-switch">
-                <input class="form-check-input" type="checkbox" role="switch" id="prodActive" v-model="form.is_active">
-                <label class="form-check-label ms-2 fw-bold text-body-emphasis" for="prodActive">Producto Activo</label>
+            <div class="p-3 bg-light rounded-4 border d-flex flex-column flex-sm-row gap-4">
+              <div class="form-check form-switch premium-switch d-flex align-items-center gap-3 px-0">
+                <input class="form-check-input ms-0 shadow-none" type="checkbox" role="switch" id="prodActive" v-model="form.is_active">
+                <label class="form-check-label fw-800 text-body-emphasis" for="prodActive">Habilitar Comercialización</label>
               </div>
-              <div class="form-check form-switch custom-switch">
-                <input class="form-check-input" type="checkbox" role="switch" id="prodFeatured" v-model="form.is_featured">
-                <label class="form-check-label ms-2 fw-bold text-warning" for="prodFeatured">
-                  <i class="bi bi-star-fill me-1"></i> Destacar en Home
+              <div class="form-check form-switch premium-switch d-flex align-items-center gap-3 px-0">
+                <input class="form-check-input ms-0 shadow-none" type="checkbox" role="switch" id="prodFeatured" v-model="form.is_featured">
+                <label class="form-check-label fw-800 text-warning" for="prodFeatured">
+                  <i class="fa-solid fa-bolt me-1"></i> Destacado en Vitrina Principal
                 </label>
               </div>
             </div>
@@ -196,10 +205,10 @@
         </div>
       </form>
       <template #footer>
-        <div class="d-flex justify-content-end gap-2 w-100">
-          <BaseButton variant="light" @click="showModal = false">Cancelar</BaseButton>
-          <BaseButton type="submit" form="productForm" variant="brand" :loading="isSaving">
-            {{ isEditing ? 'Actualizar Producto' : 'Crear Producto' }}
+        <div class="d-flex justify-content-end gap-3 w-100 p-2">
+          <BaseButton variant="light" class="rounded-pill px-4" @click="showModal = false">Cancelar</BaseButton>
+          <BaseButton type="submit" form="productForm" variant="brand" class="rounded-pill px-5 shadow-brand-sm" :loading="isSaving">
+            {{ isEditing ? 'Actualizar Ficha' : 'Sincronizar Producto' }}
           </BaseButton>
         </div>
       </template>
@@ -229,11 +238,11 @@ const isEditing = ref(false);
 const showModal = ref(false);
 
 const gridColumns = [
-  { label: 'CATEGORÍA', key: 'category_id' },
-  { label: 'COSTO (Bs.)', key: 'cost_price', align: 'end' },
-  { label: 'VENTA (Bs.)', key: 'sale_price', align: 'end' },
-  { label: 'DESTACADO', key: 'is_featured', align: 'center' },
-  { label: 'TIEMPO PROD.', key: 'production_lead_time_days', align: 'center' }
+  { label: 'CLASIFICACIÓN', key: 'category_id' },
+  { label: 'COSTO DIR.', key: 'cost_price', align: 'end' },
+  { label: 'VALOR VENTA', key: 'sale_price', align: 'end' },
+  { label: 'ESTADO WEB', key: 'is_featured', align: 'center' },
+  { label: 'LOGÍSTICA', key: 'production_lead_time_days', align: 'center' }
 ];
 
 const filters = reactive({
@@ -278,7 +287,7 @@ const fetchData = async (page = 1) => {
     const response = await api.get('/products', { params });
     productsData.value = response.data;
   } catch (error) {
-    Toast.fire({ icon: 'error', title: 'Error al cargar el catálogo de productos' });
+    Toast.fire({ icon: 'error', title: 'Error de sincronización de catálogo' });
   } finally {
     isLoading.value = false;
   }
@@ -332,12 +341,12 @@ const saveProduct = async () => {
     }
     showModal.value = false;
     fetchData(productsData.value.current_page || 1);
-    Toast.fire({ icon: 'success', title: `Producto ${isEditing.value ? 'actualizado' : 'creado'} con éxito` });
+    Toast.fire({ icon: 'success', title: `Operación completada con éxito` });
   } catch (error) {
     if (error.response && error.response.status === 422) {
-      Toast.fire({ icon: 'warning', title: error.response.data.message || 'Verifica los campos obligatorios' });
+      Toast.fire({ icon: 'warning', title: error.response.data.message || 'Error en validación técnica' });
     } else {
-      Toast.fire({ icon: 'error', title: 'Ocurrió un error al procesar el producto' });
+      Toast.fire({ icon: 'error', title: 'Fallo crítico en guardado' });
     }
   } finally {
     isSaving.value = false;
@@ -346,17 +355,21 @@ const saveProduct = async () => {
 
 const deleteProduct = async (product) => {
   const result = await ConfirmAlert.fire({
-    title: '¿Confirmar eliminación?',
-    text: `Estás a punto de eliminar el producto "${product.name}". Esta acción no se puede deshacer.`
+    title: '¿Confirmar purga de registro?',
+    text: `Eliminarás permanentemente "${product.name}" del ecosistema.`
   });
 
   if (result.isConfirmed) {
     try {
       await api.delete(`/products/${product.id}`);
       fetchData(productsData.value.current_page || 1);
-      Swal.fire('¡Eliminado!', 'El producto ha sido removido del catálogo.', 'success');
+      Swal.fire({
+        title: 'Registro Purgado',
+        icon: 'success',
+        confirmButtonColor: 'var(--color-primary)'
+      });
     } catch (error) {
-      Swal.fire('Error', 'No se pudo eliminar el producto. Podría estar vinculado a otros registros.', 'error');
+      Swal.fire('Error', 'Restricción de integridad: Este producto posee vínculos activos.', 'error');
     }
   }
 };
@@ -368,52 +381,123 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.text-gradient-primary {
-  background: linear-gradient(135deg, var(--color-primary), #6366f1);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
+.fw-800 { font-weight: 800; }
+.smaller { font-size: 0.85rem; }
+.smallest { font-size: 0.75rem; }
+.tracking-tighter { letter-spacing: -0.02em; }
+.transition-slow { transition: all 0.6s ease; }
 
-.product-preview-circle {
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
-  background: var(--bg-hover);
+.product-premium-frame {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
-.status-dot {
+.product-premium-frame:hover img {
+  transform: scale(1.2) rotate(3deg);
+}
+
+.premium-segmented-control {
+  display: flex;
+  gap: 4px;
+}
+
+.btn-icon-sm {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  border: none;
+}
+
+.input-group-premium {
+  display: flex;
+  align-items: center;
+  background: white;
+  border: 1px solid var(--border-color);
+  border-radius: 50px;
+  padding: 0 10px;
+  transition: all 0.3s ease;
+}
+
+.input-group-premium:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+
+.input-group-premium .form-select {
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.status-indicator {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  display: inline-block;
+  margin-right: 10px;
 }
 
-.separator-text {
+.status-indicator.active { background: #10b981; box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
+.status-indicator.inactive { background: #94a3b8; }
+
+.bg-warning-soft { background: rgba(245, 158, 11, 0.1); }
+.bg-success-soft { background: rgba(16, 185, 129, 0.1); }
+.bg-primary-soft { background: var(--color-primary-soft); }
+
+.premium-separator-text {
   display: flex;
   align-items: center;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--text-muted);
-  margin: 1rem 0;
+  letter-spacing: 0.15em;
+  color: var(--color-primary);
+  margin: 1.5rem 0;
+  opacity: 0.8;
 }
 
-.separator-text::after {
+.premium-separator-text::after {
   content: "";
   flex: 1;
-  height: 1px;
-  background: var(--border-color);
-  margin-left: 1rem;
-  opacity: 0.5;
+  height: 2px;
+  background: linear-gradient(to right, var(--color-primary-soft), transparent);
+  margin-left: 1.5rem;
 }
 
-.custom-switch .form-check-input:checked {
+.premium-textarea {
+  border-radius: 1.25rem;
+  border: 2px solid var(--border-light);
+  background: var(--bg-body-tertiary);
+  padding: 1rem;
+  transition: all 0.3s ease;
+}
+
+.premium-textarea:focus {
+  border-color: var(--color-primary);
+  background: white;
+  box-shadow: 0 0 0 4px var(--color-primary-soft);
+}
+
+.premium-switch .form-check-input {
+  width: 3.2rem;
+  height: 1.8rem;
+  cursor: pointer;
+}
+
+.premium-switch .form-check-input:checked {
   background-color: var(--color-primary);
   border-color: var(--color-primary);
+}
+
+.shadow-brand-sm {
+  box-shadow: 0 10px 20px var(--color-primary-glass) !important;
 }
 </style>

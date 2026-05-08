@@ -1,36 +1,37 @@
 <template>
   <div class="animate__animated animate__fadeIn">
     <!-- Header -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-4">
       <div>
-        <div class="d-flex align-items-center gap-2 mb-1">
-          <router-link :to="{ name: 'productos' }" class="btn btn-sm btn-light rounded-circle">
-            <i class="bi bi-arrow-left"></i>
+        <div class="d-flex align-items-center gap-3 mb-2">
+          <router-link :to="{ name: 'productos' }" class="btn btn-icon-sm rounded-circle bg-light border shadow-sm transition-all hover-primary">
+            <i class="fa-solid fa-arrow-left"></i>
           </router-link>
-          <h3 class="fw-bold mb-0">Galería de Imágenes</h3>
+          <BaseBadge variant="success" soft class="px-3 py-1 rounded-pill fw-bold">Activos Visuales</BaseBadge>
         </div>
-        <p class="text-muted-custom small mb-0" v-if="product">
-          Gestionando imágenes para: <span class="fw-bold text-dark">{{ product.name }}</span> (SKU: {{ product.sku }})
+        <h2 class="fw-800 mb-0 text-body-emphasis lh-1" v-if="product">Galería: {{ product.name }}</h2>
+        <p class="text-body-secondary mt-2 mb-0" v-if="product">
+          Código Maestro: <span class="fw-800 text-primary">{{ product.sku }}</span> • Gestión de narrativa visual.
         </p>
       </div>
       <div class="d-flex gap-2">
-        <button class="btn btn-outline-secondary btn-sm px-3" @click="fetchImages">
-          <i class="bi bi-arrow-clockwise me-2"></i>Actualizar
-        </button>
+        <BaseButton variant="light" class="rounded-pill px-4" @click="fetchImages">
+          <i class="fa-solid fa-rotate me-2"></i>Sincronizar
+        </BaseButton>
       </div>
     </div>
 
     <div class="row g-4">
       <!-- Upload Section -->
       <div class="col-12 col-xl-4">
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-          <div class="card-header bg-white border-0 pt-4 px-4">
-            <h6 class="fw-bold mb-0">Subir Nuevas Imágenes</h6>
-            <p class="text-muted small mb-0">Puedes seleccionar varios archivos a la vez</p>
+        <div class="card border-0 rounded-5 shadow-soft overflow-hidden h-100">
+          <div class="card-header bg-white border-0 pt-5 px-5 pb-0">
+            <h5 class="fw-800 mb-1 text-body-emphasis">Carga de Multimedia</h5>
+            <p class="text-muted smaller mb-0 fw-medium text-uppercase tracking-tighter">Procesamiento por Lotes</p>
           </div>
-          <div class="card-body p-4">
+          <div class="card-body p-5">
             <div 
-              class="upload-zone border-2 border-dashed rounded-4 p-5 text-center transition-all mb-3"
+              class="premium-upload-zone border-2 border-dashed rounded-5 p-5 text-center transition-all mb-4"
               :class="{ 'is-dragging': isDragging, 'is-uploading': isUploading }"
               @dragover.prevent="isDragging = true"
               @dragleave.prevent="isDragging = false"
@@ -46,23 +47,27 @@
                 @change="handleFileSelect"
               >
               <div v-if="!isUploading">
-                <i class="bi bi-cloud-arrow-up fs-1 text-brand mb-2 d-block"></i>
-                <h6 class="fw-bold text-dark">Arrastra tus imágenes aquí</h6>
-                <p class="small text-muted mb-0">o haz clic para buscar archivos</p>
-                <div class="mt-3">
-                  <span class="badge bg-soft-primary text-brand small">JPG, PNG, WEBP</span>
+                <div class="upload-icon-box mb-3 mx-auto">
+                  <i class="fa-solid fa-cloud-arrow-up text-primary fs-2"></i>
+                </div>
+                <h6 class="fw-800 text-body-emphasis mb-2">Suelte archivos aquí</h6>
+                <p class="smallest text-muted mb-0">o explore en su estación de trabajo</p>
+                <div class="mt-4">
+                  <span class="badge rounded-pill bg-primary-soft text-primary px-3 py-2 fw-800 smaller">JPG, PNG, WEBP</span>
                 </div>
               </div>
-              <div v-else>
-                <div class="spinner-border text-brand mb-3" role="status"></div>
-                <h6 class="fw-bold text-dark">Subiendo archivos...</h6>
-                <p class="small text-muted mb-0">Por favor, espera un momento</p>
+              <div v-else class="py-4">
+                <div class="spinner-border text-primary mb-4" role="status" style="width: 3rem; height: 3rem;"></div>
+                <h6 class="fw-800 text-body-emphasis mb-1">Cifrando y Subiendo...</h6>
+                <p class="smallest text-muted mb-0">No cierre la ventana maestro</p>
               </div>
             </div>
 
-            <div class="alert bg-soft-info border-0 small mb-0">
-              <i class="bi bi-info-circle-fill me-2"></i>
-              La primera imagen que subas será marcada automáticamente como **Principal**.
+            <div class="alert bg-light border rounded-4 smaller d-flex gap-3 p-3 mb-0">
+              <i class="fa-solid fa-circle-info text-primary fs-5"></i>
+              <div class="text-body-secondary fw-medium">
+                La secuencia de carga determinará automáticamente el <span class="fw-800 text-dark">Maestro Visual (Principal)</span>.
+              </div>
             </div>
           </div>
         </div>
@@ -70,55 +75,65 @@
 
       <!-- Gallery Grid -->
       <div class="col-12 col-xl-8">
-        <div class="card border-0 shadow-sm rounded-4 h-100">
-          <div class="card-header bg-white border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
-            <h6 class="fw-bold mb-0">Imágenes del Producto ({{ images.length }})</h6>
+        <div class="card border-0 rounded-5 shadow-soft h-100">
+          <div class="card-header bg-white border-0 pt-5 px-5 pb-0">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <h5 class="fw-800 mb-0 text-body-emphasis">Vitrina Digital</h5>
+              <span class="badge rounded-pill bg-light border text-dark px-3 py-2 fw-800 smaller">
+                {{ images.length }} ARCHIVOS
+              </span>
+            </div>
+            <p class="text-muted smaller mb-0 fw-medium text-uppercase tracking-tighter">Inventario de Imágenes</p>
           </div>
-          <div class="card-body p-4">
+          <div class="card-body p-5">
             <div v-if="isLoading" class="text-center py-5">
-              <div class="spinner-border text-brand" role="status"></div>
-              <p class="text-muted mt-2 small">Cargando galería...</p>
+              <div class="spinner-border text-primary" role="status"></div>
+              <p class="text-muted mt-3 smaller fw-800 text-uppercase tracking-wider">Desencriptando Galería...</p>
             </div>
 
             <div v-else-if="images.length === 0" class="text-center py-5">
-              <i class="bi bi-images fs-1 text-muted opacity-25 mb-3 d-block"></i>
-              <h6 class="text-muted fw-bold">Sin imágenes registradas</h6>
-              <p class="small text-muted">Utiliza el panel de la izquierda para comenzar.</p>
+              <div class="empty-gallery-icon mb-4 mx-auto opacity-20">
+                <i class="fa-solid fa-images display-1"></i>
+              </div>
+              <h6 class="text-muted fw-800 text-uppercase tracking-wider mb-2">Bóveda Visual Vacía</h6>
+              <p class="small text-muted">Inicie la carga multimedia para generar contenido.</p>
             </div>
 
-            <div v-else class="row g-3">
+            <div v-else class="row g-4">
               <div class="col-6 col-md-4 col-lg-3" v-for="image in images" :key="image.id">
-                <div class="image-card position-relative rounded-4 overflow-hidden shadow-sm border h-100">
+                <div class="premium-image-card position-relative rounded-5 overflow-hidden shadow-sm border-2 border-white h-100 transition-all">
                   <!-- Primary Badge -->
-                  <div v-if="image.is_primary" class="position-absolute top-0 start-0 m-2 z-1">
-                    <span class="badge bg-brand text-white shadow-sm px-2">
-                      <i class="bi bi-star-fill me-1"></i>Principal
+                  <div v-if="image.is_primary" class="position-absolute top-0 start-0 m-3 z-3">
+                    <span class="badge bg-brand text-white shadow-brand-sm px-3 py-2 rounded-pill fw-800 smallest">
+                      <i class="fa-solid fa-star me-1"></i>MAESTRO
                     </span>
                   </div>
 
                   <!-- Image Container -->
-                  <div class="ratio ratio-1x1 bg-light">
-                    <img :src="image.url" class="object-fit-cover" :alt="product?.name">
+                  <div class="ratio ratio-1x1 bg-light overflow-hidden">
+                    <img :src="image.url" class="object-fit-cover transition-slow" :alt="product?.name">
                   </div>
 
                   <!-- Hover Actions -->
-                  <div class="image-actions d-flex justify-content-center align-items-center gap-2 transition-all">
+                  <div class="premium-image-actions d-flex justify-content-center align-items-center gap-3 transition-all z-2">
                     <button 
-                      class="btn btn-sm btn-white rounded-circle shadow-sm" 
+                      class="btn btn-white btn-icon-md rounded-circle shadow-lg" 
                       @click="setPrimary(image.id)"
                       :disabled="image.is_primary"
                       title="Marcar como Principal"
                     >
-                      <i class="bi" :class="image.is_primary ? 'bi-star-fill text-warning' : 'bi-star'"></i>
+                      <i class="fa-solid" :class="image.is_primary ? 'fa-star text-warning' : 'fa-star-half-stroke'"></i>
                     </button>
                     <button 
-                      class="btn btn-sm btn-danger rounded-circle shadow-sm" 
+                      class="btn btn-danger btn-icon-md rounded-circle shadow-lg" 
                       @click="deleteImage(image.id)"
-                      title="Eliminar"
+                      title="Eliminar permanentemente"
                     >
-                      <i class="bi bi-trash"></i>
+                      <i class="fa-solid fa-trash-can"></i>
                     </button>
                   </div>
+                  <!-- Decorative Overlay -->
+                  <div class="image-inner-overlay position-absolute inset-0 z-1"></div>
                 </div>
               </div>
             </div>
@@ -134,6 +149,8 @@ import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import api from '../plugins/axios';
 import { Toast, ConfirmAlert } from '../plugins/swal';
+import BaseBadge from '../components/base/BaseBadge.vue';
+import BaseButton from '../components/base/BaseButton.vue';
 
 const route = useRoute();
 const productId = route.params.id;
@@ -156,7 +173,7 @@ const fetchProduct = async () => {
     product.value = response.data;
   } catch (error) {
     console.error('Error al cargar producto');
-    Toast.fire({ icon: 'error', title: 'No se pudo cargar el producto' });
+    Toast.fire({ icon: 'error', title: 'Fallo al recuperar metadatos del producto' });
   }
 };
 
@@ -188,27 +205,26 @@ const handleDrop = (event) => {
 };
 
 const uploadImages = async (files) => {
-  // Validar tipos de archivo
   const validFiles = files.filter(file => file.type.match('image.*'));
   if (validFiles.length === 0) {
-    return Toast.fire({ icon: 'warning', title: 'Solo se permiten archivos de imagen' });
+    return Toast.fire({ icon: 'warning', title: 'Restricción de tipo: Solo se admiten formatos visuales' });
   }
 
   isUploading.value = true;
   const formData = new FormData();
   validFiles.forEach(file => {
-    formData.append('images[]', file); // Nota el uso de [] para múltiples archivos en Laravel
+    formData.append('images[]', file); 
   });
 
   try {
     await api.post(`/products/${productId}/images`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
-    Toast.fire({ icon: 'success', title: 'Imágenes subidas correctamente' });
+    Toast.fire({ icon: 'success', title: 'Multimedia sincronizado correctamente' });
     fetchImages();
     if (fileInput.value) fileInput.value.value = '';
   } catch (error) {
-    Toast.fire({ icon: 'error', title: 'Error al subir las imágenes' });
+    Toast.fire({ icon: 'error', title: 'Fallo crítico en transferencia de datos' });
   } finally {
     isUploading.value = false;
   }
@@ -218,73 +234,135 @@ const setPrimary = async (imageId) => {
   try {
     await api.put(`/products/${productId}/images/${imageId}/primary`);
     fetchImages();
-    Toast.fire({ icon: 'success', title: 'Imagen principal actualizada' });
+    Toast.fire({ icon: 'success', title: 'Maestro Visual actualizado' });
   } catch (error) {
-    Toast.fire({ icon: 'error', title: 'Error al actualizar' });
+    Toast.fire({ icon: 'error', title: 'Error de jerarquía visual' });
   }
 };
 
 const deleteImage = async (imageId) => {
   const result = await ConfirmAlert.fire({
-    title: '¿Eliminar imagen?',
-    text: 'Esta acción no se puede deshacer.'
+    title: '¿Confirmar purga de archivo?',
+    text: 'Esta acción eliminará permanentemente el activo multimedia.'
   });
 
   if (result.isConfirmed) {
     try {
       await api.delete(`/products/${productId}/images/${imageId}`);
       fetchImages();
-      Toast.fire({ icon: 'success', title: 'Imagen eliminada' });
+      Toast.fire({ icon: 'success', title: 'Activo purgado con éxito' });
     } catch (error) {
-      Toast.fire({ icon: 'error', title: 'Error al eliminar' });
+      Toast.fire({ icon: 'error', title: 'Fallo al purgar archivo' });
     }
   }
 };
 </script>
 
 <style scoped>
-.upload-zone {
-  border-color: #dee2e6;
+.fw-800 { font-weight: 800; }
+.smaller { font-size: 0.85rem; }
+.smallest { font-size: 0.75rem; }
+.tracking-tighter { letter-spacing: -0.02em; }
+.tracking-wider { letter-spacing: 0.1em; }
+.shadow-soft { box-shadow: 0 10px 40px rgba(0,0,0,0.04) !important; }
+.transition-slow { transition: all 0.6s ease; }
+
+.btn-icon-sm {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  border: none;
+}
+
+.btn-icon-md {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.hover-primary:hover {
+  background: var(--color-primary-soft) !important;
+  color: var(--color-primary) !important;
+}
+
+.premium-upload-zone {
+  border-color: var(--border-color);
   cursor: pointer;
-  background-color: #f8f9fa;
-  min-height: 200px;
+  background-color: var(--bg-body-tertiary);
+  min-height: 240px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.upload-zone:hover, .upload-zone.is-dragging {
+.premium-upload-zone:hover, .premium-upload-zone.is-dragging {
   border-color: var(--color-primary);
   background-color: var(--color-primary-soft);
 }
 
-.upload-zone.is-uploading {
+.upload-icon-box {
+  width: 64px;
+  height: 64px;
+  background: white;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+}
+
+.bg-primary-soft { background: var(--color-primary-soft); }
+
+.premium-image-card:hover img {
+  transform: scale(1.1);
+}
+
+.premium-image-actions {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -40%);
+  opacity: 0;
   pointer-events: none;
-  opacity: 0.7;
+}
+
+.premium-image-card:hover .premium-image-actions {
+  opacity: 1;
+  transform: translate(-50%, -50%);
+  pointer-events: all;
+}
+
+.image-inner-overlay {
+  background: linear-gradient(to top, rgba(0,0,0,0.4), transparent 50%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.premium-image-card:hover .image-inner-overlay {
+  opacity: 1;
 }
 
 .btn-white {
   background-color: white;
-  color: var(--text-dark);
+  color: var(--slate-900);
+  border: none;
 }
 
-.image-card .image-actions {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(2px);
-  opacity: 0;
-  z-index: 2;
+.btn-white:hover {
+  background-color: var(--color-primary);
+  color: white;
 }
 
-.image-card:hover .image-actions {
-  opacity: 1;
+.shadow-brand-sm {
+  box-shadow: 0 10px 20px var(--color-primary-glass) !important;
 }
 
-.object-fit-cover {
-  object-fit: cover;
-}
+.inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+.rounded-5 { border-radius: 2rem !important; }
 </style>

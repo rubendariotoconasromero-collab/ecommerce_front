@@ -1,31 +1,32 @@
 <template>
   <div class="animate__animated animate__fadeIn">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-4">
       <div>
-        <h3 class="fw-bold mb-0 text-body-emphasis text-gradient-primary">Gestión de Categorías</h3>
-        <p class="text-body-secondary small mb-0">Organiza tus productos por grupos lógicos y visuales</p>
+        <BaseBadge variant="primary" soft class="mb-2 px-3 py-1 rounded-pill fw-bold">Estructura de Tienda</BaseBadge>
+        <h2 class="fw-800 mb-0 text-body-emphasis lh-1">Gestión de Categorías</h2>
+        <p class="text-body-secondary mt-2 mb-0">Organiza tu inventario con una jerarquía visual impecable.</p>
       </div>
-      <div class="d-flex gap-2">
-        <div class="btn-group shadow-sm">
+      <div class="d-flex align-items-center gap-3">
+        <div class="premium-segmented-control shadow-sm p-1 rounded-pill bg-light border">
           <button 
-            class="btn btn-light" 
-            :class="{ active: currentLayout === 'table' }"
+            class="btn btn-icon-sm rounded-circle transition-all" 
+            :class="{ 'bg-white shadow-sm text-primary': currentLayout === 'table', 'text-muted': currentLayout !== 'table' }"
             @click="currentLayout = 'table'"
             title="Vista de Tabla"
           >
-            <i class="bi bi-list-ul"></i>
+            <i class="fa-solid fa-list-ul"></i>
           </button>
           <button 
-            class="btn btn-light" 
-            :class="{ active: currentLayout === 'card' }"
+            class="btn btn-icon-sm rounded-circle transition-all" 
+            :class="{ 'bg-white shadow-sm text-primary': currentLayout === 'card' }"
             @click="currentLayout = 'card'"
             title="Vista de Cuadrícula"
           >
-            <i class="bi bi-grid-3x3-gap"></i>
+            <i class="fa-solid fa-table-cells-large"></i>
           </button>
         </div>
-        <BaseButton variant="brand" icon="bi bi-plus-circle" @click="openModal(null)">
-          Nueva Categoría
+        <BaseButton variant="brand" class="rounded-pill px-4 py-2 fw-bold shadow-brand-sm" @click="openModal(null)">
+          <i class="fa-solid fa-circle-plus me-2"></i> Nueva Categoría
         </BaseButton>
       </div>
     </div>
@@ -40,15 +41,15 @@
       subtitle-key="slug"
       main-col-label="CATEGORÍA"
       empty-title="No hay categorías registradas"
-      empty-icon="bi bi-folder-x"
+      empty-icon="fa-solid fa-folder-open"
       @edit="openModal"
       @delete="deleteCategory"
     >
       <!-- Custom Avatar for Category Image -->
       <template #item-avatar="{ item }">
-        <div class="category-preview-circle overflow-hidden border shadow-sm">
-          <img v-if="item.image_url" :src="item.image_url" alt="Cat" class="w-100 h-100 object-fit-cover">
-          <div v-else class="w-100 h-100 d-flex align-items-center justify-content-center bg-soft-primary text-primary fw-bold fs-5">
+        <div class="category-premium-frame overflow-hidden shadow-sm border-2 border-white">
+          <img v-if="item.image_url" :src="item.image_url" alt="Cat" class="w-100 h-100 object-fit-cover transition-slow">
+          <div v-else class="w-100 h-100 d-flex align-items-center justify-content-center bg-soft-primary text-primary fw-800 fs-5">
             {{ item.name?.charAt(0).toUpperCase() }}
           </div>
         </div>
@@ -56,39 +57,41 @@
 
       <!-- Custom column for products count -->
       <template #col-products_count="{ value }">
-        <div class="text-body-secondary small fw-medium">
-          <BaseBadge variant="secondary" soft class="border">
-            <i class="bi bi-box-seam me-1"></i> {{ value || 0 }} productos
-          </BaseBadge>
+        <div class="text-body-secondary small fw-bold">
+          <span class="badge rounded-pill bg-light border text-dark px-3 py-2">
+            <i class="fa-solid fa-boxes-stacked text-primary me-2"></i> {{ value || 0 }} ítems
+          </span>
         </div>
       </template>
 
       <!-- Status Badge -->
       <template #item-status="{ item }">
-        <BaseBadge v-if="item.is_active" variant="success" soft class="px-2 py-1">
-          <i class="bi bi-check-circle me-1"></i> Activa
-        </BaseBadge>
-        <BaseBadge v-else variant="danger" soft class="px-2 py-1">
-          <i class="bi bi-x-circle me-1"></i> Inactiva
-        </BaseBadge>
+        <div class="d-flex align-items-center">
+          <div v-if="item.is_active" class="status-indicator active"></div>
+          <div v-else class="status-indicator inactive"></div>
+          <span class="smaller fw-800 text-uppercase tracking-tighter" :class="item.is_active ? 'text-success' : 'text-danger'">
+            {{ item.is_active ? 'Publicada' : 'Oculta' }}
+          </span>
+        </div>
       </template>
     </BaseDataGrid>
 
-    <BaseModal v-model="showModal" :title="isEditing ? 'Editar Categoría' : 'Nueva Categoría'" size="md">
-      <form @submit.prevent="saveCategory" id="categoryForm">
+    <BaseModal v-model="showModal" :title="isEditing ? 'Configurar Categoría' : 'Nueva Categoría Maestro'" size="md">
+      <form @submit.prevent="saveCategory" id="categoryForm" class="p-2">
         <div class="row g-4">
           <div class="col-12">
             <BaseInput 
               v-model="form.name" 
-              label="Nombre de la Categoría" 
-              placeholder="Ej: Inyección Plástica, Envases, etc." 
+              label="Etiqueta de Categoría" 
+              placeholder="Ej: Inyección Industrial de Polímeros" 
               required
+              class="premium-input"
             />
           </div>
 
           <div class="col-12">
-            <label class="form-label small fw-bold text-body-secondary text-uppercase mb-2 ms-1">Imagen de Portada</label>
-            <div class="upload-zone rounded-4 border-dashed p-4 text-center transition-all" :class="{ 'has-preview': previewImage }">
+            <label class="form-label smaller fw-800 text-body-secondary text-uppercase tracking-tighter mb-2">Visual de Portada</label>
+            <div class="premium-upload-zone rounded-5 border-dashed p-2 text-center transition-all" :class="{ 'has-preview': previewImage }">
               <input 
                 type="file" 
                 id="categoryImage" 
@@ -96,16 +99,20 @@
                 accept="image/*"
                 @change="onFileChange"
               >
-              <label for="categoryImage" class="upload-label cursor-pointer w-100 h-100 mb-0">
-                <div v-if="!previewImage" class="animate__animated animate__fadeIn">
-                  <i class="bi bi-cloud-arrow-up display-4 text-body-tertiary"></i>
-                  <p class="mt-2 mb-0 fw-semibold text-body-emphasis">Selecciona una imagen</p>
-                  <p class="small text-body-secondary">JPG, PNG o WEBP (Máx. 2MB)</p>
+              <label for="categoryImage" class="upload-label cursor-pointer w-100 h-100 mb-0 d-flex align-items-center justify-content-center" style="min-height: 200px;">
+                <div v-if="!previewImage" class="animate__animated animate__fadeIn py-4">
+                  <div class="upload-icon-box mb-3 mx-auto">
+                    <i class="fa-solid fa-cloud-arrow-up text-primary fs-3"></i>
+                  </div>
+                  <h6 class="fw-800 text-body-emphasis mb-1">Arrastra o selecciona imagen</h6>
+                  <p class="smallest text-muted mb-0">Recomendado: 800x600px (Máx. 2MB)</p>
                 </div>
-                <div v-else class="preview-container position-relative animate__animated animate__zoomIn animate__faster">
-                  <img :src="previewImage" alt="Preview" class="img-fluid rounded-3 shadow-sm preview-img">
-                  <div class="preview-overlay position-absolute inset-0 d-flex align-items-center justify-content-center rounded-3">
-                    <span class="badge bg-dark-glass px-3 py-2 rounded-pill"><i class="bi bi-pencil-square me-2"></i>Cambiar</span>
+                <div v-else class="preview-stage position-relative animate__animated animate__zoomIn">
+                  <img :src="previewImage" alt="Preview" class="img-fluid rounded-4 shadow-sm preview-img">
+                  <div class="preview-actions position-absolute top-50 start-50 translate-middle d-flex gap-2">
+                    <span class="badge bg-white text-dark shadow-lg px-4 py-2 rounded-pill fw-800 smaller pointer-events-none">
+                      <i class="fa-solid fa-image-rotate me-2 text-primary"></i> Cambiar Arte
+                    </span>
                   </div>
                 </div>
               </label>
@@ -113,24 +120,24 @@
           </div>
 
           <div class="col-12">
-            <label class="form-label small fw-bold text-body-secondary text-uppercase mb-1 ms-1">Descripción Breve</label>
-            <textarea class="form-control bg-body-tertiary border-0 shadow-none" rows="2" v-model="form.description" placeholder="Describe esta categoría..."></textarea>
+            <label class="form-label smaller fw-800 text-body-secondary text-uppercase tracking-tighter mb-2">Narrativa de Categoría</label>
+            <textarea class="form-control premium-textarea" rows="3" v-model="form.description" placeholder="Escribe una breve descripción técnica o comercial..."></textarea>
           </div>
 
           <div class="col-12">
-            <div class="p-3 bg-body-tertiary rounded-4">
-              <div class="form-check form-switch custom-switch">
+            <div class="p-3 bg-light rounded-4 border">
+              <div class="form-check form-switch premium-switch d-flex align-items-center justify-content-between px-0">
+                <label class="form-check-label ms-0" for="activeSwitch">
+                  <span class="fw-800 text-body-emphasis">Estado de Visibilidad</span>
+                  <div class="smallest text-muted">¿Habilitar para venta al público?</div>
+                </label>
                 <input 
-                  class="form-check-input" 
+                  class="form-check-input ms-0 mt-0 shadow-none" 
                   type="checkbox" 
                   role="switch" 
                   id="activeSwitch" 
                   v-model="form.is_active"
                 >
-                <label class="form-check-label ms-2" for="activeSwitch">
-                  <span class="fw-bold text-body-emphasis">Categoría Visible</span>
-                  <div class="text-body-secondary smaller">Se mostrará en la tienda pública</div>
-                </label>
               </div>
             </div>
           </div>
@@ -138,10 +145,10 @@
       </form>
 
       <template #footer>
-        <div class="d-flex justify-content-end gap-2 w-100">
-          <BaseButton variant="light" @click="showModal = false">Cancelar</BaseButton>
-          <BaseButton type="submit" form="categoryForm" variant="brand" :loading="isSaving">
-            {{ isEditing ? 'Actualizar Categoría' : 'Crear Categoría' }}
+        <div class="d-flex justify-content-end gap-3 w-100 p-2">
+          <BaseButton variant="light" class="rounded-pill px-4" @click="showModal = false">Cancelar</BaseButton>
+          <BaseButton type="submit" form="categoryForm" variant="brand" class="rounded-pill px-5 shadow-brand-sm" :loading="isSaving">
+            {{ isEditing ? 'Guardar Cambios' : 'Generar Categoría' }}
           </BaseButton>
         </div>
       </template>
@@ -168,7 +175,7 @@ const isEditing = ref(false);
 const showModal = ref(false);
 
 const gridColumns = [
-  { label: 'PRODUCTOS ASOCIADOS', key: 'products_count', align: 'center' }
+  { label: 'ÍTEMS ACTIVOS', key: 'products_count', align: 'center' }
 ];
 
 const form = reactive({
@@ -188,7 +195,7 @@ const fetchData = async () => {
     categories.value = response.data;
   } catch (error) {
     console.error('Error al cargar categorías:', error);
-    Toast.fire({ icon: 'error', title: 'Error al cargar los datos' });
+    Toast.fire({ icon: 'error', title: 'Error de sincronización con la nube' });
   } finally {
     isLoading.value = false;
   }
@@ -199,7 +206,7 @@ const onFileChange = (event) => {
   if (!file) return;
 
   if (file.size > 2 * 1024 * 1024) {
-    Toast.fire({ icon: 'warning', title: 'La imagen excede los 2MB' });
+    Toast.fire({ icon: 'warning', title: 'El archivo excede los límites (2MB)' });
     return;
   }
 
@@ -244,7 +251,7 @@ const saveCategory = async () => {
   }
 
   if (isEditing.value) {
-    formData.append('_method', 'PUT'); // Laravel requiere _method para procesar FormData con PUT
+    formData.append('_method', 'PUT'); 
   }
 
   try {
@@ -255,12 +262,12 @@ const saveCategory = async () => {
     
     showModal.value = false;
     fetchData();
-    Toast.fire({ icon: 'success', title: `Categoría ${isEditing.value ? 'actualizada' : 'creada'} correctamente` });
+    Toast.fire({ icon: 'success', title: `Procesado con éxito` });
   } catch (error) {
     if (error.response && error.response.status === 422) {
-      Toast.fire({ icon: 'warning', title: error.response.data.message || 'Verifica los datos' });
+      Toast.fire({ icon: 'warning', title: error.response.data.message || 'Verifica los parámetros' });
     } else {
-      Toast.fire({ icon: 'error', title: 'Error al procesar la solicitud' });
+      Toast.fire({ icon: 'error', title: 'Fallo crítico en el servidor' });
     }
   } finally {
     isSaving.value = false;
@@ -269,21 +276,31 @@ const saveCategory = async () => {
 
 const deleteCategory = async (category) => {
   if (category.products_count > 0) {
-    return Swal.fire('No permitido', `Esta categoría tiene ${category.products_count} productos asociados.`, 'warning');
+    return Swal.fire({
+      title: 'Operación Bloqueada',
+      text: `Esta categoría resguarda ${category.products_count} productos. Reubícalos primero.`,
+      icon: 'warning',
+      confirmButtonColor: 'var(--color-primary)'
+    });
   }
 
   const result = await ConfirmAlert.fire({
-    title: '¿Eliminar Categoría?',
-    text: `Estás a punto de eliminar "${category.name}".`
+    title: '¿Confirmar eliminación?',
+    text: `Esta acción es irreversible para la categoría "${category.name}".`
   });
 
   if (result.isConfirmed) {
     try {
       await api.delete(`/categories/${category.id}`);
       fetchData();
-      Swal.fire('Eliminado', 'La categoría ha sido eliminada.', 'success');
+      Swal.fire({
+        title: 'Depurado',
+        text: 'Registro eliminado permanentemente.',
+        icon: 'success',
+        confirmButtonColor: 'var(--color-primary)'
+      });
     } catch (error) {
-      Swal.fire('Error', 'No se pudo eliminar la categoría.', 'error');
+      Swal.fire('Error', 'Fallo al purgar registro.', 'error');
     }
   }
 };
@@ -294,16 +311,16 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.text-gradient-primary {
-  background: linear-gradient(135deg, var(--color-primary), #6366f1);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
+.fw-800 { font-weight: 800; }
+.smaller { font-size: 0.85rem; }
+.smallest { font-size: 0.75rem; }
+.tracking-tighter { letter-spacing: -0.02em; }
+.transition-slow { transition: all 0.6s ease; }
 
-.category-preview-circle {
-  width: 50px;
-  height: 50px;
-  border-radius: 14px;
+.category-premium-frame {
+  width: 60px;
+  height: 60px;
+  border-radius: 20px;
   background: var(--bg-hover);
   display: flex;
   align-items: center;
@@ -311,57 +328,99 @@ onMounted(() => {
   flex-shrink: 0;
 }
 
-.upload-zone {
-  border: 2px dashed var(--border-color);
-  background: var(--bg-body-tertiary);
-  min-height: 180px;
+.category-premium-frame:hover img {
+  transform: scale(1.15);
+}
+
+.premium-segmented-control {
+  display: flex;
+  gap: 4px;
+}
+
+.btn-icon-sm {
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  overflow: hidden;
+  font-size: 0.9rem;
+  border: none;
 }
 
-.upload-zone:hover {
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.status-indicator.active { background: #10b981; box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
+.status-indicator.inactive { background: #ef4444; }
+
+.premium-upload-zone {
+  border: 2px dashed var(--border-color);
+  background: var(--bg-body-tertiary);
+  cursor: pointer;
+  overflow: hidden;
+  border-radius: 2rem !important;
+}
+
+.premium-upload-zone:hover {
   border-color: var(--color-primary);
   background: var(--bg-hover);
 }
 
-.upload-zone.has-preview {
-  border-style: solid;
-  padding: 0.5rem !important;
+.upload-icon-box {
+  width: 60px;
+  height: 60px;
+  background: var(--color-primary-soft);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.preview-container {
+.preview-stage img {
   width: 100%;
-  height: 160px;
-}
-
-.preview-img {
-  width: 100%;
-  height: 100%;
+  height: 220px;
   object-fit: cover;
 }
 
-.preview-overlay {
-  background: rgba(0, 0, 0, 0.4);
+.preview-actions {
   opacity: 0;
   transition: opacity 0.3s ease;
 }
 
-.preview-container:hover .preview-overlay {
+.preview-stage:hover .preview-actions {
   opacity: 1;
 }
 
-.bg-dark-glass {
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
+.premium-textarea {
+  border-radius: 1.25rem;
+  border: 2px solid var(--border-light);
+  background: var(--bg-body-tertiary);
+  padding: 1rem;
+  transition: all 0.3s ease;
 }
 
-.custom-switch .form-check-input:checked {
+.premium-textarea:focus {
+  border-color: var(--color-primary);
+  background: white;
+  box-shadow: 0 0 0 4px var(--color-primary-soft);
+}
+
+.premium-switch .form-check-input {
+  width: 3rem;
+  height: 1.75rem;
+  cursor: pointer;
+}
+
+.premium-switch .form-check-input:checked {
   background-color: var(--color-primary);
   border-color: var(--color-primary);
 }
 
-.cursor-pointer { cursor: pointer; }
+.shadow-brand-sm {
+  box-shadow: 0 10px 20px var(--color-primary-glass) !important;
+}
 </style>
