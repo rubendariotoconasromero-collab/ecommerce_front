@@ -3,21 +3,31 @@
     <!-- Public Navbar Reutilizable -->
     <PublicNavbar />
 
-    <!-- Hero Section Reducida -->
-    <section class="catalog-hero pt-5 mt-5 pb-4 bg-gradient-subtle">
-      <div class="container py-4">
+    <!-- Hero Section Reducida con Efecto Líquido -->
+    <section class="catalog-hero pt-5 mt-5 pb-4 position-relative overflow-hidden">
+      <!-- Fondo Líquido Premium -->
+      <div class="premium-liquid-bg position-absolute inset-0 z-0">
+        <div class="liquid-blob blob-1"></div>
+        <div class="liquid-blob blob-2"></div>
+        <div class="liquid-blob blob-3"></div>
+        <div class="liquid-overlay"></div>
+      </div>
+      
+      <div class="container py-5 position-relative z-1">
         <div class="row align-items-center gy-4">
           <div class="col-lg-12">
-            <BaseBadge variant="primary" soft class="mb-3 px-3 py-2 rounded-pill fw-bold">Explorar Inventario</BaseBadge>
-            <h1 class="display-4 fw-800 mb-3 lh-1">Catálogo Completo de Productos</h1>
-            <p class="lead text-body-secondary">Descubre nuestro amplio catálogo de soluciones plásticas de alta ingeniería. Filtra por categoría, precio y disponibilidad.</p>
+            <BaseBadge variant="primary" soft class="mb-3 px-3 py-2 rounded-pill fw-bold">
+              <i class="bi bi-box-seam me-1"></i> Inventario Premium
+            </BaseBadge>
+            <h1 class="display-4 fw-900 mb-3 lh-1 text-body-emphasis">Catálogo de Productos</h1>
+            <p class="lead text-body-secondary mb-0 max-w-600">Descubre soluciones plásticas de alta ingeniería diseñadas para el máximo rendimiento.</p>
           </div>
         </div>
       </div>
     </section>
 
     <!-- Main Content -->
-    <section class="catalog-content py-10">
+    <section class="catalog-content py-5">
       <div class="container">
         <div class="row g-4">
           <!-- Sidebar Filtros -->
@@ -276,39 +286,8 @@
       </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="footer pt-8 pb-4 bg-dark text-white border-top">
-      <div class="container">
-        <div class="row g-4 mb-6">
-          <div class="col-lg-4">
-            <div class="d-flex align-items-center gap-2 mb-3">
-              <span class="fw-bold fs-4">CodeSoft</span>
-            </div>
-            <p class="text-white-50 small">Líderes en soluciones plásticas de alta ingeniería.</p>
-          </div>
-          <div class="col-lg-2">
-            <h6 class="fw-800 text-white mb-3 text-uppercase small">Enlaces</h6>
-            <ul class="list-unstyled small">
-              <li><router-link to="/" class="text-white-50 text-decoration-none">Inicio</router-link></li>
-              <li><a href="#" class="text-white-50 text-decoration-none">Contacto</a></li>
-              <li><a href="#" class="text-white-50 text-decoration-none">Ayuda</a></li>
-            </ul>
-          </div>
-          <div class="col-lg-6">
-            <h6 class="fw-800 text-white mb-3 text-uppercase small">Contacto</h6>
-            <p class="text-white-50 small mb-0">
-              📧 ventas@codesoft.com.bo<br>
-              📞 +591 3 345 6789
-            </p>
-          </div>
-        </div>
-        <div class="border-top border-secondary border-opacity-10 pt-4">
-          <p class="text-white-50 smaller text-center mb-0">
-            &copy; 2026 CodeSoft. Todos los derechos reservados.
-          </p>
-        </div>
-      </div>
-    </footer>
+    <!-- Footer Reutilizable -->
+    <PublicFooter :settings="settings" />
   </div>
 </template>
 
@@ -319,6 +298,7 @@ import api from '../plugins/axios';
 import BaseButton from '../components/base/BaseButton.vue';
 import BaseBadge from '../components/base/BaseBadge.vue';
 import PublicNavbar from '../components/PublicNavbar.vue';
+import PublicFooter from '../components/PublicFooter.vue';
 
 const route = useRoute();
 
@@ -524,13 +504,83 @@ watch(() => route.query.category, () => {
 /* Hero */
 .catalog-hero {
   padding-top: 6rem;
+  background: var(--bs-body-bg);
 }
+
+.premium-liquid-bg {
+  pointer-events: none;
+  background: var(--bs-body-bg);
+  overflow: hidden;
+}
+
+.liquid-blob {
+  position: absolute;
+  filter: blur(140px);
+  border-radius: 50%;
+  opacity: 0.9;
+  transition: all 1s ease;
+}
+
+.blob-1 {
+  width: 600px;
+  height: 600px;
+  /* background: var(--color-primary); */
+  background: rgb(17, 92, 255);
+  filter: blur(140px) brightness(1.1) hue-rotate(10deg);
+  top: -20%;
+  left: -10%;
+  animation: liquid-move-1 6s infinite alternate;
+}
+
+.blob-2 {
+  width: 500px;
+  height: 500px;
+  /* background: var(--color-primary); */
+  background: rgb(17, 92, 255);
+  filter: blur(140px) brightness(1.2) hue-rotate(-10deg);
+  bottom: -20%;
+  right: -5%;
+  animation: liquid-move-2 8s infinite alternate;
+}
+
+.blob-3 {
+  width: 400px;
+  height: 400px;
+  /* background: var(--color-primary); */
+  background: rgb(17, 92, 255);
+  filter: blur(140px) brightness(1.1) hue-rotate(10deg);
+  top: 10%;
+  left: 50%;
+  animation: liquid-move-3 5s infinite alternate;
+}
+
+@keyframes liquid-move-1 {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(80px, 40px) scale(1.1); }
+}
+
+@keyframes liquid-move-2 {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(-60px, -30px) scale(1.15); }
+}
+
+@keyframes liquid-move-3 {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  100% { transform: translate(40px, -40px) rotate(90deg); }
+}
+
+.liquid-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, transparent 0%, var(--bs-body-bg) 90%);
+  opacity: 0.6;
+}
+
+.max-w-600 { max-width: 600px; }
 
 .stats-box {
   border: 1px solid rgba(0, 0, 0, 0.05);
 }
-
-/* Filters */
 .filters-card {
   border: 1px solid rgba(0, 0, 0, 0.05);
 }
@@ -685,10 +735,10 @@ watch(() => route.query.category, () => {
   border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
-.pagination-premium .page-link {
+.pagination-premium .page-link:focus {
   border: none;
   transition: all 0.3s ease;
-  color: var(--text-main);
+  color: white;
 }
 
 .pagination-premium .page-link:hover:not(.disabled) {

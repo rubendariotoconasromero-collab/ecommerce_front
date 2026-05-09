@@ -1,19 +1,27 @@
 <template>
   <div class="product-detail-page bg-body min-vh-100 d-flex flex-column">
     <PublicNavbar />
+    
+    <!-- Header/Breadcrumb Section: Estilo Premium con Efecto Líquido -->
+    <section class="product-detail-header pt-5 mt-5 pb-4 position-relative overflow-hidden">
+      <!-- Fondo Líquido Premium -->
+      <div class="premium-liquid-bg position-absolute inset-0 z-0">
+        <div class="liquid-blob blob-1"></div>
+        <div class="liquid-blob blob-2"></div>
+        <div class="liquid-blob blob-3"></div>
+        <div class="liquid-overlay"></div>
+      </div>
 
-    <!-- Breadcrumb: Navegación Limpia -->
-    <nav class="breadcrumb-container pt-10 mt-5 pb-4">
-      <div class="container">
+      <div class="container py-4 position-relative z-1">
         <nav aria-label="breadcrumb">
           <ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item"><router-link to="/" class="text-decoration-none opacity-50 hover-opacity-100 transition-all">Inicio</router-link></li>
-            <li class="breadcrumb-item"><router-link :to="{ name: 'catalogo' }" class="text-decoration-none opacity-50 hover-opacity-100 transition-all">Catálogo</router-link></li>
-            <li class="breadcrumb-item active fw-bold text-primary" aria-current="page">{{ product.name || 'Cargando...' }}</li>
+            <li class="breadcrumb-item"><router-link to="/" class="text-body-secondary opacity-50 hover-opacity-100 transition-all text-decoration-none small">Inicio</router-link></li>
+            <li class="breadcrumb-item"><router-link :to="{ name: 'catalogo' }" class="text-body-secondary opacity-50 hover-opacity-100 transition-all text-decoration-none small">Catálogo</router-link></li>
+            <li class="breadcrumb-item active text-body-emphasis fw-bold small" aria-current="page">{{ product.name || 'Cargando...' }}</li>
           </ol>
         </nav>
       </div>
-    </nav>
+    </section>
 
     <main class="flex-grow-1 py-5">
       <div class="container">
@@ -109,26 +117,30 @@
                 </div>
               </div>
 
-              <!-- Acciones de Compra -->
-              <div class="purchase-panel p-4 rounded-5 bg-white shadow-lg border-glass mb-5">
+              <!-- Acciones de Compra: Panel Refinado -->
+              <div class="purchase-panel p-4 rounded-5 bg-white shadow-xl border-glass-light mb-5">
                 <div class="row align-items-center gy-4">
                   <div class="col-md-4">
-                    <div class="qty-selector-premium d-flex align-items-center justify-content-between p-2 rounded-pill bg-light border">
-                      <button class="btn btn-qty" @click="quantity > 1 ? quantity-- : null" :disabled="quantity <= 1">
-                        <i class="bi bi-dash"></i>
+                    <div class="qty-selector-premium d-flex align-items-center justify-content-between p-1 rounded-pill bg-light border">
+                      <button class="btn btn-qty-premium" @click="quantity > 1 ? quantity-- : null" :disabled="quantity <= 1">
+                        <i class="bi bi-dash-lg"></i>
                       </button>
-                      <span class="fw-900 px-3 fs-5">{{ quantity }}</span>
-                      <button class="btn btn-qty" @click="quantity++">
-                        <i class="bi bi-plus"></i>
+                      <div class="qty-display d-flex flex-column align-items-center">
+                        <span class="smallest text-muted fw-bold text-uppercase" style="font-size: 0.6rem;">Cantidad</span>
+                        <span class="fw-900 px-2 lh-1 fs-5">{{ quantity }}</span>
+                      </div>
+                      <button class="btn btn-qty-premium" @click="quantity++">
+                        <i class="bi bi-plus-lg"></i>
                       </button>
                     </div>
                   </div>
                   <div class="col-md-8">
                     <div class="d-flex gap-3">
                       <BaseButton 
+                        variant="brand"
                         size="lg" 
                         block 
-                        class="rounded-pill fw-bold shadow-brand py-3 transition-all hover-scale"
+                        class="btn-add-to-cart-premium rounded-pill fw-bold py-3 transition-all"
                         icon="bi bi-cart-plus-fill"
                       >
                         Agregar al Carrito
@@ -157,69 +169,61 @@
       </div>
     </main>
 
-    <!-- Sección de Productos Relacionados -->
-    <section class="related-products py-10 bg-body-tertiary">
+    <!-- Sección de Productos Relacionados: Rediseño Premium -->
+    <section class="related-products py-10 bg-body-tertiary border-top">
       <div class="container">
-        <h2 class="display-6 fw-900 mb-5">También te puede interesar</h2>
-        <div class="row g-4">
+        <div class="d-flex align-items-center gap-3 my-5">
+          <h2 class="display-6 fw-900 mb-0">También te puede interesar</h2>
+        </div>
+        
+        <div class="row g-4 my-5">
           <div class="col-xl-3 col-lg-4 col-md-6" v-for="rel in relatedProducts" :key="rel.id">
-            <router-link :to="{ name: 'producto-detalle', params: { id: rel.id } }" class="text-decoration-none" @click="scrollToTop">
-              <div class="premium-product-card mini shadow-sm rounded-4 bg-white p-3 border-0 transition-all hover-shadow-lg">
-                <div class="img-mini-container rounded-3 bg-light p-3 mb-3 d-flex align-items-center justify-content-center">
-                  <img :src="rel.image" class="img-fluid" :alt="rel.name" style="max-height: 120px;">
+            <div class="premium-product-card group h-100">
+              <div class="card-inner-premium h-100 shadow-sm transition-all overflow-hidden bg-white border-0 rounded-4">
+                <!-- Image Wrapper -->
+                <div class="product-visual-wrapper position-relative overflow-hidden p-3 bg-white">
+                  <div class="product-img-main-container d-flex align-items-center justify-content-center p-2">
+                    <img
+                      :src="rel.image"
+                      @error="handleImageError"
+                      class="img-fluid product-display-img transition-all"
+                      :alt="rel.name"
+                      style="max-height: 180px;"
+                    >
+                  </div>
+
+                  <!-- Action Overlay -->
+                  <div class="product-overlay-actions d-flex flex-column gap-2 position-absolute top-3 end-3 opacity-0 transition-all translate-x-10">
+                    <router-link :to="{ name: 'producto-detalle', params: { id: rel.id } }" class="btn btn-icon-glass shadow-sm" title="Vista Rápida">
+                      <i class="bi bi-eye"></i>
+                    </router-link>
+                  </div>
                 </div>
-                <h6 class="fw-bold text-dark text-truncate mb-2">{{ rel.name }}</h6>
-                <div class="fw-900 text-primary">Bs. {{ rel.price }}</div>
+
+                <!-- Info Area -->
+                <div class="product-body-premium p-4 pt-2 text-center">
+                  <h5 class="product-title-premium fw-800 mb-2 text-truncate-2" style="font-size: 1rem; height: 2.8rem;">{{ rel.name }}</h5>
+                  
+                  <div class="price-container-premium mb-4">
+                    <span class="currency-symbol fs-6 opacity-75">Bs.</span>
+                    <span class="price-value fs-4 fw-900 text-dark">{{ rel.price }}</span>
+                  </div>
+
+                  <div class="d-grid">
+                    <router-link :to="{ name: 'producto-detalle', params: { id: rel.id } }" class="btn btn-premium-action rounded-pill py-2 fw-bold text-decoration-none" @click="scrollToTop">
+                      Ver Detalles <i class="bi bi-arrow-right ms-2"></i>
+                    </router-link>
+                  </div>
+                </div>
               </div>
-            </router-link>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Footer Premium Corporativo -->
-    <footer class="footer-premium bg-dark-deep position-relative overflow-hidden mt-0">
-      <div class="footer-glass-glow"></div>
-      <div class="container position-relative z-1 pt-10 pb-5">
-        <div class="row g-5 mb-8">
-          <div class="col-lg-4 col-md-6">
-            <div class="footer-brand-wrapper mb-4">
-              <div class="d-flex align-items-center gap-3">
-                <div class="brand-icon-neon"><i class="bi bi-lightning-charge-fill"></i></div>
-                <span class="brand-text-premium">CodeSoft</span>
-              </div>
-            </div>
-            <p class="footer-bio-text mb-5">{{ settings.about_description || 'Excelencia en Polímeros.' }}</p>
-            <div class="social-grid-premium">
-              <a href="#" class="social-neon-link" data-color="blue"><i class="bi bi-facebook"></i></a>
-              <a href="#" class="social-neon-link" data-color="purple"><i class="bi bi-instagram"></i></a>
-              <a href="#" class="social-neon-link" data-color="cyan"><i class="bi bi-linkedin"></i></a>
-            </div>
-          </div>
-          <div class="col-lg-2 col-6">
-            <h6 class="footer-heading-premium">Compañía</h6>
-            <ul class="footer-list-premium">
-              <li><a href="#">Sobre Nosotros</a></li>
-              <li><a href="#">Sostenibilidad</a></li>
-            </ul>
-          </div>
-          <div class="col-lg-2 col-6">
-            <h6 class="footer-heading-premium">Ecosistema</h6>
-            <ul class="footer-list-premium">
-              <li><a href="#">Garantía Pro</a></li>
-              <li><a href="#">Contacto</a></li>
-            </ul>
-          </div>
-          <div class="col-lg-4 col-md-6">
-            <h6 class="footer-heading-premium">Contacto Global</h6>
-            <div class="footer-contact-info">
-              <div class="contact-item-premium"><i class="bi bi-geo-alt-fill neon-text-blue"></i><span>Parque Industrial #450</span></div>
-              <div class="contact-item-premium"><i class="bi bi-telephone-fill neon-text-purple"></i><span>+591 3 345 6789</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </footer>
+    <!-- Footer Reutilizable -->
+    <PublicFooter :settings="settings" />
   </div>
 </template>
 
@@ -228,7 +232,9 @@ import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import api from '../plugins/axios';
 import PublicNavbar from '../components/PublicNavbar.vue';
+import PublicFooter from '../components/PublicFooter.vue';
 import BaseBadge from '../components/base/BaseBadge.vue';
+import BaseButton from '../components/base/BaseButton.vue';
 
 const props = defineProps(['id']);
 const route = useRoute();
@@ -260,8 +266,10 @@ const fetchProduct = async (id) => {
 
 const fetchRelated = async (categoryId) => {
   try {
-    const response = await api.get(`/public/products?category_id=${categoryId}&active=true`);
-    relatedProducts.value = response.data
+    const response = await api.get(`/public/products?category_id=${categoryId}&active=true&nopaginate=true`);
+    const data = Array.isArray(response.data) ? response.data : (response.data.data || []);
+    
+    relatedProducts.value = data
       .filter(p => p.id != props.id)
       .slice(0, 4)
       .map(p => {
@@ -270,7 +278,7 @@ const fetchRelated = async (categoryId) => {
           id: p.id,
           name: p.name,
           price: parseFloat(p.sale_price).toFixed(2),
-          image: primary ? primary.url : '/src/assets/images/product-placeholder.png'
+          image: primary ? (primary.url || primary.image_url) : '/src/assets/images/product-placeholder.png'
         }
       });
   } catch (error) {
@@ -308,6 +316,86 @@ watch(() => props.id, (newId) => {
 .fw-900 { font-weight: 900; }
 .pt-10 { padding-top: 6rem; }
 .lh-1 { line-height: 1.1; }
+
+.premium-liquid-bg {
+  pointer-events: none;
+  background: var(--bs-body-bg);
+  overflow: hidden;
+}
+
+.liquid-blob {
+  position: absolute;
+  filter: blur(140px);
+  border-radius: 50%;
+  opacity: 0.85;
+  transition: all 1s ease;
+}
+
+.blob-1 {
+  width: 600px;
+  height: 600px;
+  background: var(--color-primary);
+  top: -20%;
+  left: -10%;
+  animation: liquid-move-1 6s infinite alternate;
+}
+
+.blob-2 {
+  width: 500px;
+  height: 500px;
+  background: var(--color-primary);
+  filter: blur(140px) brightness(1.1) hue-rotate(-10deg);
+  bottom: -20%;
+  right: -5%;
+  animation: liquid-move-2 8s infinite alternate;
+}
+
+.blob-3 {
+  width: 400px;
+  height: 400px;
+  background: var(--color-primary);
+  filter: blur(140px) brightness(0.9) hue-rotate(10deg);
+  top: 10%;
+  left: 50%;
+  animation: liquid-move-3 5s infinite alternate;
+}
+
+@keyframes liquid-move-1 {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(80px, 40px) scale(1.1); }
+}
+
+@keyframes liquid-move-2 {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(-60px, -30px) scale(1.15); }
+}
+
+@keyframes liquid-move-3 {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  100% { transform: translate(40px, -40px) rotate(90deg); }
+}
+
+.liquid-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, transparent 0%, var(--bs-body-bg) 90%);
+  opacity: 0.6;
+}
+
+.bg-brand-premium {
+  background-color: var(--bs-body-bg) !important;
+}
+
+.hero-decorative-glow {
+  position: absolute;
+  top: -100px;
+  right: -100px;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+  filter: blur(50px);
+  pointer-events: none;
+}
 
 .shadow-soft {
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
@@ -408,6 +496,160 @@ watch(() => props.id, (newId) => {
   transform: scale(1.02);
 }
 
+.btn-add-to-cart-premium {
+  box-shadow: 0 15px 35px rgba(79, 70, 229, 0.3) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-add-to-cart-premium::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.6s ease;
+}
+
+.btn-add-to-cart-premium:hover::after {
+  left: 100%;
+}
+
+.btn-qty-premium {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: none;
+  background: white;
+  color: #64748b;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  transition: all 0.2s ease;
+}
+
+.btn-qty-premium:hover:not(:disabled) {
+  background: var(--color-primary);
+  color: white;
+  transform: scale(1.1);
+  box-shadow: 0 5px 15px rgba(79, 70, 229, 0.2);
+}
+
+.btn-qty-premium:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.border-glass-light {
+  border: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+/* PREMIUM PRODUCT CARDS UNIFIED */
+.premium-product-card {
+  perspective: 1000px;
+}
+
+.card-inner-premium {
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  background: white;
+  position: relative;
+  border: 1px solid rgba(0,0,0,0.05) !important;
+}
+
+.premium-product-card:hover .card-inner-premium {
+  transform: translateY(-12px);
+  box-shadow: 0 40px 80px rgba(0,0,0,0.1) !important;
+  border-color: var(--color-primary-soft) !important;
+}
+
+.product-img-main-container {
+  aspect-ratio: 1/1;
+  overflow: hidden;
+  border-radius: 1.5rem;
+  background: #f8fafc;
+  transition: all 0.5s ease;
+}
+
+.premium-product-card:hover .product-img-main-container {
+  background: white;
+}
+
+.product-display-img {
+  max-height: 85%;
+  object-fit: contain;
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.premium-product-card:hover .product-display-img {
+  transform: scale(1.15);
+}
+
+.product-overlay-actions {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10;
+  opacity: 0;
+  transform: translateX(10px);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.premium-product-card:hover .product-overlay-actions {
+  opacity: 1 !important;
+  transform: translateX(0);
+}
+
+.btn-icon-glass {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(0,0,0,0.05);
+  border-radius: 10px;
+  color: #1e293b;
+  transition: all 0.3s ease;
+}
+
+.btn-icon-glass:hover {
+  background: var(--color-primary);
+  color: white;
+  transform: scale(1.1);
+}
+
+.product-title-premium {
+  font-size: 1.15rem;
+  color: #1e293b;
+  line-height: 1.4;
+  height: 3.2rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.price-container-premium {
+  color: var(--color-primary);
+}
+
+.btn-premium-action {
+  background: #f1f5f9;
+  color: #475569;
+  border: none;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.premium-product-card:hover .btn-premium-action {
+  background: var(--color-primary);
+  color: white;
+  box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2);
+}
+
 /* SKELETONS */
 .skeleton-img { height: 500px; background: #f1f5f9; animation: pulse 1.5s infinite; }
 .skeleton-thumb { width: 100px; height: 100px; background: #f1f5f9; border-radius: 1rem; }
@@ -421,25 +663,6 @@ watch(() => props.id, (newId) => {
   50% { opacity: 1; }
   100% { opacity: 0.6; }
 }
-
-/* FOOTER COPIADO DE HOMEVIEW PARA CONSISTENCIA */
-.bg-dark-deep { background-color: #050505; }
-.footer-premium { padding-top: 6rem; padding-bottom: 4rem; color: #a1a1aa; border-top: 1px solid rgba(255,255,255,0.05); }
-.footer-glass-glow { position: absolute; top: -150px; left: 10%; width: 300px; height: 300px; background: var(--color-primary); filter: blur(150px); opacity: 0.1; }
-.brand-icon-neon { width: 40px; height: 40px; background: rgba(79, 70, 229, 0.1); border: 1px solid rgba(79, 70, 229, 0.3); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--color-primary); }
-.brand-text-premium { font-size: 1.5rem; font-weight: 800; color: #ffffff; }
-.footer-bio-text { font-size: 0.9rem; color: #71717a; max-width: 300px; }
-.social-grid-premium { display: flex; gap: 10px; }
-.social-neon-link { width: 36px; height: 36px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #71717a; transition: all 0.3s; }
-.social-neon-link:hover { transform: translateY(-3px); color: #fff; border-color: #fff; }
-.footer-heading-premium { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: #ffffff; margin-bottom: 1.2rem; }
-.footer-list-premium { list-style: none; padding: 0; }
-.footer-list-premium li { margin-bottom: 0.5rem; }
-.footer-list-premium a { color: #71717a; text-decoration: none; font-size: 0.85rem; }
-.footer-contact-info { display: flex; flex-direction: column; gap: 0.8rem; }
-.contact-item-premium { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; }
-.neon-text-blue { color: #3b82f6; }
-.neon-text-purple { color: #a855f7; }
 
 .custom-scrollbar::-webkit-scrollbar { height: 6px; }
 .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
