@@ -222,8 +222,8 @@
                           <router-link :to="{ name: 'producto-detalle', params: { id: product.id } }" class="btn btn-icon-glass shadow-sm" title="Vista Rápida">
                             <i class="bi bi-eye"></i>
                           </router-link>
-                          <button class="btn btn-icon-glass shadow-sm" title="Favoritos">
-                            <i class="bi bi-heart"></i>
+                          <button class="btn btn-icon-glass shadow-sm" title="Añadir al Carrito" @click="handleAddToCart(product)">
+                            <i class="bi bi-cart-plus-fill"></i>
                           </button>
                         </div>
                       </div>
@@ -295,12 +295,27 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import api from '../plugins/axios';
+import { useCartStore } from '../stores/cart';
+import Swal from 'sweetalert2';
 import BaseButton from '../components/base/BaseButton.vue';
 import BaseBadge from '../components/base/BaseBadge.vue';
 import PublicNavbar from '../components/PublicNavbar.vue';
 import PublicFooter from '../components/PublicFooter.vue';
 
+const cartStore = useCartStore();
 const route = useRoute();
+
+const handleAddToCart = (product) => {
+  cartStore.addToCart(product, 1);
+  Swal.fire({
+    title: '¡Añadido a la orden!',
+    text: `Se agregó 1 unidad de "${product.name}" a tu cotización.`,
+    icon: 'success',
+    confirmButtonColor: '#2563eb',
+    timer: 2000,
+    showConfirmButton: false
+  });
+};
 
 // State
 const products = ref([]);

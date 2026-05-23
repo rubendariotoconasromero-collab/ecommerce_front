@@ -12,10 +12,8 @@ export const useAuthStore = defineStore('auth', {
         hasPermission: (state) => (permissionSlug) => {
             // Si el usuario es null al recargar, esto da false. 
             // Por eso debemos cargar al usuario antes de evaluar esto en el router.
-            if (!state.user || !state.user.roles) return false;
-            return state.user.roles.some(role => 
-                role.permissions.some(perm => perm.slug === permissionSlug)
-            );
+            if (!state.user || !state.user.role) return false;
+            return state.user.role.permissions.some(perm => perm.slug === permissionSlug);
         }
     },
 

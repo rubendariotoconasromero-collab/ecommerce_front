@@ -1,25 +1,26 @@
 <template>
   <div class="animate__animated animate__fadeIn">
-    <!-- Header de la Vista -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-4">
+    <!-- Encabezado -->
+    <div class="sol-page-header mb-5">
       <div>
-        <BaseBadge variant="primary" soft class="mb-2 px-3 py-1 rounded-pill fw-bold">Seguridad y Accesos</BaseBadge>
-        <h2 class="fw-800 mb-0 text-body-emphasis lh-1">Gestión de Usuarios</h2>
-        <p class="text-body-secondary mt-2 mb-0">Control total sobre perfiles, roles y permisos del ecosistema.</p>
+        <BaseBadge variant="primary" soft class="mb-2 px-3 py-1 rounded-pill sol-fw-800">Seguridad y Accesos</BaseBadge>
+        <h2 class="sol-page-title">Gestión de Usuarios</h2>
+        <p class="sol-page-subtitle">Control total sobre perfiles, roles y permisos del ecosistema.</p>
       </div>
-      <div class="col-12 col-md-auto ms-auto d-flex align-items-center gap-3">
-        <div class="premium-segmented-control shadow-sm p-1 rounded-pill bg-light border">
-          <button 
-            class="btn btn-icon-sm rounded-circle transition-all" 
-            :class="{ 'bg-white shadow-sm text-primary': currentLayout === 'table', 'text-muted': currentLayout !== 'table' }"
+      <div class="d-flex align-items-center gap-3">
+        <!-- Control segmentado -->
+        <div class="sol-segmented">
+          <button
+            class="sol-segmented__btn"
+            :class="{ 'sol-segmented__btn--active': currentLayout === 'table' }"
             @click="currentLayout = 'table'"
             title="Vista de Tabla"
           >
             <i class="fa-solid fa-list-ul"></i>
           </button>
-          <button 
-            class="btn btn-icon-sm rounded-circle transition-all" 
-            :class="{ 'bg-white shadow-sm text-primary': currentLayout === 'card' }"
+          <button
+            class="sol-segmented__btn"
+            :class="{ 'sol-segmented__btn--active': currentLayout === 'card' }"
             @click="currentLayout = 'card'"
             title="Vista de Cuadrícula"
           >
@@ -29,7 +30,7 @@
         <BaseButton variant="light" class="rounded-circle p-0" style="width: 38px; height: 38px;" @click="fetchUsers">
           <i class="fa-solid fa-rotate"></i>
         </BaseButton>
-        <BaseButton variant="brand" class="rounded-pill px-4 py-2 fw-bold shadow-brand-sm" @click="openModal(null)">
+        <BaseButton variant="brand" class="rounded-pill px-4 py-2 sol-fw-800 sol-shadow-brand" @click="openModal(null)">
           <i class="fa-solid fa-user-plus me-2"></i> Nuevo Usuario
         </BaseButton>
       </div>
@@ -52,9 +53,9 @@
     >
       <!-- Filtros Personalizados -->
       <template #filters>
-        <div class="input-group-premium">
-          <span class="input-group-text bg-transparent border-end-0"><i class="fa-solid fa-filter small text-primary"></i></span>
-          <select class="form-select form-select-sm border-start-0 shadow-none ps-0" style="width: 180px;">
+        <div class="sol-filter-pill">
+          <i class="fa-solid fa-filter sol-smallest text-primary me-1"></i>
+          <select class="form-select form-select-sm" style="width: 180px;">
             <option value="">Todos los tipos</option>
             <option value="individual">Individual</option>
             <option value="company">Empresa (B2B)</option>
@@ -65,39 +66,41 @@
       <!-- Personalización de columnas específicas -->
       <template #col-customer_type="{ value }">
         <div class="d-flex align-items-center gap-2">
-          <i :class="value === 'company' ? 'fa-solid fa-building text-primary' : 'fa-solid fa-user text-muted'" class="smaller"></i>
-          <span class="fw-bold smaller text-uppercase tracking-tighter">{{ value === 'company' ? 'Empresa B2B' : 'Individual' }}</span>
+          <i :class="value === 'company' ? 'fa-solid fa-building text-primary' : 'fa-solid fa-user text-muted'" class="sol-smaller"></i>
+          <span class="sol-fw-800 sol-smaller text-uppercase sol-tracking-tight">{{ value === 'company' ? 'Empresa B2B' : 'Individual' }}</span>
         </div>
       </template>
 
-      <!-- Área de Estado -->
+      <!-- Estado -->
       <template #item-status="{ item }">
         <div class="d-flex align-items-center">
-          <div :class="['status-indicator', item.is_active ? 'active' : 'inactive']"></div>
-          <span class="smaller fw-800 text-uppercase tracking-tighter" :class="item.is_active ? 'text-success' : 'text-danger'">
+          <div class="sol-status-dot" :class="item.is_active ? 'sol-status-dot--active' : 'sol-status-dot--inactive'"></div>
+          <span class="sol-smaller sol-fw-800 text-uppercase sol-tracking-tight" :class="item.is_active ? 'text-success' : 'text-danger'">
             {{ item.is_active ? 'Activo' : 'Suspendido' }}
           </span>
         </div>
       </template>
 
-      <!-- Acciones de Footer Rápidas -->
+      <!-- Badge de rol (footer card) -->
       <template #item-footer-actions="{ item }">
         <div class="d-flex flex-wrap gap-1 justify-content-end">
-          <span v-for="role in item.roles" :key="role.id" class="badge rounded-pill bg-primary-soft text-primary px-3 py-1 fw-800 smallest">
-            {{ role.name }}
+          <span v-if="item.role" class="badge rounded-pill px-3 py-1 sol-fw-800 sol-smallest"
+                style="background: var(--sol-color-primary-soft); color: var(--sol-color-primary);">
+            {{ item.role.name }}
           </span>
         </div>
       </template>
     </BaseDataGrid>
 
     <!-- Modal Reutilizable -->
-    <BaseModal 
-      v-model="showModal" 
-      :title="isEditing ? 'Sincronizar Perfil Maestro' : 'Generar Nuevo Usuario Maestro'"
+    <BaseModal
+      v-model="showModal"
+      :title="isEditing ? 'Editar Usuario' : 'Nuevo Usuario'"
       size="md"
     >
-      <div v-if="errorMessage" class="alert alert-soft-danger border-0 small d-flex align-items-center gap-3 p-3 mb-4 animate__animated animate__shakeX">
-        <i class="fa-solid fa-triangle-exclamation fs-5"></i> <div>{{ errorMessage }}</div>
+      <div v-if="errorMessage" class="d-flex align-items-center gap-3 p-3 mb-4 animate__animated animate__shakeX rounded-3"
+           style="background: var(--sol-color-danger-soft); color: var(--sol-color-danger);">
+        <i class="fa-solid fa-triangle-exclamation"></i> <div class="sol-smaller">{{ errorMessage }}</div>
       </div>
 
       <form class="row g-4 p-2">
@@ -124,7 +127,7 @@
         </div>
 
         <div class="col-12 animate__animated animate__fadeIn" v-if="form.customer_type === 'company'">
-          <BaseInput label="Denominación Social" v-model="form.business_name" placeholder="Ej: CodeSoft Solutions S.A." required class="premium-input" />
+          <BaseInput label="Denominación Social" v-model="form.business_name" placeholder="Ej: Soluplast Industrial S.A." required class="premium-input" />
         </div>
 
         <div class="col-12">
@@ -144,26 +147,22 @@
         </div>
 
         <div class="col-12">
-          <label class="form-label smaller fw-800 text-body-secondary text-uppercase tracking-tighter mb-2">Roles de Operación</label>
-          <BaseSelect v-model="form.roles" multiple style="min-height: 120px;" class="premium-select">
+          <label class="form-label smaller fw-800 text-body-secondary text-uppercase tracking-tighter mb-2">Rol de Operación</label>
+          <BaseSelect v-model="form.role_id" class="premium-select">
+            <option value="">Selecciona un rol de operación</option>
             <option v-for="role in rolesList" :key="role.id" :value="role.id">{{ role.name }}</option>
           </BaseSelect>
         </div>
 
         <div class="col-12" v-if="isEditing">
-          <div class="p-3 bg-light rounded-4 border">
-            <div class="form-check form-switch premium-switch d-flex align-items-center justify-content-between px-0">
+          <div class="p-3 bg-light rounded-3 border">
+            <div class="form-check form-switch sol-switch d-flex align-items-center justify-content-between px-0">
               <label class="form-check-label ms-0" for="activeSwitch">
-                <span class="fw-800 text-body-emphasis">Permiso de Operación</span>
-                <div class="smallest text-muted">¿Habilitar acceso total al ecosistema?</div>
+                <span class="sol-fw-800">Permiso de Operación</span>
+                <div class="sol-smallest text-muted">¿Habilitar acceso al sistema?</div>
               </label>
-              <input 
-                class="form-check-input ms-0 mt-0 shadow-none" 
-                type="checkbox" 
-                role="switch" 
-                id="activeSwitch" 
-                v-model="form.is_active"
-              >
+              <input class="form-check-input ms-0 mt-0 shadow-none" type="checkbox" role="switch"
+                id="activeSwitch" v-model="form.is_active">
             </div>
           </div>
         </div>
@@ -172,8 +171,8 @@
       <template #footer>
         <div class="d-flex justify-content-end gap-3 w-100 p-2">
           <BaseButton variant="light" class="rounded-pill px-4" @click="showModal = false">Cancelar</BaseButton>
-          <BaseButton variant="brand" class="rounded-pill px-5 shadow-brand-sm" :loading="isSaving" @click="saveUser">
-            {{ isEditing ? 'Guardar Cambios' : 'Generar Maestro' }}
+          <BaseButton variant="brand" class="rounded-pill px-5 sol-shadow-brand" :loading="isSaving" @click="saveUser">
+            {{ isEditing ? 'Guardar Cambios' : 'Crear Usuario' }}
           </BaseButton>
         </div>
       </template>
@@ -215,7 +214,7 @@ const form = reactive({
   business_name: '',
   email: '',
   password: '',
-  roles: [],
+  role_id: '',
   is_active: true
 });
 
@@ -228,9 +227,24 @@ const fetchUsers = async (page = 1) => {
   isLoadingData.value = true;
   try {
     const response = await api.get('/users', { params: { page } });
-    usersData.value = response.data.data 
-      ? response.data 
-      : { data: response.data, current_page: 1, last_page: 1, total: response.data.length }; 
+    const rawData = response.data.data ? response.data.data : response.data;
+    
+    // Aplanamos de forma transparente las relaciones de perfil comercial de clientes
+    const mappedData = rawData.map(u => ({
+      ...u,
+      customer_type: u.customer?.customer_type || 'staff',
+      business_name: u.customer?.business_name || '',
+      tax_id: u.customer?.tax_id || '',
+    }));
+
+    if (response.data.data) {
+      usersData.value = {
+        ...response.data,
+        data: mappedData
+      };
+    } else {
+      usersData.value = { data: mappedData, current_page: 1, last_page: 1, total: mappedData.length };
+    }
   } catch (error) {
     Toast.fire({ icon: 'error', title: 'Error de sincronización de usuarios' });
   } finally {
@@ -258,7 +272,7 @@ const openModal = (userData) => {
     form.email = userData.email;
     form.password = '';
     form.is_active = userData.is_active;
-    form.roles = userData.roles ? userData.roles.map(r => r.id) : [];
+    form.role_id = userData.role_id || (userData.role ? userData.role.id : '');
   } else {
     isEditing.value = false;
     form.id = null;
@@ -268,7 +282,7 @@ const openModal = (userData) => {
     form.email = '';
     form.password = '';
     form.is_active = true;
-    form.roles = [];
+    form.role_id = '';
   }
   showModal.value = true;
 };
@@ -304,11 +318,11 @@ const deleteUser = async (id, userName) => {
     try {
       await api.delete(`/users/${id}`);
       fetchUsers(); 
-      Swal.fire({ 
+      Swal.fire({
         title: 'Acceso Restringido',
         text: 'El usuario ha sido desactivado.',
-        icon: 'success', 
-        confirmButtonColor: 'var(--color-primary)' 
+        icon: 'success',
+        confirmButtonColor: 'var(--sol-color-primary)'
       });
     } catch (error) {
       Toast.fire({ icon: 'error', title: 'Fallo al procesar suspensión' });
@@ -318,92 +332,16 @@ const deleteUser = async (id, userName) => {
 </script>
 
 <style scoped>
-.fw-800 { font-weight: 800; }
-.smaller { font-size: 0.85rem; }
-.smallest { font-size: 0.75rem; }
-.tracking-tighter { letter-spacing: -0.02em; }
-.tracking-wider { letter-spacing: 0.1em; }
-
-.premium-segmented-control {
-  display: flex;
-  gap: 4px;
-}
-
-.btn-icon-sm {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.9rem;
-  border: none;
-}
-
-.input-group-premium {
-  display: flex;
-  align-items: center;
-  background: white;
-  border: 1px solid var(--border-color);
-  border-radius: 50px;
-  padding: 0 10px;
-  transition: all 0.3s ease;
-}
-
-.input-group-premium:focus-within {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-soft);
-}
-
-.input-group-premium .form-select {
-  border: none;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.status-indicator {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  margin-right: 10px;
-}
-
-.status-indicator.active { background: #10b981; box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
-.status-indicator.inactive { background: #ef4444; }
-
-.bg-primary-soft { background: var(--color-primary-soft); }
-
-.alert-soft-danger {
-  background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
-  border-radius: 1rem;
-}
-
+/* Radio box de tipo de cuenta */
 .premium-radio-box .btn-outline-light {
-  border: 2px solid var(--border-light);
-  color: var(--text-muted);
-  background: var(--bg-body-tertiary);
+  border: 2px solid var(--sol-neutral-border);
+  color: var(--sol-neutral-gray);
+  background: #f8fafc;
 }
-
 .premium-radio-box .btn-check:checked + .btn-outline-light {
-  border-color: var(--color-primary);
-  background: white;
-  color: var(--color-primary);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-}
-
-.premium-switch .form-check-input {
-  width: 3rem;
-  height: 1.75rem;
-  cursor: pointer;
-}
-
-.premium-switch .form-check-input:checked {
-  background-color: var(--color-primary);
-  border-color: var(--color-primary);
-}
-
-.shadow-brand-sm {
-  box-shadow: 0 10px 20px var(--color-primary-glass) !important;
+  border-color: var(--sol-color-primary);
+  background: #ffffff;
+  color: var(--sol-color-primary);
+  box-shadow: var(--sol-shadow-md);
 }
 </style>

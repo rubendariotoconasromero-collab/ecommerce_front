@@ -1,38 +1,39 @@
 <template>
   <div class="animate__animated animate__fadeIn">
-    <!-- Header: Título y Acciones -->
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-4">
+    <!-- Encabezado -->
+    <div class="sol-page-header mb-5">
       <div>
-        <BaseBadge variant="success" soft class="mb-2 px-3 py-1 rounded-pill fw-bold">Control de Inventario</BaseBadge>
-        <h2 class="fw-800 mb-0 text-body-emphasis lh-1">Catálogo de Productos</h2>
-        <p class="text-body-secondary mt-2 mb-0">Gestiona precios, tiempos de producción y visibilidad comercial.</p>
+        <BaseBadge variant="success" soft class="mb-2 px-3 py-1 rounded-pill sol-fw-800">Control de Inventario</BaseBadge>
+        <h2 class="sol-page-title">Catálogo de Productos</h2>
+        <p class="sol-page-subtitle">Gestiona precios, tiempos de producción y visibilidad comercial.</p>
       </div>
       <div class="d-flex align-items-center gap-3">
-        <div class="premium-segmented-control shadow-sm p-1 rounded-pill bg-light border">
-          <button 
-            class="btn btn-icon-sm rounded-circle transition-all" 
-            :class="{ 'bg-white shadow-sm text-primary': currentLayout === 'table', 'text-muted': currentLayout !== 'table' }"
+        <!-- Control segmentado -->
+        <div class="sol-segmented">
+          <button
+            class="sol-segmented__btn"
+            :class="{ 'sol-segmented__btn--active': currentLayout === 'table' }"
             @click="currentLayout = 'table'"
             title="Vista de Tabla"
           >
             <i class="fa-solid fa-list-ul"></i>
           </button>
-          <button 
-            class="btn btn-icon-sm rounded-circle transition-all" 
-            :class="{ 'bg-white shadow-sm text-primary': currentLayout === 'card' }"
+          <button
+            class="sol-segmented__btn"
+            :class="{ 'sol-segmented__btn--active': currentLayout === 'card' }"
             @click="currentLayout = 'card'"
             title="Vista de Cuadrícula"
           >
             <i class="fa-solid fa-table-cells-large"></i>
           </button>
         </div>
-        <BaseButton variant="brand" class="rounded-pill px-4 py-2 fw-bold shadow-brand-sm" @click="openModal(null)">
+        <BaseButton variant="brand" class="rounded-pill px-4 py-2 sol-fw-800 sol-shadow-brand" @click="openModal(null)">
           <i class="fa-solid fa-circle-plus me-2"></i> Nuevo Producto
         </BaseButton>
       </div>
     </div>
 
-    <!-- BaseDataGrid for Products -->
+    <!-- Grid de Productos -->
     <BaseDataGrid
       :layout="currentLayout"
       :items="productsData.data"
@@ -50,19 +51,19 @@
       @page-change="fetchData"
       @search="(val) => { filters.search = val; fetchData(1); }"
     >
-      <!-- Custom Filters Slot -->
+      <!-- Filtros -->
       <template #filters>
         <div class="d-flex flex-wrap gap-2">
-          <div class="input-group-premium">
-            <span class="input-group-text bg-transparent border-end-0"><i class="fa-solid fa-filter small text-primary"></i></span>
-            <select class="form-select form-select-sm border-start-0 shadow-none ps-0" v-model="filters.category_id" @change="fetchData(1)" style="width: 180px;">
+          <div class="sol-filter-pill">
+            <i class="fa-solid fa-filter sol-smallest text-primary me-1"></i>
+            <select class="form-select form-select-sm" v-model="filters.category_id" @change="fetchData(1)" style="width: 180px;">
               <option value="">Todas las Categorías</option>
               <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
             </select>
           </div>
-          <div class="input-group-premium">
-            <span class="input-group-text bg-transparent border-end-0"><i class="fa-solid fa-toggle-on small text-primary"></i></span>
-            <select class="form-select form-select-sm border-start-0 shadow-none ps-0" v-model="filters.active" @change="fetchData(1)" style="width: 150px;">
+          <div class="sol-filter-pill">
+            <i class="fa-solid fa-toggle-on sol-smallest text-primary me-1"></i>
+            <select class="form-select form-select-sm" v-model="filters.active" @change="fetchData(1)" style="width: 150px;">
               <option value="">Todos los Estados</option>
               <option value="true">Activos</option>
               <option value="false">Inactivos</option>
@@ -74,14 +75,14 @@
         </div>
       </template>
 
-      <!-- Avatar Column Customization -->
+      <!-- Avatar del Producto -->
       <template #item-avatar="{ item }">
-        <div class="product-premium-frame overflow-hidden shadow-sm border-2 border-white bg-white">
-          <img 
-            v-if="item.images && item.images.length > 0" 
-            :src="item.images.find(i => i.is_primary)?.url || item.images.find(i => i.is_primary)?.image_url || item.images[0].url || item.images[0].image_url" 
-            alt="Prod" 
-            class="w-100 h-100 object-fit-contain p-1 transition-slow"
+        <div class="sol-item-frame bg-white shadow-sm">
+          <img
+            v-if="item.images && item.images.length > 0"
+            :src="item.images.find(i => i.is_primary)?.url || item.images.find(i => i.is_primary)?.image_url || item.images[0].url || item.images[0].image_url"
+            alt="Prod"
+            class="w-100 h-100 object-fit-contain p-1 sol-transition-slow"
           >
           <div v-else class="w-100 h-100 d-flex align-items-center justify-content-center text-muted opacity-30">
             <i class="fa-solid fa-image fs-4"></i>
@@ -89,114 +90,127 @@
         </div>
       </template>
 
-
-      <!-- Featured Column -->
+      <!-- Columna Destacado -->
       <template #col-is_featured="{ value }">
-        <div v-if="value" class="badge rounded-pill bg-warning-soft text-warning px-3 py-2 border border-warning border-opacity-10 fw-800 smaller">
+        <div v-if="value" class="badge rounded-pill px-3 py-2 sol-fw-800 sol-smaller"
+             style="background: rgba(245,158,11,0.1); color: #92400e; border: 1px solid rgba(245,158,11,0.15);">
           <i class="fa-solid fa-star me-1"></i> Destacado
         </div>
-        <span v-else class="text-body-secondary smallest opacity-50">-</span>
+        <span v-else class="text-muted sol-smallest" style="opacity: 0.4;">—</span>
       </template>
 
-      <!-- Category Column -->
+      <!-- Columna Categoría -->
       <template #col-category_id="{ item }">
-        <span v-if="item.category" class="badge rounded-pill bg-light border text-dark fw-800 px-3 py-2">
+        <span v-if="item.category" class="badge rounded-pill bg-light border text-dark sol-fw-800 px-3 py-2">
           {{ item.category.name }}
         </span>
-        <span v-else class="text-body-secondary smaller italic">Sin clasificar</span>
+        <span v-else class="text-muted sol-smaller sol-italic">Sin clasificar</span>
       </template>
 
-      <!-- Cost Price -->
+      <!-- Precio de Costo -->
       <template #col-cost_price="{ value }">
-        <span class="text-body-secondary small fw-bold">Bs. {{ parseFloat(value).toLocaleString() }}</span>
+        <span class="text-muted small sol-fw-800">Bs. {{ parseFloat(value).toLocaleString() }}</span>
       </template>
 
-      <!-- Sale Price -->
+      <!-- Precio de Venta -->
       <template #col-sale_price="{ value }">
-        <span class="fw-800 text-brand fs-6">Bs. {{ parseFloat(value).toLocaleString() }}</span>
+        <span class="sol-fw-800 fs-6" style="color: var(--sol-color-primary);">Bs. {{ parseFloat(value).toLocaleString() }}</span>
       </template>
 
-      <!-- Lead Time -->
+      <!-- Tiempo de Producción -->
       <template #col-production_lead_time_days="{ value }">
-        <div v-if="value > 0" class="badge bg-primary-soft text-primary border border-primary border-opacity-10 rounded-pill px-3 py-2 fw-800 smaller">
+        <div v-if="value > 0" class="badge rounded-pill px-3 py-2 sol-fw-800 sol-smaller"
+             style="background: var(--sol-color-primary-soft); color: var(--sol-color-primary); border: 1px solid var(--sol-color-primary-glass);">
           <i class="fa-regular fa-clock me-1"></i> {{ value }} Días
         </div>
-        <div v-else class="badge bg-success-soft text-success border border-success border-opacity-10 rounded-pill px-3 py-2 fw-800 smaller">
+        <div v-else class="badge rounded-pill px-3 py-2 sol-fw-800 sol-smaller"
+             style="background: var(--sol-color-success-soft); color: #065f46; border: 1px solid rgba(16,185,129,0.15);">
           <i class="fa-solid fa-bolt-lightning me-1"></i> Inmediato
         </div>
       </template>
 
-      <!-- Status Badge -->
+      <!-- Badge de Estado -->
       <template #item-status="{ item }">
         <div class="d-flex align-items-center">
-          <div :class="['status-indicator', item.is_active ? 'active' : 'inactive']"></div>
-          <span class="smaller fw-800 text-uppercase tracking-tighter" :class="item.is_active ? 'text-success' : 'text-danger'">
+          <div class="sol-status-dot" :class="item.is_active ? 'sol-status-dot--active' : 'sol-status-dot--paused'"></div>
+          <span class="sol-smaller sol-fw-800 text-uppercase sol-tracking-tight"
+                :class="item.is_active ? 'text-success' : 'text-danger'">
             {{ item.is_active ? 'Activo' : 'Pausado' }}
           </span>
         </div>
       </template>
 
-      <!-- Custom Actions -->
+      <!-- Acciones personalizadas -->
       <template #item-actions="{ item }">
-        <li><button class="dropdown-item rounded-3 py-2" @click="openModal(item)"><i class="fa-regular fa-pen-to-square me-2 text-primary"></i>Editar Ficha</button></li>
+        <li><button class="dropdown-item rounded-3 py-2" @click="openModal(item)">
+          <i class="fa-regular fa-pen-to-square me-2 text-primary"></i>Editar Ficha
+        </button></li>
         <li>
           <router-link :to="{ name: 'producto-imagenes', params: { id: item.id } }" class="dropdown-item rounded-3 py-2 text-success">
             <i class="fa-regular fa-images me-2"></i>Galería Visual
           </router-link>
         </li>
         <li><hr class="dropdown-divider mx-2 opacity-50"></li>
-        <li><button class="dropdown-item text-danger rounded-3 py-2" @click="deleteProduct(item)"><i class="fa-solid fa-trash-can me-2"></i>Purgar Catálogo</button></li>
+        <li><button class="dropdown-item text-danger rounded-3 py-2" @click="deleteProduct(item)">
+          <i class="fa-solid fa-trash-can me-2"></i>Eliminar Producto
+        </button></li>
       </template>
     </BaseDataGrid>
 
-    <!-- Product Modal -->
-    <BaseModal v-model="showModal" :title="isEditing ? 'Configuración de Producto' : 'Nuevo Registro Maestro'" size="lg">
+    <!-- Modal de Producto -->
+    <BaseModal v-model="showModal" :title="isEditing ? 'Configuración de Producto' : 'Nuevo Producto'" size="lg">
       <form @submit.prevent="saveProduct" id="productForm" class="p-2">
         <div class="row g-4">
           <div class="col-md-8">
-            <BaseInput v-model="form.name" label="Denominación del Producto" placeholder="Ej: Componente Industrial PET 500ml" required class="premium-input" />
+            <BaseInput v-model="form.name" label="Denominación del Producto"
+              placeholder="Ej: Componente Industrial PET 500ml" required />
           </div>
           <div class="col-md-4">
-            <BaseInput v-model="form.sku" label="Identificador SKU" placeholder="PROD-AX-001" required class="premium-input" />
+            <BaseInput v-model="form.sku" label="Identificador SKU"
+              placeholder="PROD-AX-001" required />
           </div>
 
           <div class="col-md-6">
-            <BaseSelect v-model="form.category_id" label="Clasificación" required class="premium-select">
-              <option value="" disabled>Seleccione una categoría estratégica...</option>
+            <BaseSelect v-model="form.category_id" label="Clasificación" required>
+              <option value="" disabled>Seleccione una categoría...</option>
               <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
             </BaseSelect>
           </div>
 
           <div class="col-md-6">
-            <BaseInput v-model="form.production_lead_time_days" type="number" label="Ciclo de Producción (Días)" placeholder="0 = Entrega Instantánea" min="0" class="premium-input" />
-          </div>
-
-          <div class="col-12"><div class="premium-separator-text">Ingeniería Económica y Costos</div></div>
-
-          <div class="col-md-4">
-            <BaseInput v-model="form.base_price" type="number" step="0.01" label="Valor Base (Bs.)" required class="premium-input" />
-          </div>
-          <div class="col-md-4">
-            <BaseInput v-model="form.cost_price" type="number" step="0.01" label="Costo Operativo (Bs.)" required class="premium-input" />
-          </div>
-          <div class="col-md-4">
-            <BaseInput v-model="form.sale_price" type="number" step="0.01" label="Precio de Mercado (Bs.)" required class="premium-input" />
+            <BaseInput v-model="form.production_lead_time_days" type="number"
+              label="Ciclo de Producción (Días)" placeholder="0 = Entrega Instantánea" min="0" />
           </div>
 
           <div class="col-12">
-            <label class="form-label smaller fw-800 text-body-secondary text-uppercase tracking-tighter mb-2 ms-1">Especificaciones y Narrativa Técnica</label>
-            <textarea class="form-control premium-textarea" rows="3" v-model="form.description" placeholder="Detalles de fabricación, materialidad, certificaciones..."></textarea>
+            <div class="sol-section-divider">Ingeniería Económica y Costos</div>
           </div>
 
-          <div class="col-12 mt-2">
-            <div class="p-3 bg-light rounded-4 border d-flex flex-column flex-sm-row gap-4">
-              <div class="form-check form-switch premium-switch d-flex align-items-center gap-3 px-0">
+          <div class="col-md-4">
+            <BaseInput v-model="form.base_price" type="number" step="0.01" label="Valor Base (Bs.)" required />
+          </div>
+          <div class="col-md-4">
+            <BaseInput v-model="form.cost_price" type="number" step="0.01" label="Costo Operativo (Bs.)" required />
+          </div>
+          <div class="col-md-4">
+            <BaseInput v-model="form.sale_price" type="number" step="0.01" label="Precio de Mercado (Bs.)" required />
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Especificaciones y Descripción</label>
+            <textarea class="form-control sol-textarea" rows="3" v-model="form.description"
+              placeholder="Detalles de fabricación, materialidad, certificaciones..."></textarea>
+          </div>
+
+          <div class="col-12">
+            <div class="p-3 bg-light rounded-3 border d-flex flex-column flex-sm-row gap-4">
+              <div class="form-check form-switch sol-switch d-flex align-items-center gap-3 px-0">
                 <input class="form-check-input ms-0 shadow-none" type="checkbox" role="switch" id="prodActive" v-model="form.is_active">
-                <label class="form-check-label fw-800 text-body-emphasis" for="prodActive">Habilitar Comercialización</label>
+                <label class="form-check-label sol-fw-800" for="prodActive">Habilitar Comercialización</label>
               </div>
-              <div class="form-check form-switch premium-switch d-flex align-items-center gap-3 px-0">
+              <div class="form-check form-switch sol-switch d-flex align-items-center gap-3 px-0">
                 <input class="form-check-input ms-0 shadow-none" type="checkbox" role="switch" id="prodFeatured" v-model="form.is_featured">
-                <label class="form-check-label fw-800 text-warning" for="prodFeatured">
+                <label class="form-check-label sol-fw-800 text-warning" for="prodFeatured">
                   <i class="fa-solid fa-bolt me-1"></i> Destacado en Vitrina Principal
                 </label>
               </div>
@@ -207,8 +221,8 @@
       <template #footer>
         <div class="d-flex justify-content-end gap-3 w-100 p-2">
           <BaseButton variant="light" class="rounded-pill px-4" @click="showModal = false">Cancelar</BaseButton>
-          <BaseButton type="submit" form="productForm" variant="brand" class="rounded-pill px-5 shadow-brand-sm" :loading="isSaving">
-            {{ isEditing ? 'Actualizar Ficha' : 'Sincronizar Producto' }}
+          <BaseButton type="submit" form="productForm" variant="brand" class="rounded-pill px-5 sol-shadow-brand" :loading="isSaving">
+            {{ isEditing ? 'Actualizar Ficha' : 'Registrar Producto' }}
           </BaseButton>
         </div>
       </template>
@@ -245,11 +259,7 @@ const gridColumns = [
   { label: 'LOGÍSTICA', key: 'production_lead_time_days', align: 'center' }
 ];
 
-const filters = reactive({
-  search: '',
-  category_id: '',
-  active: ''
-});
+const filters = reactive({ search: '', category_id: '', active: '' });
 
 const form = reactive({
   id: null,
@@ -265,7 +275,6 @@ const form = reactive({
   is_featured: false
 });
 
-// Logic
 const fetchCategories = async () => {
   try {
     const response = await api.get('/categories');
@@ -278,12 +287,7 @@ const fetchCategories = async () => {
 const fetchData = async (page = 1) => {
   isLoading.value = true;
   try {
-    const params = {
-      page: page,
-      search: filters.search,
-      category_id: filters.category_id,
-      active: filters.active
-    };
+    const params = { page, search: filters.search, category_id: filters.category_id, active: filters.active };
     const response = await api.get('/products', { params });
     productsData.value = response.data;
   } catch (error) {
@@ -303,30 +307,22 @@ const resetFilters = () => {
 const openModal = (product = null) => {
   if (product) {
     isEditing.value = true;
-    form.id = product.id;
-    form.category_id = product.category_id;
-    form.sku = product.sku;
-    form.name = product.name;
-    form.description = product.description || '';
-    form.base_price = product.base_price;
-    form.cost_price = product.cost_price;
-    form.sale_price = product.sale_price;
-    form.production_lead_time_days = product.production_lead_time_days;
-    form.is_active = Boolean(product.is_active);
-    form.is_featured = Boolean(product.is_featured);
+    Object.assign(form, {
+      id: product.id,
+      category_id: product.category_id,
+      sku: product.sku,
+      name: product.name,
+      description: product.description || '',
+      base_price: product.base_price,
+      cost_price: product.cost_price,
+      sale_price: product.sale_price,
+      production_lead_time_days: product.production_lead_time_days,
+      is_active: Boolean(product.is_active),
+      is_featured: Boolean(product.is_featured)
+    });
   } else {
     isEditing.value = false;
-    form.id = null;
-    form.category_id = '';
-    form.sku = '';
-    form.name = '';
-    form.description = '';
-    form.base_price = 0;
-    form.cost_price = 0;
-    form.sale_price = 0;
-    form.production_lead_time_days = 0;
-    form.is_active = true;
-    form.is_featured = false;
+    Object.assign(form, { id: null, category_id: '', sku: '', name: '', description: '', base_price: 0, cost_price: 0, sale_price: 0, production_lead_time_days: 0, is_active: true, is_featured: false });
   }
   showModal.value = true;
 };
@@ -341,10 +337,10 @@ const saveProduct = async () => {
     }
     showModal.value = false;
     fetchData(productsData.value.current_page || 1);
-    Toast.fire({ icon: 'success', title: `Operación completada con éxito` });
+    Toast.fire({ icon: 'success', title: 'Operación completada con éxito' });
   } catch (error) {
-    if (error.response && error.response.status === 422) {
-      Toast.fire({ icon: 'warning', title: error.response.data.message || 'Error en validación técnica' });
+    if (error.response?.status === 422) {
+      Toast.fire({ icon: 'warning', title: error.response.data.message || 'Error en validación' });
     } else {
       Toast.fire({ icon: 'error', title: 'Fallo crítico en guardado' });
     }
@@ -355,21 +351,16 @@ const saveProduct = async () => {
 
 const deleteProduct = async (product) => {
   const result = await ConfirmAlert.fire({
-    title: '¿Confirmar purga de registro?',
-    text: `Eliminarás permanentemente "${product.name}" del ecosistema.`
+    title: '¿Confirmar eliminación?',
+    text: `Eliminarás permanentemente "${product.name}" del catálogo.`
   });
-
   if (result.isConfirmed) {
     try {
       await api.delete(`/products/${product.id}`);
       fetchData(productsData.value.current_page || 1);
-      Swal.fire({
-        title: 'Registro Purgado',
-        icon: 'success',
-        confirmButtonColor: 'var(--color-primary)'
-      });
+      Swal.fire({ title: 'Eliminado', icon: 'success', confirmButtonColor: 'var(--sol-color-primary)' });
     } catch (error) {
-      Swal.fire('Error', 'Restricción de integridad: Este producto posee vínculos activos.', 'error');
+      Swal.fire('Error', 'Este producto posee vínculos activos.', 'error');
     }
   }
 };
@@ -379,125 +370,3 @@ onMounted(() => {
   fetchData();
 });
 </script>
-
-<style scoped>
-.fw-800 { font-weight: 800; }
-.smaller { font-size: 0.85rem; }
-.smallest { font-size: 0.75rem; }
-.tracking-tighter { letter-spacing: -0.02em; }
-.transition-slow { transition: all 0.6s ease; }
-
-.product-premium-frame {
-  width: 56px;
-  height: 56px;
-  border-radius: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.product-premium-frame:hover img {
-  transform: scale(1.2) rotate(3deg);
-}
-
-.premium-segmented-control {
-  display: flex;
-  gap: 4px;
-}
-
-.btn-icon-sm {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.9rem;
-  border: none;
-}
-
-.input-group-premium {
-  display: flex;
-  align-items: center;
-  background: white;
-  border: 1px solid var(--border-color);
-  border-radius: 50px;
-  padding: 0 10px;
-  transition: all 0.3s ease;
-}
-
-.input-group-premium:focus-within {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-soft);
-}
-
-.input-group-premium .form-select {
-  border: none;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.status-indicator {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  margin-right: 10px;
-}
-
-.status-indicator.active { background: #10b981; box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
-.status-indicator.inactive { background: #94a3b8; }
-
-.bg-warning-soft { background: rgba(245, 158, 11, 0.1); }
-.bg-success-soft { background: rgba(16, 185, 129, 0.1); }
-.bg-primary-soft { background: var(--color-primary-soft); }
-
-.premium-separator-text {
-  display: flex;
-  align-items: center;
-  font-size: 0.8rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: var(--color-primary);
-  margin: 1.5rem 0;
-  opacity: 0.8;
-}
-
-.premium-separator-text::after {
-  content: "";
-  flex: 1;
-  height: 2px;
-  background: linear-gradient(to right, var(--color-primary-soft), transparent);
-  margin-left: 1.5rem;
-}
-
-.premium-textarea {
-  border-radius: 1.25rem;
-  border: 2px solid var(--border-light);
-  background: var(--bg-body-tertiary);
-  padding: 1rem;
-  transition: all 0.3s ease;
-}
-
-.premium-textarea:focus {
-  border-color: var(--color-primary);
-  background: white;
-  box-shadow: 0 0 0 4px var(--color-primary-soft);
-}
-
-.premium-switch .form-check-input {
-  width: 3.2rem;
-  height: 1.8rem;
-  cursor: pointer;
-}
-
-.premium-switch .form-check-input:checked {
-  background-color: var(--color-primary);
-  border-color: var(--color-primary);
-}
-
-.shadow-brand-sm {
-  box-shadow: 0 10px 20px var(--color-primary-glass) !important;
-}
-</style>

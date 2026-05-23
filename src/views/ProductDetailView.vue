@@ -142,6 +142,7 @@
                         block 
                         class="btn-add-to-cart-premium rounded-pill fw-bold py-3 transition-all"
                         icon="bi bi-cart-plus-fill"
+                        @click="handleAddToCart"
                       >
                         Agregar al Carrito
                       </BaseButton>
@@ -231,10 +232,14 @@
 import { ref, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import api from '../plugins/axios';
+import { useCartStore } from '../stores/cart';
+import Swal from 'sweetalert2';
 import PublicNavbar from '../components/PublicNavbar.vue';
 import PublicFooter from '../components/PublicFooter.vue';
 import BaseBadge from '../components/base/BaseBadge.vue';
 import BaseButton from '../components/base/BaseButton.vue';
+
+const cartStore = useCartStore();
 
 const props = defineProps(['id']);
 const route = useRoute();
@@ -244,6 +249,18 @@ const settings = ref({});
 const loading = ref(true);
 const quantity = ref(1);
 const selectedImage = ref('');
+
+const handleAddToCart = () => {
+  cartStore.addToCart(product.value, quantity.value);
+  Swal.fire({
+    title: '¡Añadido a la orden!',
+    text: `Se agregaron ${quantity.value} unidades de "${product.value.name}" a tu cotización.`,
+    icon: 'success',
+    confirmButtonColor: '#2563eb',
+    timer: 2000,
+    showConfirmButton: false
+  });
+};
 
 const fetchProduct = async (id) => {
   loading.value = true;
@@ -428,7 +445,7 @@ watch(() => props.id, (newId) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-color: #f1f5f9 !important;
+  border-color: var(--border-light) !important;
 }
 
 .thumbnail-frame:hover {
@@ -444,10 +461,10 @@ watch(() => props.id, (newId) => {
 .badge-stock-success {
   font-size: 0.75rem;
   font-weight: 800;
-  color: #10b981;
+  color: var(--color-success);
   background: rgba(16, 185, 129, 0.1);
   padding: 6px 12px;
-  border-radius: 50px;
+  border-radius: var(--radius-xl);
 }
 
 .price-display-premium {
@@ -468,7 +485,7 @@ watch(() => props.id, (newId) => {
 }
 
 .qty-selector-premium {
-  background: #f8fafc !important;
+  background: var(--bg-hover) !important;
 }
 
 .btn-qty {
@@ -568,8 +585,8 @@ watch(() => props.id, (newId) => {
 .product-img-main-container {
   aspect-ratio: 1/1;
   overflow: hidden;
-  border-radius: 1.5rem;
-  background: #f8fafc;
+  border-radius: var(--radius-lg);
+  background: var(--bg-hover);
   transition: all 0.5s ease;
 }
 
@@ -638,8 +655,8 @@ watch(() => props.id, (newId) => {
 }
 
 .btn-premium-action {
-  background: #f1f5f9;
-  color: #475569;
+  background: var(--border-light);
+  color: var(--text-muted);
   border: none;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -651,12 +668,12 @@ watch(() => props.id, (newId) => {
 }
 
 /* SKELETONS */
-.skeleton-img { height: 500px; background: #f1f5f9; animation: pulse 1.5s infinite; }
-.skeleton-thumb { width: 100px; height: 100px; background: #f1f5f9; border-radius: 1rem; }
-.skeleton-title { height: 60px; width: 80%; background: #f1f5f9; border-radius: 1rem; }
-.skeleton-price { height: 80px; width: 40%; background: #f1f5f9; border-radius: 1rem; }
-.skeleton-text { height: 150px; background: #f1f5f9; border-radius: 1rem; }
-.skeleton-btn { height: 70px; background: #f1f5f9; border-radius: 50px; }
+.skeleton-img { height: 500px; background: var(--border-light); animation: pulse 1.5s infinite; }
+.skeleton-thumb { width: 100px; height: 100px; background: var(--border-light); border-radius: var(--radius-md); }
+.skeleton-title { height: 60px; width: 80%; background: var(--border-light); border-radius: var(--radius-md); }
+.skeleton-price { height: 80px; width: 40%; background: var(--border-light); border-radius: var(--radius-md); }
+.skeleton-text { height: 150px; background: var(--border-light); border-radius: var(--radius-md); }
+.skeleton-btn { height: 70px; background: var(--border-light); border-radius: var(--radius-xl); }
 
 @keyframes pulse {
   0% { opacity: 0.6; }
@@ -665,6 +682,6 @@ watch(() => props.id, (newId) => {
 }
 
 .custom-scrollbar::-webkit-scrollbar { height: 6px; }
-.custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: var(--bg-hover); }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: var(--slate-300); border-radius: var(--radius-md); }
 </style>

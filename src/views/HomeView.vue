@@ -215,11 +215,11 @@
 
                     <!-- Action Overlay -->
                     <div class="product-overlay-actions d-flex flex-column gap-2 position-absolute top-3 end-3 opacity-0 transition-all translate-x-10">
-                      <button class="btn btn-icon-glass shadow-sm" title="Vista Rápida">
+                      <router-link :to="{ name: 'producto-detalle', params: { id: product.id } }" class="btn btn-icon-glass shadow-sm" title="Ver Detalles">
                         <i class="bi bi-eye"></i>
-                      </button>
-                      <button class="btn btn-icon-glass shadow-sm" title="Favoritos">
-                        <i class="bi bi-heart"></i>
+                      </router-link>
+                      <button class="btn btn-icon-glass shadow-sm" title="Añadir al Carrito" @click="handleAddToCart(product)">
+                        <i class="bi bi-cart-plus-fill"></i>
                       </button>
                     </div>
                   </div>
@@ -396,11 +396,27 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 import api from '../plugins/axios';
+import { useCartStore } from '../stores/cart';
+import Swal from 'sweetalert2';
 import BaseButton from '../components/base/BaseButton.vue';
 import BaseBadge from '../components/base/BaseBadge.vue';
 import BaseSkeletonCard from '../components/base/BaseSkeletonCard.vue';
 import PublicNavbar from '../components/PublicNavbar.vue';
 import PublicFooter from '../components/PublicFooter.vue';
+
+const cartStore = useCartStore();
+
+const handleAddToCart = (product) => {
+  cartStore.addToCart(product, 1);
+  Swal.fire({
+    title: '¡Añadido a la orden!',
+    text: `Se agregó 1 unidad de "${product.name}" a tu cotización.`,
+    icon: 'success',
+    confirmButtonColor: '#2563eb',
+    timer: 2000,
+    showConfirmButton: false
+  });
+};
 
 const settings = ref({});
 const categories = ref([]);

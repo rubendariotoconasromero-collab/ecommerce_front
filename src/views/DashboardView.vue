@@ -57,27 +57,41 @@
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td class="ps-0"><span class="fw-800 text-brand">#ORD-001</span></td>
-                <td class="fw-bold">Empresa Multilider S.A.</td>
+              <tr v-for="order in orders" :key="order.id">
+                <td class="ps-0"><span class="fw-800 text-brand">{{ order.id }}</span></td>
                 <td>
-                  <span class="badge rounded-pill bg-warning-soft text-warning px-3 py-2 fw-800 smaller">
-                    <i class="fa-solid fa-gears me-1"></i> En Producción
+                  <div class="fw-bold text-body-emphasis">{{ order.client }}</div>
+                  <span class="smallest text-muted d-block d-md-none">{{ order.address }}</span>
+                </td>
+                <td>
+                  <span :class="['badge rounded-pill px-3 py-2 fw-800 smaller', getStatusBadgeClass(order.status)]">
+                    <i v-if="order.status === 'pending'" class="fa-solid fa-clock me-1"></i>
+                    <i v-else-if="order.status === 'in_production'" class="fa-solid fa-gears me-1"></i>
+                    <i v-else-if="order.status === 'ready'" class="fa-solid fa-box-open me-1"></i>
+                    <i v-else class="fa-solid fa-circle-check me-1"></i>
+                    {{ getStatusLabel(order.status) }}
                   </span>
                 </td>
-                <td class="text-body-secondary small">25 Abr 2026</td>
-                <td class="text-end pe-0 fw-800 fs-6">Bs. 4,000</td>
-              </tr>
-              <tr>
-                <td class="ps-0"><span class="fw-800 text-brand">#ORD-002</span></td>
-                <td class="fw-bold">Juan Pérez E-commerce</td>
-                <td>
-                  <span class="badge rounded-pill bg-info-soft text-info px-3 py-2 fw-800 smaller">
-                    <i class="fa-solid fa-truck-fast me-1"></i> Listo p/ Despacho
-                  </span>
+                <td class="text-body-secondary small">{{ order.date }}</td>
+                <td class="text-end pe-0">
+                  <div class="fw-800 fs-6 text-body-emphasis mb-1">Bs. {{ parseFloat(order.total).toLocaleString('es-BO', {minimumFractionDigits: 2}) }}</div>
+                  
+                  <!-- Selector de estado interactivo para ver reactividad en tiempo real -->
+                  <div class="d-flex justify-content-end">
+                    <select 
+                      class="form-select form-select-sm smallest py-0 px-2 shadow-none" 
+                      style="font-size: 0.75rem; height: 24px; width: 130px;"
+                      :value="order.status"
+                      @change="updateOrderStatus(order, $event.target.value)"
+                      aria-label="Actualizar estado"
+                    >
+                      <option value="pending">Pendiente</option>
+                      <option value="in_production">En Inyección</option>
+                      <option value="ready">Listo en Galpón</option>
+                      <option value="delivered">Despachado</option>
+                    </select>
+                  </div>
                 </td>
-                <td class="text-body-secondary small">20 Abr 2026</td>
-                <td class="text-end pe-0 fw-800 fs-6">Bs. 250</td>
               </tr>
             </tbody>
           </table>
@@ -89,32 +103,106 @@
 </template>
 
 <script setup>
+import { ref, computed, onMounted } from 'vue';
 import BaseBadge from '../components/base/BaseBadge.vue';
 import BaseButton from '../components/base/BaseButton.vue';
 
-const stats = [
-  { 
-    label: 'En Producción', 
-    value: '12', 
-    icon: 'fa-solid fa-industry', 
-    colorClass: 'stat-warning',
-    trend: '+8%'
-  },
-  { 
-    label: 'Listos para Despacho', 
-    value: '05', 
-    icon: 'fa-solid fa-box-open', 
-    colorClass: 'stat-info',
-    trend: '+12%'
-  },
-  { 
-    label: 'Ingresos del Mes', 
-    value: 'Bs. 45,200', 
-    icon: 'fa-solid fa-chart-line', 
-    colorClass: 'stat-success',
-    trend: '+24%'
-  }
+// Pedidos por defecto (mock inicial)
+const defaultOrders = [
+  { id: 'SOLUPLAST-045', client: 'Corporación Minera del Sur', status: 'in_production', address: 'Campamento Central, Planta B', total: 18500.00, date: '25 Abr 2026' },
+  { id: 'SOLUPLAST-046', client: 'Distribuidora AgroPlast SRL', status: 'ready', address: 'Almacén Auxiliar Nro. 3', total: 4200.00, date: '20 Abr 2026' },
+  { id: 'SOLUPLAST-047', client: 'Servicios de Fluidos Industriales', status: 'delivered', address: 'Zona Franca El Alto', total: 54900.00, date: '15 Abr 2026' }
 ];
+
+const orders = ref([]);
+
+const loadOrders = () => {
+  const simulated = JSON.parse(localStorage.getItem('soluplast_simulated_orders') || '[]');
+  // Mapeamos los pedidos simulados al formato de la tabla
+  const formattedSimulated = simulated.map(o => ({
+    id: `SOLUPLAST-${o.id}`,
+    client: o.client,
+    status: o.status,
+    address: o.address,
+    total: o.total,
+    date: new Date(o.created_at).toLocaleDateString('es-BO', { day: '2-digit', month: 'short', year: 'numeric' })
+  }));
+  orders.value = [...formattedSimulated, ...defaultOrders];
+};
+
+const updateOrderStatus = (order, newStatus) => {
+  // Si es un pedido simulado, actualizar en localStorage
+  const orderIdNumber = parseInt(order.id.replace('SOLUPLAST-', ''));
+  if (!isNaN(orderIdNumber)) {
+    const simulated = JSON.parse(localStorage.getItem('soluplast_simulated_orders') || '[]');
+    const found = simulated.find(o => o.id === orderIdNumber);
+    if (found) {
+      found.status = newStatus;
+      localStorage.setItem('soluplast_simulated_orders', JSON.stringify(simulated));
+    }
+  }
+  
+  order.status = newStatus;
+};
+
+// Métricas calculadas dinámicamente en tiempo real
+const stats = computed(() => {
+  const inProductionCount = orders.value.filter(o => o.status === 'in_production').length;
+  const readyCount = orders.value.filter(o => o.status === 'ready').length;
+  
+  // Suma del total de pedidos con estatus 'delivered' + ingresos base
+  const deliveredSum = orders.value
+    .filter(o => o.status === 'delivered')
+    .reduce((sum, o) => sum + o.total, 45200.00);
+
+  return [
+    { 
+      label: 'En Producción', 
+      value: inProductionCount.toString(), 
+      icon: 'fa-solid fa-industry', 
+      colorClass: 'stat-warning',
+      trend: '+8%'
+    },
+    { 
+      label: 'Listos para Despacho', 
+      value: readyCount.toString().padStart(2, '0'), 
+      icon: 'fa-solid fa-box-open', 
+      colorClass: 'stat-info',
+      trend: '+12%'
+    },
+    { 
+      label: 'Ingresos del Mes', 
+      value: `Bs. ${deliveredSum.toLocaleString('es-BO', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`, 
+      icon: 'fa-solid fa-chart-line', 
+      colorClass: 'stat-success',
+      trend: '+24%'
+    }
+  ];
+});
+
+const getStatusBadgeClass = (status) => {
+  switch (status) {
+    case 'pending': return 'bg-soft-danger text-danger';
+    case 'in_production': return 'bg-soft-warning text-warning';
+    case 'ready': return 'bg-soft-info text-info';
+    case 'delivered': return 'bg-soft-success text-success';
+    default: return 'bg-light text-dark';
+  }
+};
+
+const getStatusLabel = (status) => {
+  switch (status) {
+    case 'pending': return 'Pendiente Aprobación';
+    case 'in_production': return 'En Inyección';
+    case 'ready': return 'Listo en Galpón';
+    case 'delivered': return 'Despachado';
+    default: return status;
+  }
+};
+
+onMounted(() => {
+  loadOrders();
+});
 </script>
 
 <style scoped>
@@ -131,9 +219,9 @@ const stats = [
   color: white;
 }
 
-.stat-warning { background: linear-gradient(135deg, #f59e0b, #d97706); }
-.stat-info { background: linear-gradient(135deg, #0ea5e9, #0284c7); }
-.stat-success { background: linear-gradient(135deg, #10b981, #059669); }
+.stat-warning { background: linear-gradient(135deg, var(--color-warning), #d97706); }
+.stat-info { background: linear-gradient(135deg, var(--color-info), #0284c7); }
+.stat-success { background: linear-gradient(135deg, var(--color-success), #059669); }
 
 .stat-icon-box {
   width: 54px;

@@ -1,0 +1,433 @@
+/* ==========================================================================
+   SOLUPLAST DESIGN SYSTEM - DESIGN TOKENS & SEMANTIC CLASSES
+   Architect: UX/UI Senior Design Lead
+   ========================================================================== */
+
+:root {
+  /* 1. Paleta de Marca Corporativa SOLUPLAST */
+  --sol-color-primary: #002954;       /* Azul Profundo Corporativo */
+  --sol-color-primary-hover: #001f3f;
+  --sol-color-primary-soft: rgba(0, 41, 84, 0.08);
+  --sol-color-primary-glass: rgba(0, 41, 84, 0.12);
+
+  --sol-color-secondary: #00719e;     /* Azul Claro Industrial */
+  --sol-color-secondary-hover: #005e83;
+  --sol-color-secondary-soft: rgba(0, 113, 158, 0.08);
+
+  --sol-color-success: #10b981;       /* Verde Sostenible */
+  --sol-color-success-soft: rgba(16, 185, 129, 0.08);
+  --sol-color-danger: #ef4444;        /* Rojo Operativo */
+  --sol-color-danger-soft: rgba(239, 68, 68, 0.08);
+  --sol-color-warning: #f59e0b;       /* Amarillo Alerta */
+  --sol-color-warning-soft: rgba(245, 158, 11, 0.08);
+  --sol-color-info: #0ea5e9;          /* Celeste Logística B2B */
+  --sol-color-info-soft: rgba(14, 165, 233, 0.08);
+
+  /* 2. Escala de Grises Minimalista */
+  --sol-neutral-dark: #0f172a;        /* Slate 900 */
+  --sol-neutral-gray: #475569;        /* Slate 600 */
+  --sol-neutral-light: #f8fafc;       /* Slate 50 */
+  --sol-neutral-border: #e2e8f0;      /* Slate 200 */
+
+  /* 3. Estructura y Elevaciones Geométricas */
+  --sol-radius-sm: 4px;
+  --sol-radius-md: 8px;
+  --sol-radius-lg: 16px;
+  --sol-radius-xl: 28px;
+  
+  --sol-shadow-sm: 0 1px 2px rgba(0, 41, 84, 0.03);
+  --sol-shadow-md: 0 4px 16px rgba(0, 41, 84, 0.06);
+  --sol-shadow-lg: 0 16px 32px rgba(0, 41, 84, 0.1);
+  --sol-shadow-xl: 0 32px 64px rgba(0, 41, 84, 0.14);
+
+  --sol-transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --sol-transition-base: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+
+  --sol-font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* ==========================================================================
+   LAYOUT LANDING PAGE (Prefix: `sol-`)
+   ========================================================================== */
+
+.sol-navbar {
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border-bottom: 1px solid var(--sol-neutral-border);
+  transition: var(--sol-transition-base);
+  z-index: 1100;
+}
+.sol-navbar:hover {
+  box-shadow: var(--sol-shadow-md);
+}
+
+.sol-hero {
+  background-color: #ffffff;
+  padding: 6rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.sol-footer {
+  background-color: var(--sol-neutral-dark);
+  color: rgba(255, 255, 255, 0.6);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.9rem;
+}
+
+/* ==========================================================================
+   COMPONENTES DE INTERFAZ BASE (Prefix: `ui-`)
+   ========================================================================== */
+
+/* Tarjetas Minimalistas */
+.ui-card {
+  background: #ffffff;
+  border: 1px solid var(--sol-neutral-border);
+  border-radius: var(--sol-radius-lg);
+  box-shadow: var(--sol-shadow-sm);
+  transition: var(--sol-transition-base);
+  overflow: hidden;
+}
+.ui-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--sol-shadow-md);
+  border-color: var(--sol-color-primary-glass);
+}
+
+/* Badges de Contraste Semántico */
+.ui-badge {
+  font-weight: 700;
+  padding: 0.35em 0.85em;
+  border-radius: var(--sol-radius-sm);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.ui-badge-success { background-color: var(--sol-color-success-soft); color: #065f46; }
+.ui-badge-danger { background-color: var(--sol-color-danger-soft); color: #991b1b; }
+.ui-badge-warning { background-color: var(--sol-color-warning-soft); color: #92400e; }
+.ui-badge-info { background-color: var(--sol-color-info-soft); color: #075985; }
+.ui-badge-primary { background-color: var(--sol-color-primary-soft); color: var(--sol-color-primary); }
+
+/* Sistema de Notificaciones Emergentes */
+.ui-toast-container {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 380px;
+  width: 100%;
+}
+
+.ui-toast {
+  background: #ffffff;
+  border-left: 4px solid var(--sol-color-primary);
+  border-radius: var(--sol-radius-md);
+  box-shadow: var(--sol-shadow-lg);
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  animation: solSlideInRight 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.ui-toast-success { border-left-color: var(--sol-color-success); }
+.ui-toast-danger { border-left-color: var(--sol-color-danger); }
+.ui-toast-warning { border-left-color: var(--sol-color-warning); }
+.ui-toast-info { border-left-color: var(--sol-color-info); }
+
+@keyframes solSlideInRight {
+  from { transform: translateX(120%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* ==========================================================================
+   UTILIDADES ADMIN COMPARTIDAS — Elimina duplicación entre vistas
+   (clases que antes estaban scoped en cada view)
+   ========================================================================== */
+
+/* Tipografía administrativa */
+.sol-fw-800   { font-weight: 800 !important; }
+.sol-smaller  { font-size: 0.85rem !important; }
+.sol-smallest { font-size: 0.75rem !important; }
+.sol-tracking-tight  { letter-spacing: -0.02em !important; }
+.sol-tracking-wide   { letter-spacing: 0.08em !important; }
+.sol-tracking-wider  { letter-spacing: 0.12em !important; }
+.sol-italic   { font-style: italic; }
+.sol-cursor   { cursor: pointer; }
+
+/* Encabezados de vistas (header row) */
+.sol-page-header {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+@media (min-width: 768px) {
+  .sol-page-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+.sol-page-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--sol-neutral-dark);
+  line-height: 1.1;
+  margin: 0;
+}
+.sol-page-subtitle {
+  color: var(--sol-neutral-gray);
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+}
+
+/* Indicador de estado activo/inactivo (dot) */
+.sol-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+.sol-status-dot--active   { background: var(--sol-color-success); box-shadow: 0 0 8px rgba(16, 185, 129, 0.4); }
+.sol-status-dot--inactive { background: var(--sol-color-danger); }
+.sol-status-dot--paused   { background: #94a3b8; }
+
+/* Control segmentado de layout (tabla / cuadrícula) */
+.sol-segmented {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: #f1f5f9;
+  border-radius: 50px;
+  border: 1px solid var(--sol-neutral-border);
+}
+.sol-segmented__btn {
+  width: 34px;
+  height: 34px;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: var(--sol-transition-fast);
+}
+.sol-segmented__btn:hover { color: var(--sol-color-primary); }
+.sol-segmented__btn--active {
+  background: #ffffff;
+  color: var(--sol-color-primary);
+  box-shadow: var(--sol-shadow-sm);
+}
+
+/* Upload zone premium */
+.sol-upload-zone {
+  border: 1.5px dashed var(--sol-neutral-border);
+  background: #f8fafc;
+  border-radius: var(--sol-radius-lg);
+  cursor: pointer;
+  overflow: hidden;
+  transition: var(--sol-transition-base);
+}
+.sol-upload-zone:hover {
+  border-color: var(--sol-color-primary);
+  background: var(--sol-color-primary-soft);
+}
+.sol-upload-icon {
+  width: 56px;
+  height: 56px;
+  background: var(--sol-color-primary-soft);
+  border-radius: var(--sol-radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 0.75rem;
+}
+
+/* Separador de sección con línea */
+.sol-section-divider {
+  display: flex;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--sol-color-primary);
+  margin: 1.5rem 0;
+  opacity: 0.85;
+}
+.sol-section-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, var(--sol-color-primary-soft), transparent);
+  margin-left: 1.25rem;
+}
+
+/* Premium switch */
+.sol-switch .form-check-input {
+  width: 3rem;
+  height: 1.75rem;
+  cursor: pointer;
+}
+.sol-switch .form-check-input:checked {
+  background-color: var(--sol-color-primary);
+  border-color: var(--sol-color-primary);
+}
+
+/* Premium checkbox */
+.sol-checkbox .form-check-input {
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 5px;
+  border: 2px solid var(--sol-neutral-border);
+  cursor: pointer;
+}
+.sol-checkbox .form-check-input:checked {
+  background-color: var(--sol-color-primary);
+  border-color: var(--sol-color-primary);
+}
+
+/* Premium textarea */
+.sol-textarea {
+  border-radius: var(--sol-radius-md) !important;
+  border: 1px solid var(--sol-neutral-border) !important;
+  background: #ffffff !important;
+  padding: 0.875rem 1rem !important;
+  transition: var(--sol-transition-fast);
+  resize: vertical;
+}
+.sol-textarea:focus {
+  border-color: var(--sol-color-secondary) !important;
+  box-shadow: 0 0 0 4px var(--sol-color-secondary-soft) !important;
+  outline: none;
+}
+
+/* Input group premium (filter pills) */
+.sol-filter-pill {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid var(--sol-neutral-border);
+  border-radius: 50px;
+  padding: 0 12px;
+  transition: var(--sol-transition-fast);
+  gap: 0;
+}
+.sol-filter-pill:focus-within {
+  border-color: var(--sol-color-primary);
+  box-shadow: 0 0 0 3px var(--sol-color-primary-soft);
+}
+.sol-filter-pill .form-select {
+  border: none !important;
+  box-shadow: none !important;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  background-color: transparent !important;
+  padding: 0.45rem 0.5rem !important;
+}
+
+/* Hover effects */
+.sol-hover-white:hover { background: #ffffff !important; }
+.sol-hover-lift:hover  { box-shadow: 0 8px 24px rgba(0, 41, 84, 0.06) !important; }
+
+/* Sombra de marca */
+.sol-shadow-brand {
+  box-shadow: 0 8px 20px var(--sol-color-primary-glass) !important;
+}
+
+/* Transición lenta para imágenes */
+.sol-transition-slow { transition: all 0.5s ease; }
+
+/* Frame cuadrado para avatares */
+.sol-item-frame {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--sol-radius-lg);
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.sol-item-frame img { transition: transform 0.4s ease; }
+.sol-item-frame:hover img { transform: scale(1.12); }
+
+/* Sección de configuración (card interna) */
+.sol-config-section {
+  background: #f8fafc;
+  border: 1px solid var(--sol-neutral-border);
+  border-radius: var(--sol-radius-lg);
+  padding: 1.5rem;
+}
+.sol-config-section__title {
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--sol-color-primary);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid var(--sol-neutral-border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ==========================================================================
+   METRICAS Y DASHBOARD (Prefix: `dash-`)
+   ========================================================================== */
+
+.dash-metric-card {
+  border-radius: var(--sol-radius-lg) !important;
+  color: #ffffff;
+  position: relative;
+  overflow: hidden;
+  border: none !important;
+  transition: var(--sol-transition-base);
+}
+.dash-metric-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--sol-shadow-lg) !important;
+}
+
+.dash-metric-primary { background: linear-gradient(135deg, var(--sol-color-primary), #00152b); }
+.dash-metric-secondary { background: linear-gradient(135deg, var(--sol-color-secondary), #004b69); }
+.dash-metric-success { background: linear-gradient(135deg, var(--sol-color-success), #096b49); }
+.dash-metric-warning { background: linear-gradient(135deg, var(--sol-color-warning), #a16207); }
+.dash-metric-info { background: linear-gradient(135deg, var(--sol-color-info), #0369a1); }
+
+.dash-icon-box {
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: var(--sol-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+}
+
+.dash-blob {
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  background: #ffffff;
+  opacity: 0.08;
+  border-radius: 50%;
+  top: -40px;
+  right: -40px;
+}

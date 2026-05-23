@@ -7,6 +7,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap'
 
 // 2. LUEGO cargamos nuestro Sistema de Diseño (pisará a Bootstrap)
+import './assets/theme-soluplast.css'
 import './assets/styles.css'
 
 const app = createApp(App)

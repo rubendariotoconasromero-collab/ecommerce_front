@@ -1,0 +1,173 @@
+/* ==========================================================================
+   THEME SOLUPLAST - BOOTSTRAP OVERRIDES AND ACCESSIBILITY
+   ========================================================================== */
+
+@import './design-system.css';
+
+/* 1. Base Overrides */
+body {
+  font-family: var(--sol-font-family);
+  background-color: var(--sol-neutral-light) !important;
+  color: var(--sol-neutral-dark);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--sol-neutral-dark);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+}
+
+/* 2. Accessible outline overrides (WCAG AA Compliance) */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+.form-check-input:focus-visible {
+  outline: 3px solid var(--sol-color-secondary) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px var(--sol-color-secondary-soft) !important;
+}
+
+/* 3. Bootstrap Button Extensions */
+.btn {
+  font-weight: 600;
+  padding: 0.65rem 1.35rem;
+  border-radius: var(--sol-radius-md);
+  transition: var(--sol-transition-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-primary, .btn-brand {
+  background-color: var(--sol-color-primary) !important;
+  border-color: var(--sol-color-primary) !important;
+  color: #ffffff !important;
+}
+
+.btn-primary:hover, .btn-brand:hover {
+  background-color: var(--sol-color-primary-hover) !important;
+  border-color: var(--sol-color-primary-hover) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--sol-color-primary-glass) !important;
+}
+
+.btn-primary:active, .btn-brand:active {
+  transform: translateY(1px) !important;
+}
+
+.btn-secondary {
+  background-color: var(--sol-color-secondary) !important;
+  border-color: var(--sol-color-secondary) !important;
+  color: #ffffff !important;
+}
+
+.btn-secondary:hover {
+  background-color: var(--sol-color-secondary-hover) !important;
+  border-color: var(--sol-color-secondary-hover) !important;
+  box-shadow: 0 4px 12px var(--sol-color-secondary-soft) !important;
+}
+
+.btn-outline-primary {
+  background-color: transparent !important;
+  color: var(--sol-color-primary) !important;
+  border: 2px solid var(--sol-color-primary) !important;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--sol-color-primary) !important;
+  color: #ffffff !important;
+}
+
+.btn-light {
+  background-color: #ffffff !important;
+  border: 1px solid var(--sol-neutral-border) !important;
+  color: var(--sol-neutral-dark) !important;
+}
+
+.btn-light:hover {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* 4. Form Control Customizations */
+.form-label {
+  color: var(--sol-neutral-dark);
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.form-control, .form-select {
+  background-color: #ffffff !important;
+  border: 1px solid var(--sol-neutral-border) !important;
+  color: var(--sol-neutral-dark) !important;
+  padding: 0.7rem 1rem;
+  border-radius: var(--sol-radius-md) !important;
+  font-weight: 500;
+  transition: var(--sol-transition-fast);
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--sol-color-secondary) !important;
+  box-shadow: 0 0 0 4px var(--sol-color-secondary-soft) !important;
+}
+
+/* 5. Minimalist Corporate Tables */
+.table {
+  color: var(--sol-neutral-dark) !important;
+  margin-bottom: 0;
+}
+
+.table thead th {
+  background-color: var(--sol-neutral-light) !important;
+  color: var(--sol-neutral-gray);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  padding: 1rem 1.25rem;
+  border-bottom: 2px solid var(--sol-neutral-border) !important;
+}
+
+.table tbody td {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--sol-neutral-border) !important;
+  font-size: 0.9rem;
+}
+
+.table-hover tbody tr:hover {
+  background-color: var(--sol-neutral-light) !important;
+}
+
+/* 6. Modal customization */
+.modal-content {
+  border: none !important;
+  border-radius: var(--sol-radius-lg) !important;
+  overflow: hidden;
+  box-shadow: var(--sol-shadow-xl) !important;
+}
+
+.modal-header {
+  background-color: var(--sol-neutral-dark) !important;
+  color: #ffffff !important;
+  border-bottom: none !important;
+  padding: 1.5rem !important;
+}
+
+.modal-header .btn-close {
+  filter: invert(1) grayscale(1) brightness(2);
+}
+
+.modal-body {
+  padding: 2rem !important;
+  background-color: #ffffff;
+}

@@ -10,9 +10,9 @@
           <div class="footer-brand-wrapper mb-4">
             <div class="d-flex align-items-center gap-3">
               <div class="brand-icon-neon">
-                <i class="bi bi-lightning-charge-fill"></i>
+                <i class="fa-solid fa-cubes"></i>
               </div>
-              <span class="brand-text-premium">CodeSoft</span>
+              <span class="brand-text-premium">SOLUPLAST</span>
             </div>
           </div>
           <p class="footer-bio-text mb-5">
@@ -62,7 +62,7 @@
             </div>
             <div class="contact-item-premium">
               <i class="bi bi-envelope-at-fill neon-text-cyan"></i>
-              <span>corporativo@codesoft.com.bo</span>
+              <span>corporativo@soluplast.com</span>
             </div>
           </div>
           
@@ -79,7 +79,7 @@
         <div class="row align-items-center">
           <div class="col-md-6 text-center text-md-start">
             <p class="copyright-text">
-              &copy; 2026 <span class="fw-bold">CodeSoft</span>. {{ settings?.footer_text || 'Excelencia en Polímeros.' }}
+              &copy; 2026 <span class="fw-bold">SOLUPLAST S.A.</span> {{ settings?.footer_text || 'Excelencia en Polímeros.' }}
             </p>
           </div>
           <div class="col-md-6 mt-3 mt-md-0">

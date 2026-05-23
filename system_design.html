@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CodeSoft | Sistema de Diseño e Identidad Visual</title>
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="./src/assets/themes.css" />
+    <link rel="stylesheet" href="./src/assets/styles.css" />
+    
+    <style>
+      /* Estilos decorativos exclusivos para la página del Sistema de Diseño */
+      .sd-sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 280px;
+        background: var(--bg-card);
+        border-right: 1px solid var(--border-color);
+        padding: 2rem 1.5rem;
+        z-index: 100;
+        overflow-y: auto;
+      }
+      .sd-content {
+        margin-left: 280px;
+        padding: 3rem 4rem;
+        min-height: 100vh;
+      }
+      .sd-section {
+        margin-bottom: 4.5rem;
+        padding-top: 1.5rem;
+      }
+      .sd-section-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        margin-bottom: 2rem;
+        border-bottom: 2px solid var(--border-light);
+        padding-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .color-swatch {
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm);
+        height: 100px;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 1rem;
+        transition: var(--transition-base);
+        border: 1px solid var(--border-color);
+      }
+      .color-swatch:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-md);
+      }
+      .color-swatch-info {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(255,255,255,0.9);
+        padding: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--slate-800);
+        backdrop-filter: blur(4px);
+      }
+      [data-theme="dark"] .color-swatch-info {
+        background: rgba(21, 27, 45, 0.9);
+        color: #f1f5f9;
+      }
+      .sd-nav-link {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-weight: 600;
+        border-radius: var(--radius-md);
+        transition: var(--transition-fast);
+        margin-bottom: 0.25rem;
+      }
+      .sd-nav-link:hover, .sd-nav-link.active {
+        color: var(--color-primary);
+        background: var(--color-primary-soft);
+      }
+      .sd-nav-link.active {
+        box-shadow: inset 4px 0 0 var(--color-primary);
+      }
+      .preview-box {
+        background: var(--bg-hover);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        position: relative;
+      }
+      .code-tag {
+        font-family: monospace;
+        font-size: 0.75rem;
+        background: var(--border-light);
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        color: var(--color-primary);
+      }
+      .theme-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: var(--transition-base);
+        border: 2px solid transparent;
+      }
+      .theme-btn.active {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 10px var(--color-primary-glass);
+      }
+      
+      @media(max-width: 991px) {
+        .sd-sidebar {
+          display: none;
+        }
+        .sd-content {
+          margin-left: 0;
+          padding: 2rem;
+        }
+      }
+    </style>
+  </head>
+  <body data-theme="light">
+    
+    <!-- Sidebar de Navegación del Styleguide -->
+    <aside class="sd-sidebar animate__animated animate__fadeInLeft">
+      <div class="d-flex align-items-center gap-3 mb-5">
+        <div class="bg-primary text-white d-flex align-items-center justify-content-center rounded-3 shadow-brand-sm" style="width: 42px; height: 42px;">
+          <i class="fa-solid fa-cube fs-4"></i>
+        </div>
+        <div>
+          <h5 class="fw-800 mb-0 tracking-tighter">CodeSoft</h5>
+          <span class="smallest text-muted fw-700 uppercase tracking-wider text-primary">System Design v1.0</span>
+        </div>
+      </div>
+      
+      <nav class="nav flex-column mb-5">
+        <a href="#branding" class="sd-nav-link active"><i class="fa-solid fa-palette"></i> Colores de Marca</a>
+        <a href="#typography" class="sd-nav-link"><i class="fa-solid fa-font"></i> Tipografía</a>
+        <a href="#spacing" class="sd-nav-link"><i class="fa-solid fa-up-down-left-right"></i> Estructura y Sombras</a>
+        <a href="#buttons" class="sd-nav-link"><i class="fa-solid fa-circle-play"></i> Botones y Badges</a>
+        <a href="#forms" class="sd-nav-link"><i class="fa-solid fa-square-check"></i> Inputs y Formularios</a>
+        <a href="#cards" class="sd-nav-link"><i class="fa-solid fa-table-columns"></i> Contenedores y Tablas</a>
+      </nav>
+
+      <div class="mt-auto border-top pt-4">
+        <label class="form-label smaller fw-800 text-body-secondary text-uppercase tracking-tighter mb-3">Modo del Sistema</label>
+        <div class="d-flex gap-2">
+          <div class="theme-btn bg-light border active" onclick="setGlobalTheme('light')" id="t-light" title="Modo Claro">
+            <i class="fa-solid fa-sun text-warning"></i>
+          </div>
+          <div class="theme-btn bg-dark text-white" onclick="setGlobalTheme('semidark')" id="t-semidark" title="Modo Semi-Dark">
+            <i class="fa-solid fa-circle-half-stroke"></i>
+          </div>
+          <div class="theme-btn bg-dark text-white" onclick="setGlobalTheme('dark')" id="t-dark" title="Modo Oscuro">
+            <i class="fa-solid fa-moon text-info"></i>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Contenido del Styleguide -->
+    <main class="sd-content animate__animated animate__fadeIn">
+      
+      <!-- Encabezado Principal -->
+      <div class="mb-5 border-bottom pb-4">
+        <BaseBadge variant="primary" soft class="mb-2 px-3 py-1 rounded-pill fw-bold">Manual de Identidad</BaseBadge>
+        <h1 class="fw-800 mb-2 tracking-tighter">Sistema de Diseño & Tokens</h1>
+        <p class="text-body-secondary fs-5 mb-0">Directrices visuales e interacciones premium para el ecosistema de CodeSoft.</p>
+      </div>
+
+      <!-- Sección 1: Branding / Colores -->
+      <section id="branding" class="sd-section">
+        <h3 class="sd-section-title"><i class="fa-solid fa-palette text-primary"></i> 1. Colores de Marca y Estados</h3>
+        <p class="text-body-secondary">Nuestra paleta cromática utiliza tonalidades seleccionadas con precisión HSL y contrastes premium optimizados para modo claro y oscuro.</p>
+        
+        <h5 class="fw-700 mb-3 text-body-emphasis">Colores Core y Sólidos</h5>
+        <div class="row g-4 mb-5">
+          <div class="col-6 col-md-3">
+            <div class="color-swatch" style="background-color: var(--color-primary)">
+              <div class="color-swatch-info">Primary<br><code class="code-tag">#4f46e5</code></div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="color-swatch" style="background-color: var(--color-primary-hover)">
+              <div class="color-swatch-info">Primary Hover<br><code class="code-tag">#4338ca</code></div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="color-swatch" style="background-color: var(--color-primary-soft)">
+              <div class="color-swatch-info">Primary Soft<br><code class="code-tag">rgba(79, 70, 229, 0.08)</code></div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="color-swatch" style="background-color: var(--color-primary-glass)">
+              <div class="color-swatch-info">Primary Glass<br><code class="code-tag">rgba(79, 70, 229, 0.15)</code></div>
+            </div>
+          </div>
+        </div>
+
+        <h5 class="fw-700 mb-3 text-body-emphasis">Colores de Estado (Feedback)</h5>
+        <div class="row g-4">
+          <div class="col-6 col-md-3">
+            <div class="color-swatch" style="background-color: var(--color-success)">
+              <div class="color-swatch-info">Success<br><code class="code-tag">#10b981</code></div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="color-swatch" style="background-color: var(--color-danger)">
+              <div class="color-swatch-info">Danger<br><code class="code-tag">#ef4444</code></div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="color-swatch" style="background-color: var(--color-warning)">
+              <div class="color-swatch-info">Warning<br><code class="code-tag">#f59e0b</code></div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="color-swatch" style="background-color: var(--color-info)">
+              <div class="color-swatch-info">Info<br><code class="code-tag">#0ea5e9</code></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sección 2: Tipografía -->
+      <section id="typography" class="sd-section">
+        <h3 class="sd-section-title"><i class="fa-solid fa-font text-primary"></i> 2. Tipografía</h3>
+        <p class="text-body-secondary">Usamos <strong>Plus Jakarta Sans</strong>, una fuente sans-serif geométrica contemporánea ideal para interfaces premium.</p>
+        
+        <div class="preview-box">
+          <div class="d-flex flex-column gap-3">
+            <div>
+              <span class="badge bg-secondary mb-2">H1 Header (40px)</span>
+              <h1 class="mb-0">Controladores de Alta Densidad</h1>
+            </div>
+            <div class="border-top pt-3">
+              <span class="badge bg-secondary mb-2">H2 Section Header (32px)</span>
+              <h2 class="mb-0">Facturación & Negocios Apilados</h2>
+            </div>
+            <div class="border-top pt-3">
+              <span class="badge bg-secondary mb-2">H3 Card Header (28px)</span>
+              <h3 class="mb-0">Ecosistema de Producción de Polímeros</h3>
+            </div>
+            <div class="border-top pt-3">
+              <span class="badge bg-secondary mb-2">P Body Text (15px)</span>
+              <p class="mb-0">En Plastix Industrial nos dedicamos a la transformación de termoplásticos mediante procesos de inyección y soplado. Contamos con tecnología de punta para garantizar durabilidad.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sección 3: Sombras, Radius y Estructura -->
+      <section id="spacing" class="sd-section">
+        <h3 class="sd-section-title"><i class="fa-solid fa-up-down-left-right text-primary"></i> 3. Estructura, Bordes y Sombras</h3>
+        <p class="text-body-secondary">Tokens avanzados para definir bordes redondeados y elevaciones flotantes consistentes.</p>
+        
+        <div class="row g-4">
+          <div class="col-md-4">
+            <div class="p-4 bg-card border rounded-4 text-center" style="border-radius: var(--radius-md) !important; box-shadow: var(--shadow-sm);">
+              <h6 class="fw-800">Sombra SM + Radius MD</h6>
+              <code class="code-tag">var(--radius-md)</code><br>
+              <code class="code-tag">var(--shadow-sm)</code>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="p-4 bg-card border text-center" style="border-radius: var(--radius-lg) !important; box-shadow: var(--shadow-md);">
+              <h6 class="fw-800">Sombra MD + Radius LG</h6>
+              <code class="code-tag">var(--radius-lg)</code><br>
+              <code class="code-tag">var(--shadow-md)</code>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="p-4 bg-card border text-center" style="border-radius: var(--radius-xl) !important; box-shadow: var(--shadow-lg);">
+              <h6 class="fw-800">Sombra LG + Radius XL</h6>
+              <code class="code-tag">var(--radius-xl)</code><br>
+              <code class="code-tag">var(--shadow-lg)</code>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sección 4: Botones y Badges -->
+      <section id="buttons" class="sd-section">
+        <h3 class="sd-section-title"><i class="fa-solid fa-circle-play text-primary"></i> 4. Botones y Badges</h3>
+        <p class="text-body-secondary">Interactividad premium a través de botones con micro-animaciones en hover y badges con transparencias elegantes.</p>
+        
+        <div class="row g-4">
+          <!-- Botones -->
+          <div class="col-md-6">
+            <div class="preview-box">
+              <h5 class="fw-800 mb-4 text-body-emphasis">Componentes de Acción</h5>
+              <div class="d-flex flex-wrap gap-3">
+                <button class="btn btn-brand rounded-pill"><i class="fa-solid fa-wand-magic-sparkles"></i> Botón Brand</button>
+                <button class="btn btn-light rounded-pill"><i class="fa-solid fa-rotate"></i> Botón Light</button>
+                <button class="btn btn-brand rounded-circle p-0" style="width: 46px; height: 46px;" title="Circular"><i class="fa-solid fa-plus"></i></button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Badges -->
+          <div class="col-md-6">
+            <div class="preview-box">
+              <h5 class="fw-800 mb-4 text-body-emphasis">Componentes de Estado</h5>
+              <div class="d-flex flex-wrap gap-3">
+                <span class="badge bg-soft-success rounded-pill px-3 py-2"><i class="fa-solid fa-circle-check me-1"></i> Aprobado</span>
+                <span class="badge bg-soft-danger rounded-pill px-3 py-2"><i class="fa-solid fa-circle-xmark me-1"></i> Fallido</span>
+                <span class="badge bg-soft-warning rounded-pill px-3 py-2"><i class="fa-solid fa-clock me-1"></i> En Espera</span>
+                <span class="badge bg-soft-info rounded-pill px-3 py-2"><i class="fa-solid fa-circle-info me-1"></i> En Tránsito</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Sección 5: Formularios e Inputs -->
+      <section id="forms" class="sd-section">
+        <h3 class="sd-section-title"><i class="fa-solid fa-square-check text-primary"></i> 5. Controles de Formulario</h3>
+        <p class="text-body-secondary">Componentes de entrada optimizados con bordes sensibles al foco y colores de contraste para una legibilidad superior.</p>
+        
+        <div class="preview-box">
+          <form class="row g-4">
+            <div class="col-md-6">
+              <label class="form-label">Identidad Completa o Razón Social</label>
+              <input type="text" class="form-control" placeholder="Ej: CodeSoft Solutions S.A." />
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Clasificación Comercial</label>
+              <select class="form-select">
+                <option value="individual">Cliente Individual (B2C)</option>
+                <option value="business">Empresa B2B (Corporativo)</option>
+              </select>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Sección 6: Tarjetas y Tablas -->
+      <section id="cards" class="sd-section">
+        <h3 class="sd-section-title"><i class="fa-solid fa-table-columns text-primary"></i> 6. Tarjetas y Tablas de Alta Densidad</h3>
+        <p class="text-body-secondary">Contenedores de información y rejillas de datos diseñados para la gestión ágil en aplicaciones empresariales y SaaS.</p>
+        
+        <div class="row g-4 mb-4">
+          <div class="col-12">
+            <!-- Tarjeta Premium -->
+            <div class="card">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-800">Resumen de Conectividad</h5>
+                <span class="badge bg-soft-success rounded-pill">Sincronizado</span>
+              </div>
+              <div class="card-body p-4">
+                <div class="table-responsive">
+                  <table class="table table-hover align-middle">
+                    <thead>
+                      <tr>
+                        <th>Clasificación</th>
+                        <th>Identificador</th>
+                        <th>Estado de Acceso</th>
+                        <th>Acción</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>
+                          <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-building text-primary"></i>
+                            <span class="fw-bold text-uppercase smaller tracking-tighter">Empresa B2B</span>
+                          </div>
+                        </td>
+                        <td><code class="code-tag">4f46e5d2-12c4...</code></td>
+                        <td>
+                          <div class="d-flex align-items-center">
+                            <div class="status-indicator active"></div>
+                            <span class="smaller fw-800 text-success text-uppercase">Activo</span>
+                          </div>
+                        </td>
+                        <td>
+                          <button class="btn btn-light rounded-pill btn-icon-sm" style="width: 32px; height: 32px;"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-user text-muted"></i>
+                            <span class="fw-bold text-uppercase smaller tracking-tighter">Individual</span>
+                          </div>
+                        </td>
+                        <td><code class="code-tag">198cd4a1-b847...</code></td>
+                        <td>
+                          <div class="d-flex align-items-center">
+                            <div class="status-indicator active"></div>
+                            <span class="smaller fw-800 text-success text-uppercase">Activo</span>
+                          </div>
+                        </td>
+                        <td>
+                          <button class="btn btn-light rounded-pill btn-icon-sm" style="width: 32px; height: 32px;"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Script de lógica decorativa interactiva -->
+    <script>
+      // Sincronizar navegación activa
+      const links = document.querySelectorAll('.sd-nav-link');
+      links.forEach(link => {
+        link.addEventListener('click', () => {
+          links.forEach(l => l.classList.remove('active'));
+          link.classList.add('active');
+        });
+      });
+
+      // Alternar Temas Globales con animaciones
+      function setGlobalTheme(themeName) {
+        document.body.setAttribute('data-theme', themeName);
+        
+        // Quitar estado activo
+        document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
+        
+        // Añadir estado activo al correcto
+        document.getElementById('t-' + themeName).classList.add('active');
+        
+        // Añadir micro-animación al body
+        document.body.classList.add('animate__animated', 'animate__fadeIn');
+        setTimeout(() => {
+          document.body.classList.remove('animate__animated', 'animate__fadeIn');
+        }, 500);
+      }
+    </script>
+  </body>
+</html>

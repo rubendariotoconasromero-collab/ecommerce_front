@@ -7,15 +7,11 @@
     >
       <!-- Sidebar Header (Logo con Contraste Elevado) -->
       <div class="sidebar-header d-flex align-items-center justify-content-center border-bottom bg-body sticky-top">
-        <div class="logo-area d-flex align-items-center justify-content-center w-100 px-3">
-          <img 
-            v-if="!isCollapsed"
-            src="/src/assets/images/logo.png" 
-            alt="Logo Empresa" 
-            class="sidebar-logo animate__animated animate__fadeIn"
-          >
+        <div class="logo-area d-flex align-items-center justify-content-center w-100 px-3 gap-2">
+          <i class="fa-solid fa-cubes text-primary fs-4"></i>
+          <span v-if="!isCollapsed" class="fw-900 text-body-emphasis fs-5 animate__animated animate__fadeIn">SOLUPLAST</span>
           <div v-else class="collapsed-logo-pill animate__animated animate__zoomIn">
-            <span class="fw-bold">C</span>
+            <span class="fw-bold">S</span>
           </div>
         </div>
       </div>
