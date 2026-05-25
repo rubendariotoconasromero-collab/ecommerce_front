@@ -1,5 +1,5 @@
 <template>
-  <div class="base-data-grid">
+  <div class="base-data-grid" :class="{ 'base-data-grid--compact': compact }">
     <!-- Header: Search and Filters -->
     <div class="grid-header mb-3 p-2 p-md-3 bg-body rounded-4 border shadow-sm" v-if="searchable">
       <div class="row g-2 align-items-center">
@@ -29,7 +29,7 @@
               <th v-if="titleKey" class="ps-4" :style="{ width: mainColWidth }">{{ mainColLabel }}</th>
               <th v-for="col in visibleColumns" :key="col.key" :class="[col.align ? `text-${col.align}` : '']">{{ col.label }}</th>
               <th v-if="$slots['item-status']" class="text-center">ESTADO</th>
-              <th v-if="$slots['item-footer-actions']" class="text-center">DETALLES</th>
+              <th v-if="$slots['item-footer-actions']" class="text-center">{{ footerActionsLabel }}</th>
               <th class="text-end pe-4" style="width: 80px;">ACCIONES</th>
             </tr>
           </thead>
@@ -59,7 +59,10 @@
                     </div>
                   </slot>
                   <div class="lh-sm">
-                    <div class="fw-bold text-body-emphasis small">{{ item[titleKey] }}</div>
+                    <div class="fw-bold text-body-emphasis small d-flex align-items-center flex-wrap gap-2">
+                      {{ item[titleKey] }}
+                      <slot name="item-title-badge" :item="item" />
+                    </div>
                     <div class="text-body-secondary smaller mt-1" v-if="subtitleKey">{{ item[subtitleKey] }}</div>
                   </div>
                 </div>
@@ -121,7 +124,10 @@
                     </div>
                   </slot>
                   <div class="lh-sm">
-                    <div class="fw-bold text-body-emphasis small">{{ item[titleKey] }}</div>
+                    <div class="fw-bold text-body-emphasis small d-flex align-items-center flex-wrap gap-2">
+                      {{ item[titleKey] }}
+                      <slot name="item-title-badge" :item="item" />
+                    </div>
                     <div class="text-body-secondary smaller mt-1" v-if="subtitleKey">{{ item[subtitleKey] }}</div>
                   </div>
                   <div class="ms-auto">
@@ -206,6 +212,7 @@ const props = defineProps({
   subtitleKey: { type: String, default: null },
   mainColLabel: { type: String, default: 'INFORMACIÓN' },
   mainColWidth: { type: String, default: 'auto' },
+  footerActionsLabel: { type: String, default: 'DETALLES' },
   emptyTitle: String,
   emptyDescription: String,
   emptyIcon: String,
@@ -218,6 +225,10 @@ const props = defineProps({
       from: 0,
       to: 0
     })
+  },
+  compact: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -359,5 +370,35 @@ const visiblePages = computed(() => {
 .table-responsive {
   padding-bottom: 60px; /* Espacio extra para que el dropdown no se corte en tablas con pocos registros */
   margin-bottom: -60px;
+}
+
+/* Compact Mode Styles */
+.base-data-grid--compact .table thead th {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.7rem;
+}
+
+.base-data-grid--compact .table tbody td {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.775rem;
+}
+
+.base-data-grid--compact .avatar-circle-sm {
+  width: 28px;
+  height: 28px;
+  font-size: 0.75rem;
+}
+
+.base-data-grid--compact .py-1 {
+  padding-top: 0.15rem !important;
+  padding-bottom: 0.15rem !important;
+}
+
+.base-data-grid--compact .gap-3 {
+  gap: 0.5rem !important;
+}
+
+.base-data-grid--compact .card-body {
+  padding: 0.75rem !important;
 }
 </style>

@@ -31,4 +31,30 @@ export const ConfirmAlert = Swal.mixin({
   buttonsStyling: false // Desactiva los estilos por defecto de Swal para usar los de Bootstrap
 });
 
+// 3. Alerta de Error del Backend
+// Extrae de forma robusta mensajes de validación y de excepción del backend
+export const showBackendError = (error, defaultTitle = 'Error en la operación') => {
+  let errorMsg = '';
+  if (error.response?.data?.errors) {
+    errorMsg = Object.values(error.response.data.errors).flat().join('<br>');
+  } else if (error.response?.data?.message) {
+    errorMsg = error.response.data.message;
+  } else if (error.response?.data?.error) {
+    errorMsg = error.response.data.error;
+  } else {
+    errorMsg = error.message || 'Fallo de conexión o error interno del servidor.';
+  }
+  
+  Swal.fire({
+    icon: 'error',
+    title: defaultTitle,
+    html: `<div class="text-start p-2" style="font-size: 0.85rem; line-height: 1.5; font-family: inherit; max-height: 250px; overflow-y: auto;">${errorMsg}</div>`,
+    confirmButtonColor: 'var(--sol-color-primary)',
+    customClass: {
+      confirmButton: 'btn btn-primary px-5 rounded-pill'
+    },
+    buttonsStyling: false
+  });
+};
+
 export default Swal;

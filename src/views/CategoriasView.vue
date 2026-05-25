@@ -1,51 +1,31 @@
 <template>
   <div class="animate__animated animate__fadeIn">
     <!-- Encabezado de Página -->
-    <div class="sol-page-header mb-5">
+    <div class="sol-page-header mb-3">
       <div>
-        <BaseBadge variant="primary" soft class="mb-2 px-3 py-1 rounded-pill sol-fw-800">Estructura de Tienda</BaseBadge>
         <h2 class="sol-page-title">Gestión de Categorías</h2>
         <p class="sol-page-subtitle">Organiza tu inventario con una jerarquía visual impecable.</p>
       </div>
       <div class="d-flex align-items-center gap-3">
-        <!-- Control segmentado layout -->
-        <div class="sol-segmented">
-          <button
-            class="sol-segmented__btn"
-            :class="{ 'sol-segmented__btn--active': currentLayout === 'table' }"
-            @click="currentLayout = 'table'"
-            title="Vista de Tabla"
-          >
-            <i class="fa-solid fa-list-ul"></i>
-          </button>
-          <button
-            class="sol-segmented__btn"
-            :class="{ 'sol-segmented__btn--active': currentLayout === 'card' }"
-            @click="currentLayout = 'card'"
-            title="Vista de Cuadrícula"
-          >
-            <i class="fa-solid fa-table-cells-large"></i>
-          </button>
-        </div>
         <BaseButton variant="brand" class="rounded-pill px-4 py-2 sol-fw-800 sol-shadow-brand" @click="openModal(null)">
-          <i class="fa-solid fa-circle-plus me-2"></i> Nueva Categoría
+          <i class="fa-solid fa-plus me-2"></i> Nueva Categoría
         </BaseButton>
       </div>
     </div>
 
     <!-- Grid de Categorías -->
     <BaseDataGrid
-      :layout="currentLayout"
       :items="categories"
       :columns="gridColumns"
       :loading="isLoading"
       title-key="name"
-      subtitle-key="slug"
       main-col-label="CATEGORÍA"
+      compact
+      search-placeholder="Buscar por nombre o descripción de categoría..."
       empty-title="No hay categorías registradas"
       empty-icon="fa-solid fa-folder-open"
       @edit="openModal"
-      @delete="deleteCategory"
+      @search="handleSearch"
     >
       <!-- Avatar de Categoría -->
       <template #item-avatar="{ item }">
@@ -60,38 +40,59 @@
 
       <!-- Columna de conteo de productos -->
       <template #col-products_count="{ value }">
-        <span class="badge rounded-pill bg-light border text-dark px-3 py-2 sol-fw-800 sol-smaller">
-          <i class="fa-solid fa-boxes-stacked text-primary me-2"></i>{{ value || 0 }} ítems
+        <span class="badge rounded-pill bg-light border text-dark px-3 py-1 sol-fw-800 sol-smallest">
+          {{ value || 0 }} productos
         </span>
       </template>
 
       <!-- Badge de estado -->
       <template #item-status="{ item }">
-        <div class="d-flex align-items-center">
-          <div class="sol-status-dot" :class="item.is_active ? 'sol-status-dot--active' : 'sol-status-dot--inactive'"></div>
-          <span class="sol-smaller sol-fw-800 text-uppercase sol-tracking-tight"
-                :class="item.is_active ? 'text-success' : 'text-danger'">
-            {{ item.is_active ? 'Publicada' : 'Oculta' }}
-          </span>
-        </div>
+        <span
+          class="badge rounded-pill px-3 py-1 sol-fw-800 sol-smallest text-uppercase sol-tracking-tight border d-inline-flex align-items-center justify-content-center"
+          :class="item.is_active ? 'bg-success-subtle text-success border-success-subtle' : 'bg-danger-subtle text-danger border-danger-subtle'"
+          style="width: 115px;"
+        >
+          <i class="fa-solid me-1" :class="item.is_active ? 'fa-circle-check' : 'fa-circle-xmark'"></i>
+          {{ item.is_active ? 'Activa' : 'Inactiva' }}
+        </span>
+      </template>
+
+      <!-- Acciones -->
+      <template #item-actions="{ item }">
+        <li>
+          <button class="dropdown-item rounded-3 py-2 small" @click="openModal(item)">
+            <i class="fa-regular fa-pen-to-square me-2 text-primary"></i>Editar
+          </button>
+        </li>
+        <li><hr class="dropdown-divider mx-2 opacity-50"></li>
+        <li v-if="item.is_active">
+          <button class="dropdown-item text-danger rounded-3 py-2 small" @click="deactivateCategory(item)">
+            <i class="fa-solid fa-ban me-2"></i>Desactivar
+          </button>
+        </li>
+        <li v-else>
+          <button class="dropdown-item text-success rounded-3 py-2 small" @click="restoreCategory(item)">
+            <i class="fa-solid fa-circle-check me-2"></i>Activar
+          </button>
+        </li>
       </template>
     </BaseDataGrid>
 
     <!-- Modal de Categoría -->
     <BaseModal v-model="showModal" :title="isEditing ? 'Configurar Categoría' : 'Nueva Categoría'" size="md">
       <form @submit.prevent="saveCategory" id="categoryForm" class="p-2">
-        <div class="row g-4">
+        <div class="row g-3">
           <div class="col-12">
             <BaseInput
               v-model="form.name"
-              label="Etiqueta de Categoría"
+              label="Nombre de la Categoría"
               placeholder="Ej: Inyección Industrial de Polímeros"
               required
             />
           </div>
 
           <div class="col-12">
-            <label class="form-label">Visual de Portada</label>
+            <label class="form-label smaller fw-800 text-body-secondary text-uppercase tracking-tighter mb-2">Imagen de Portada</label>
             <div class="sol-upload-zone p-2 text-center" :class="{ 'has-preview': previewImage }">
               <input type="file" id="categoryImage" class="visually-hidden" accept="image/*" @change="onFileChange">
               <label for="categoryImage" class="sol-cursor w-100 h-100 mb-0 d-flex align-items-center justify-content-center" style="min-height: 200px;">
@@ -115,7 +116,7 @@
           </div>
 
           <div class="col-12">
-            <label class="form-label">Descripción de la Categoría</label>
+            <label class="form-label smaller fw-800 text-body-secondary text-uppercase tracking-tighter mb-2">Descripción</label>
             <textarea class="form-control sol-textarea" rows="3" v-model="form.description"
               placeholder="Breve descripción técnica o comercial..."></textarea>
           </div>
@@ -150,23 +151,20 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue';
 import api from '../plugins/axios';
-import { Toast, ConfirmAlert } from '../plugins/swal';
-import Swal from 'sweetalert2';
+import { Toast, ConfirmAlert, showBackendError } from '../plugins/swal';
 import BaseDataGrid from '../components/base/BaseDataGrid.vue';
 import BaseButton from '../components/base/BaseButton.vue';
 import BaseModal from '../components/base/BaseModal.vue';
 import BaseInput from '../components/base/BaseInput.vue';
-import BaseBadge from '../components/base/BaseBadge.vue';
 
 const categories = ref([]);
 const isLoading = ref(true);
-const currentLayout = ref('table');
 const isSaving = ref(false);
 const isEditing = ref(false);
 const showModal = ref(false);
 
 const gridColumns = [
-  { label: 'ÍTEMS ACTIVOS', key: 'products_count', align: 'center' }
+  { label: 'PRODUCTOS', key: 'products_count', align: 'center' }
 ];
 
 const form = reactive({
@@ -179,10 +177,23 @@ const form = reactive({
 const selectedFile = ref(null);
 const previewImage = ref(null);
 
+const searchQuery = ref('');
+let debounceTimeout = null;
+
+const handleSearch = (value) => {
+  searchQuery.value = value;
+  if (debounceTimeout) clearTimeout(debounceTimeout);
+  debounceTimeout = setTimeout(() => {
+    fetchData();
+  }, 450);
+};
+
 const fetchData = async () => {
   isLoading.value = true;
   try {
-    const response = await api.get('/categories');
+    const params = {};
+    if (searchQuery.value) params.search = searchQuery.value;
+    const response = await api.get('/categories', { params });
     categories.value = response.data;
   } catch (error) {
     console.error('Error al cargar categorías:', error);
@@ -241,39 +252,53 @@ const saveCategory = async () => {
     fetchData();
     Toast.fire({ icon: 'success', title: 'Procesado con éxito' });
   } catch (error) {
-    if (error.response?.status === 422) {
-      Toast.fire({ icon: 'warning', title: error.response.data.message || 'Verifica los parámetros' });
-    } else {
-      Toast.fire({ icon: 'error', title: 'Fallo crítico en el servidor' });
-    }
+    showBackendError(error, 'Error al guardar categoría');
   } finally {
     isSaving.value = false;
   }
 };
 
-const deleteCategory = async (category) => {
-  if (category.products_count > 0) {
-    return Swal.fire({
-      title: 'Operación Bloqueada',
-      text: `Esta categoría resguarda ${category.products_count} productos. Reubícalos primero.`,
-      icon: 'warning',
-      confirmButtonColor: 'var(--sol-color-primary)'
-    });
-  }
+const deactivateCategory = async (category) => {
   const result = await ConfirmAlert.fire({
-    title: '¿Confirmar eliminación?',
-    text: `Esta acción es irreversible para la categoría "${category.name}".`
+    title: '¿Desactivar categoría?',
+    text: `"${category.name}" dejará de estar visible hasta ser reactivada.`,
+    confirmButtonText: 'Sí, desactivar',
   });
   if (result.isConfirmed) {
     try {
       await api.delete(`/categories/${category.id}`);
       fetchData();
-      Swal.fire({ title: 'Eliminado', text: 'Registro eliminado permanentemente.', icon: 'success', confirmButtonColor: 'var(--sol-color-primary)' });
+      Toast.fire({ icon: 'success', title: 'Categoría desactivada correctamente' });
     } catch (error) {
-      Swal.fire('Error', 'Fallo al eliminar registro.', 'error');
+      showBackendError(error, 'Error al desactivar categoría');
+    }
+  }
+};
+
+const restoreCategory = async (category) => {
+  const result = await ConfirmAlert.fire({
+    title: '¿Activar categoría?',
+    text: `"${category.name}" volverá a estar disponible.`,
+    confirmButtonText: 'Sí, activar',
+  });
+  if (result.isConfirmed) {
+    try {
+      await api.patch(`/categories/${category.id}/restore`);
+      fetchData();
+      Toast.fire({ icon: 'success', title: 'Categoría reactivada correctamente' });
+    } catch (error) {
+      showBackendError(error, 'Error al activar categoría');
     }
   }
 };
 
 onMounted(() => { fetchData(); });
 </script>
+
+<style scoped>
+.sol-item-frame {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: var(--sol-radius-md) !important;
+}
+</style>

@@ -7,7 +7,7 @@
 body {
   background-color: var(--bg-body) !important;
   color: var(--text-main);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-size: 0.9375rem; /* 15px base for modern balance */
@@ -141,6 +141,12 @@ h6 { font-size: 1rem; }
   padding: 0.7rem 1rem;
   border-radius: var(--radius-md) !important;
   transition: var(--transition-fast);
+}
+
+.form-control::placeholder {
+  color: var(--text-muted) !important;
+  opacity: 0.55 !important;
+  font-weight: 400 !important;
 }
 
 .form-select {

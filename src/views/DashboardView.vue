@@ -1,13 +1,12 @@
 <template>
   <div class="animate__animated animate__fadeIn">
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 gap-4">
       <div>
-        <BaseBadge variant="primary" soft class="mb-2 px-3 py-1 rounded-pill fw-bold">Centro de Operaciones</BaseBadge>
         <h2 class="fw-800 mb-0 text-body-emphasis lh-1">Resumen General</h2>
         <p class="text-body-secondary mt-2 mb-0">Monitoreo en tiempo real de producción y ventas.</p>
       </div>
       <BaseButton variant="brand" class="rounded-pill px-4 py-2 fw-bold shadow-brand-sm">
-        <i class="fa-solid fa-cart-plus me-2"></i> Nuevo Pedido Maestro
+        <i class="fa-solid fa-plus me-2"></i> Nuevo Pedido Maestro
       </BaseButton>
     </div>
 
@@ -49,11 +48,11 @@
           <table class="table table-hover align-middle custom-premium-table">
             <thead>
               <tr class="smaller text-muted fw-800 text-uppercase tracking-wider">
-                <th class="border-0 ps-0">Identificador</th>
-                <th class="border-0">Aliado Comercial</th>
-                <th class="border-0">Estado Logístico</th>
-                <th class="border-0">Fecha Prometida</th>
-                <th class="border-0 text-end pe-0">Monto Transado</th>
+                <th class="border-0 ps-0">PEDIDO</th>
+                <th class="border-0">CLIENTE</th>
+                <th class="border-0">ESTADO</th>
+                <th class="border-0">FECHA</th>
+                <th class="border-0 text-end pe-0">TOTAL</th>
               </tr>
             </thead>
             <tbody>
@@ -64,7 +63,7 @@
                   <span class="smallest text-muted d-block d-md-none">{{ order.address }}</span>
                 </td>
                 <td>
-                  <span :class="['badge rounded-pill px-3 py-2 fw-800 smaller', getStatusBadgeClass(order.status)]">
+                  <span :class="['badge rounded-pill px-3 py-1 sol-fw-800 sol-smallest text-uppercase sol-tracking-tight border', getStatusBadgeClass(order.status)]">
                     <i v-if="order.status === 'pending'" class="fa-solid fa-clock me-1"></i>
                     <i v-else-if="order.status === 'in_production'" class="fa-solid fa-gears me-1"></i>
                     <i v-else-if="order.status === 'ready'" class="fa-solid fa-box-open me-1"></i>
@@ -104,7 +103,6 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import BaseBadge from '../components/base/BaseBadge.vue';
 import BaseButton from '../components/base/BaseButton.vue';
 
 // Pedidos por defecto (mock inicial)
@@ -182,11 +180,11 @@ const stats = computed(() => {
 
 const getStatusBadgeClass = (status) => {
   switch (status) {
-    case 'pending': return 'bg-soft-danger text-danger';
-    case 'in_production': return 'bg-soft-warning text-warning';
-    case 'ready': return 'bg-soft-info text-info';
-    case 'delivered': return 'bg-soft-success text-success';
-    default: return 'bg-light text-dark';
+    case 'pending': return 'bg-danger-subtle text-danger border-danger-subtle';
+    case 'in_production': return 'bg-warning-subtle text-warning border-warning-subtle';
+    case 'ready': return 'bg-info-subtle text-info border-info-subtle';
+    case 'delivered': return 'bg-success-subtle text-success border-success-subtle';
+    default: return 'bg-light text-dark border-light-subtle';
   }
 };
 

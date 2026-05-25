@@ -1,22 +1,21 @@
 <template>
   <div class="animate__animated animate__fadeIn">
     <!-- Encabezado -->
-    <div class="sol-page-header mb-5">
+    <div class="sol-page-header mb-3">
       <div>
         <div class="d-flex align-items-center gap-3 mb-2">
           <router-link :to="{ name: 'productos' }" class="btn btn-light border shadow-sm rounded-circle d-flex align-items-center justify-content-center"
             style="width: 36px; height: 36px;">
             <i class="fa-solid fa-arrow-left"></i>
           </router-link>
-          <BaseBadge variant="success" soft class="px-3 py-1 rounded-pill sol-fw-800">Activos Visuales</BaseBadge>
         </div>
-        <h2 class="sol-page-title" v-if="product">Galería: {{ product.name }}</h2>
+        <h2 class="sol-page-title" v-if="product">Imágenes: {{ product.name }}</h2>
         <p class="sol-page-subtitle" v-if="product">
-          Código Maestro: <span class="sol-fw-800" style="color: var(--sol-color-primary);">{{ product.sku }}</span> &bull; Gestión de narrativa visual.
+          SKU: <span class="sol-fw-800" style="color: var(--sol-color-primary);">{{ product.sku }}</span> &bull; Sube y gestiona las fotos de este producto.
         </p>
       </div>
       <BaseButton variant="light" class="rounded-pill px-4" @click="fetchImages">
-        <i class="fa-solid fa-rotate me-2"></i>Sincronizar
+        <i class="fa-solid fa-rotate me-2"></i>Actualizar
       </BaseButton>
     </div>
 
@@ -25,8 +24,8 @@
       <div class="col-12 col-xl-4">
         <div class="ui-card h-100">
           <div class="p-4 pb-0 border-bottom">
-            <h5 class="sol-fw-800 mb-1">Carga de Multimedia</h5>
-            <p class="text-muted sol-smaller mb-3 sol-tracking-tight text-uppercase">Procesamiento por Lotes</p>
+            <h5 class="sol-fw-800 mb-1">Subir Imágenes</h5>
+            <p class="text-muted sol-smaller mb-3 sol-tracking-tight text-uppercase">Selecciona varias fotos</p>
           </div>
           <div class="p-4">
             <div
@@ -43,8 +42,8 @@
                 <div class="sol-upload-icon mb-3">
                   <i class="fa-solid fa-cloud-arrow-up text-primary fs-2"></i>
                 </div>
-                <h6 class="sol-fw-800 mb-2">Suelte archivos aquí</h6>
-                <p class="sol-smallest text-muted mb-0">o explore en su equipo</p>
+                <h6 class="sol-fw-800 mb-2">Arrastra las fotos aquí</h6>
+                <p class="sol-smallest text-muted mb-0">o haz clic para buscar en tu equipo</p>
                 <div class="mt-3">
                   <span class="badge rounded-pill px-3 py-2 sol-fw-800 sol-smaller"
                         style="background: var(--sol-color-primary-soft); color: var(--sol-color-primary);">JPG, PNG, WEBP</span>
@@ -60,7 +59,7 @@
             <div class="d-flex gap-3 p-3 rounded-3 border bg-light sol-smaller">
               <i class="fa-solid fa-circle-info text-primary fs-5"></i>
               <div class="text-muted">
-                La primera imagen cargada será el <span class="sol-fw-800 text-dark">Visual Principal</span>.
+                La primera imagen que subas se marcará automáticamente como la <span class="sol-fw-800 text-dark">Foto Principal</span>.
               </div>
             </div>
           </div>
@@ -72,25 +71,25 @@
         <div class="ui-card h-100">
           <div class="p-4 border-bottom d-flex justify-content-between align-items-center">
             <div>
-              <h5 class="sol-fw-800 mb-0">Vitrina Digital</h5>
-              <p class="text-muted sol-smaller mb-0 sol-tracking-tight text-uppercase">Inventario de Imágenes</p>
+              <h5 class="sol-fw-800 mb-0">Imágenes Guardadas</h5>
+              <p class="text-muted sol-smaller mb-0 sol-tracking-tight text-uppercase">Fotos de este producto</p>
             </div>
             <span class="badge rounded-pill bg-light border text-dark px-3 py-2 sol-fw-800 sol-smaller">
-              {{ images.length }} ARCHIVOS
+              {{ images.length }} FOTOS
             </span>
           </div>
           <div class="p-4">
             <div v-if="isLoading" class="text-center py-5">
               <div class="spinner-border" style="color: var(--sol-color-primary);" role="status"></div>
-              <p class="text-muted mt-3 sol-smaller sol-fw-800 text-uppercase sol-tracking-wide">Cargando Galería...</p>
+              <p class="text-muted mt-3 sol-smaller sol-fw-800 text-uppercase sol-tracking-wide">Cargando imágenes...</p>
             </div>
 
             <div v-else-if="images.length === 0" class="text-center py-5">
               <div class="mb-4" style="opacity: 0.2;">
                 <i class="fa-solid fa-images" style="font-size: 5rem;"></i>
               </div>
-              <h6 class="text-muted sol-fw-800 text-uppercase sol-tracking-wide mb-2">Galería Vacía</h6>
-              <p class="small text-muted">Inicie la carga multimedia para generar contenido.</p>
+              <h6 class="text-muted sol-fw-800 text-uppercase sol-tracking-wide mb-2">Aún no hay fotos</h6>
+              <p class="small text-muted">Sube fotos en el panel izquierdo para comenzar.</p>
             </div>
 
             <div v-else class="row g-3">
@@ -100,13 +99,24 @@
                   <div v-if="image.is_primary" class="position-absolute top-0 start-0 m-2 z-3">
                     <span class="badge px-3 py-2 rounded-pill sol-fw-800 sol-smallest"
                           style="background: var(--sol-color-primary); color: white;">
-                      <i class="fa-solid fa-star me-1"></i>PRINCIPAL
+                      <i class="fa-solid fa-star me-1"></i>FOTO PRINCIPAL
                     </span>
                   </div>
 
                   <!-- Image -->
-                  <div class="ratio ratio-1x1 bg-light overflow-hidden">
-                    <img :src="image.url" class="object-fit-cover sol-transition-slow" :alt="product?.name">
+                  <div class="ratio ratio-1x1 bg-light overflow-hidden d-flex align-items-center justify-content-center">
+                    <img
+                      v-if="!imageLoadErrors[image.id]"
+                      :src="image.image_url || image.url"
+                      class="w-100 h-100 object-fit-cover sol-transition-slow"
+                      :alt="product?.name"
+                      @error="handleImageError(image.id)"
+                    >
+                    <div v-else class="w-100 h-100 d-flex align-items-center justify-content-center text-muted bg-white p-3">
+                      <svg class="w-50 h-50 opacity-20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    </div>
                   </div>
 
                   <!-- Hover Actions -->
@@ -146,7 +156,6 @@ import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import api from '../plugins/axios';
 import { Toast, ConfirmAlert } from '../plugins/swal';
-import BaseBadge from '../components/base/BaseBadge.vue';
 import BaseButton from '../components/base/BaseButton.vue';
 
 const route = useRoute();
@@ -158,6 +167,11 @@ const isLoading = ref(true);
 const isUploading = ref(false);
 const isDragging = ref(false);
 const fileInput = ref(null);
+const imageLoadErrors = ref({});
+
+const handleImageError = (id) => {
+  imageLoadErrors.value[id] = true;
+};
 
 onMounted(() => {
   fetchProduct();
@@ -170,7 +184,7 @@ const fetchProduct = async () => {
     product.value = response.data;
   } catch (error) {
     console.error('Error al cargar producto');
-    Toast.fire({ icon: 'error', title: 'Fallo al recuperar metadatos del producto' });
+    Toast.fire({ icon: 'error', title: 'Error al obtener los datos del producto' });
   }
 };
 
@@ -179,6 +193,7 @@ const fetchImages = async () => {
   try {
     const response = await api.get(`/products/${productId}/images`);
     images.value = response.data;
+    imageLoadErrors.value = {}; // Reset errors on fetch
   } catch (error) {
     console.error('Error al cargar imágenes');
   } finally {
@@ -204,7 +219,7 @@ const handleDrop = (event) => {
 const uploadImages = async (files) => {
   const validFiles = files.filter(file => file.type.match('image.*'));
   if (validFiles.length === 0) {
-    return Toast.fire({ icon: 'warning', title: 'Restricción de tipo: Solo se admiten formatos visuales' });
+    return Toast.fire({ icon: 'warning', title: 'Solo se permiten archivos de imagen (JPG, PNG o WEBP)' });
   }
 
   isUploading.value = true;
@@ -217,11 +232,11 @@ const uploadImages = async (files) => {
     await api.post(`/products/${productId}/images`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
-    Toast.fire({ icon: 'success', title: 'Multimedia sincronizado correctamente' });
+    Toast.fire({ icon: 'success', title: 'Imágenes subidas correctamente' });
     fetchImages();
     if (fileInput.value) fileInput.value.value = '';
   } catch (error) {
-    Toast.fire({ icon: 'error', title: 'Fallo crítico en transferencia de datos' });
+    Toast.fire({ icon: 'error', title: 'Error al subir las imágenes' });
   } finally {
     isUploading.value = false;
   }
@@ -231,25 +246,25 @@ const setPrimary = async (imageId) => {
   try {
     await api.put(`/products/${productId}/images/${imageId}/primary`);
     fetchImages();
-    Toast.fire({ icon: 'success', title: 'Maestro Visual actualizado' });
+    Toast.fire({ icon: 'success', title: 'Foto principal establecida' });
   } catch (error) {
-    Toast.fire({ icon: 'error', title: 'Error de jerarquía visual' });
+    Toast.fire({ icon: 'error', title: 'Error al cambiar la foto principal' });
   }
 };
 
 const deleteImage = async (imageId) => {
   const result = await ConfirmAlert.fire({
-    title: '¿Confirmar purga de archivo?',
-    text: 'Esta acción eliminará permanentemente el activo multimedia.'
+    title: '¿Eliminar esta foto?',
+    text: 'Esta foto se borrará permanentemente del catálogo.'
   });
 
   if (result.isConfirmed) {
     try {
       await api.delete(`/products/${productId}/images/${imageId}`);
       fetchImages();
-      Toast.fire({ icon: 'success', title: 'Activo purgado con éxito' });
+      Toast.fire({ icon: 'success', title: 'Imagen eliminada correctamente' });
     } catch (error) {
-      Toast.fire({ icon: 'error', title: 'Fallo al purgar archivo' });
+      Toast.fire({ icon: 'error', title: 'Error al eliminar la imagen' });
     }
   }
 };

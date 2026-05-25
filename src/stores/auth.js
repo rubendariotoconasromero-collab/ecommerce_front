@@ -12,7 +12,7 @@ export const useAuthStore = defineStore('auth', {
         hasPermission: (state) => (permissionSlug) => {
             // Si el usuario es null al recargar, esto da false. 
             // Por eso debemos cargar al usuario antes de evaluar esto en el router.
-            if (!state.user || !state.user.role) return false;
+            if (!state.user || !state.user.role || !state.user.role.permissions) return false;
             return state.user.role.permissions.some(perm => perm.slug === permissionSlug);
         }
     },
@@ -23,13 +23,13 @@ export const useAuthStore = defineStore('auth', {
             
             this.token = response.data.access_token;
             localStorage.setItem('access_token', this.token);
-            this.user = response.data.user;
+            this.user = response.data.user ? (response.data.user.data || response.data.user) : null;
         },
 
         async fetchUser() {
             try {
                 const response = await api.get('/me');
-                this.user = response.data; // Aquí se recupera el usuario con sus roles al dar F5
+                this.user = response.data.data || response.data; // Aquí se recupera el usuario con sus roles al dar F5
             } catch (error) {
                 this.token = null;
                 localStorage.removeItem('access_token');

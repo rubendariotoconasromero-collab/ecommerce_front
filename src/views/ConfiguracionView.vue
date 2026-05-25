@@ -1,9 +1,8 @@
 <template>
   <div class="animate__animated animate__fadeIn">
     <!-- Encabezado -->
-    <div class="sol-page-header mb-5">
+    <div class="sol-page-header mb-3">
       <div>
-        <BaseBadge variant="info" soft class="mb-2 px-3 py-1 rounded-pill sol-fw-800">Panel de Control</BaseBadge>
         <h2 class="sol-page-title">Configuración del Sistema</h2>
         <p class="sol-page-subtitle">Personaliza la información corporativa y el contenido de la landing pública.</p>
       </div>
@@ -24,7 +23,7 @@
             <BaseInput v-model="form.email" label="Email de Contacto" type="email" placeholder="contacto@soluplast.com" />
             <BaseInput v-model="form.phone" label="Teléfono" placeholder="+591 000 0000" />
             <div>
-              <label class="form-label">Dirección Física</label>
+              <label class="form-label smaller fw-800 text-body-secondary text-uppercase tracking-tighter mb-2">Dirección Física</label>
               <textarea v-model="form.address" class="form-control sol-textarea" rows="2" placeholder="Calle, Ciudad, País"></textarea>
             </div>
             <BaseInput v-model="form.footer_text" label="Texto del Footer" placeholder="© 2026 SOLUPLAST. Todos los derechos reservados." />
@@ -58,7 +57,7 @@
                 <BaseInput v-model="form.hero_title" label="Título Principal" placeholder="Ej: Soluciones Plásticas de Alta Ingeniería" />
                 <BaseInput v-model="form.hero_subtitle" label="Subtítulo / Slogan" placeholder="Ej: Calidad e innovación en materiales plásticos" />
                 <div>
-                  <label class="form-label">Imagen de Fondo (Hero)</label>
+                  <label class="form-label smaller fw-800 text-body-secondary text-uppercase tracking-tighter mb-2">Imagen de Fondo (Hero)</label>
                   <input type="file" @change="onFileChange($event, 'hero')" class="form-control" accept="image/*">
                   <p class="sol-smallest text-muted mt-1">Recomendado: 1920×1080px — Máx: 2MB</p>
                 </div>
@@ -89,12 +88,12 @@
               <div class="d-flex flex-column gap-3">
                 <BaseInput v-model="form.about_title" label="Título de la Sección" placeholder="Ej: Nuestra Historia y Compromiso" />
                 <div>
-                  <label class="form-label">Descripción / Texto</label>
+                  <label class="form-label smaller fw-800 text-body-secondary text-uppercase tracking-tighter mb-2">Descripción / Texto</label>
                   <textarea v-model="form.about_description" class="form-control sol-textarea" rows="4"
                     placeholder="Describe tu empresa, misión y valores..."></textarea>
                 </div>
                 <div>
-                  <label class="form-label">Imagen Lateral (Nosotros)</label>
+                  <label class="form-label smaller fw-800 text-body-secondary text-uppercase tracking-tighter mb-2">Imagen Lateral (Nosotros)</label>
                   <input type="file" @change="onFileChange($event, 'about')" class="form-control" accept="image/*">
                   <p class="sol-smallest text-muted mt-1">Recomendado: 800×600px — Máx: 2MB</p>
                 </div>
@@ -130,7 +129,6 @@ import api from '../plugins/axios'
 import Swal from 'sweetalert2'
 import BaseInput from '../components/base/BaseInput.vue'
 import BaseButton from '../components/base/BaseButton.vue'
-import BaseBadge from '../components/base/BaseBadge.vue'
 
 const loading = ref(false)
 const form = ref({
