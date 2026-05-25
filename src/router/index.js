@@ -33,9 +33,19 @@ const router = createRouter({
       props: true
     },
     {
+      path: '/categorias',
+      name: 'categorias-publicas',
+      component: () => import('../views/CategoriasPublicView.vue'),
+    },
+    {
       path: '/carrito',
       name: 'carrito',
       component: () => import('../views/CarritoView.vue'),
+    },
+    {
+      path: '/checkout',
+      name: 'checkout',
+      component: () => import('../views/CheckoutView.vue'),
     },
     {
       path: '/login',
@@ -84,6 +94,12 @@ const router = createRouter({
           name: 'inventario',
           component: () => import('../views/InventarioView.vue'),
           meta: { permission: 'modulo-inventario', title: 'Control de Stock' }
+        },
+        {
+          path: 'inventario/ajuste',
+          name: 'inventario-ajuste',
+          component: () => import('../views/AjusteStockView.vue'),
+          meta: { permission: 'modulo-inventario', title: 'Ajuste de Stock' }
         },
         { 
           path: 'productos/:id/imagenes', 

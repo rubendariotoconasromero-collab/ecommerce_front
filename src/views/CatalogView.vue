@@ -232,16 +232,27 @@
                       <div class="product-body-premium p-4 pt-2 text-center">
                         <div class="text-primary smaller fw-800 tracking-wider mb-2 opacity-50">{{ product.category?.name || 'General' }}</div>
                         <h5 class="product-title-premium fw-800 mb-2 text-truncate-2">{{ product.name }}</h5>
-                        
+
                         <div class="price-container-premium mb-4">
                           <span class="currency-symbol fs-6 opacity-75">Bs.</span>
                           <span class="price-value fs-4 fw-900 text-dark">{{ parseFloat(product.sale_price).toLocaleString() }}</span>
                         </div>
 
-                        <div class="d-grid">
-                          <router-link :to="{ name: 'producto-detalle', params: { id: product.id } }" class="btn btn-premium-action rounded-pill py-2 fw-bold">
-                            Ver Detalles <i class="bi bi-arrow-right ms-2"></i>
+                        <div class="d-flex gap-2">
+                          <router-link
+                            :to="{ name: 'producto-detalle', params: { id: product.id } }"
+                            class="btn btn-outline-secondary rounded-pill py-2 fw-semibold flex-shrink-0 px-3"
+                            style="font-size: 0.8rem;"
+                            title="Ver detalles del producto"
+                          >
+                            <i class="bi bi-eye"></i>
                           </router-link>
+                          <button
+                            class="btn btn-add-cart rounded-pill py-2 fw-bold flex-grow-1"
+                            @click.prevent="handleAddToCart(product)"
+                          >
+                            <i class="bi bi-cart-plus-fill me-1"></i> Agregar
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -293,28 +304,22 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import api from '../plugins/axios';
 import { useCartStore } from '../stores/cart';
-import Swal from 'sweetalert2';
+import { Toast } from '../plugins/swal';
 import BaseButton from '../components/base/BaseButton.vue';
 import BaseBadge from '../components/base/BaseBadge.vue';
 import PublicNavbar from '../components/PublicNavbar.vue';
 import PublicFooter from '../components/PublicFooter.vue';
 
 const cartStore = useCartStore();
-const route = useRoute();
+const route  = useRoute();
+const router = useRouter();
 
 const handleAddToCart = (product) => {
   cartStore.addToCart(product, 1);
-  Swal.fire({
-    title: '¡Añadido a la orden!',
-    text: `Se agregó 1 unidad de "${product.name}" a tu cotización.`,
-    icon: 'success',
-    confirmButtonColor: '#2563eb',
-    timer: 2000,
-    showConfirmButton: false
-  });
+  Toast.fire({ icon: 'success', title: `"${product.name}" agregado al carrito` });
 };
 
 // State
@@ -741,6 +746,25 @@ watch(() => route.query.category, () => {
   background: var(--color-primary);
   color: white;
   box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2);
+}
+
+.btn-add-cart {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  font-size: 0.85rem;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-add-cart:hover {
+  background: #1d4ed8;
+  color: white;
+  box-shadow: 0 8px 20px rgba(var(--bs-primary-rgb), 0.35);
+  transform: translateY(-1px);
+}
+
+.btn-add-cart:active {
+  transform: translateY(0);
 }
 
 /* Pagination */
