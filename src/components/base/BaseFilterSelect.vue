@@ -18,7 +18,7 @@
     <transition name="fade-slide">
       <div v-if="isOpen" class="select-dropdown-list shadow-lg border rounded-3 animate__animated animate__fadeIn animate__faster">
         <div 
-          v-for="option in options" 
+          v-for="option in (options || [])" 
           :key="option.value"
           class="dropdown-item-custom d-flex align-items-center justify-content-between"
           :class="{ 'is-selected': option.value === modelValue }"
@@ -59,6 +59,7 @@ const selectOption = (value) => {
 };
 
 const selectedLabel = computed(() => {
+  if (!props.options || !Array.isArray(props.options)) return '';
   const selected = props.options.find(opt => opt.value === props.modelValue);
   return selected ? selected.label : '';
 });

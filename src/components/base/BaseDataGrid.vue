@@ -50,7 +50,12 @@
           </tbody>
 
           <tbody v-else>
-            <tr v-for="item in items" :key="item.id" class="animate__animated animate__fadeIn animate__faster">
+            <tr 
+              v-for="item in items" 
+              :key="item.id" 
+              class="animate__animated animate__fadeIn animate__faster"
+              :class="getRowClass ? getRowClass(item) : ''"
+            >
               <td v-if="titleKey" class="ps-4">
                 <div class="d-flex align-items-center gap-3 py-1">
                   <slot name="item-avatar" :item="item">
@@ -229,6 +234,10 @@ const props = defineProps({
   compact: {
     type: Boolean,
     default: false
+  },
+  getRowClass: {
+    type: Function,
+    default: null
   }
 });
 

@@ -27,6 +27,14 @@
             </router-link>
           </li>
 
+          <!-- Clientes -->
+          <li class="nav-item" v-if="authStore.hasPermission('modulo-clientes')">
+            <router-link :to="{ name: 'clientes' }" class="nav-link-custom" active-class="active">
+              <i class="bi bi-people icon-main"></i>
+              <span class="ms-3 nav-text" v-if="!isCollapsed">Clientes</span>
+            </router-link>
+          </li>
+
           <!-- Grupo: Operaciones -->
           <li class="nav-item" v-if="authStore.hasPermission('modulo-pedidos')">
             <div 
@@ -67,6 +75,11 @@
               <li class="nav-item" v-if="authStore.hasPermission('modulo-productos')">
                 <router-link :to="{ name: 'productos' }" class="nav-link-sub" active-class="active">
                   Productos
+                </router-link>
+              </li>
+              <li class="nav-item" v-if="authStore.hasPermission('modulo-inventario')">
+                <router-link :to="{ name: 'inventario' }" class="nav-link-sub" active-class="active">
+                  Control de Stock
                 </router-link>
               </li>
             </ul>
@@ -207,7 +220,7 @@ const toggleGroup = (group) => {
 const isGroupActive = (group) => {
   const routes = {
     operaciones: ['pedidos'],
-    catalogo: ['categorias', 'productos'],
+    catalogo: ['categorias', 'productos', 'inventario'],
     admin: ['usuarios', 'roles', 'configuracion']
   };
   return routes[group]?.includes(route.name);

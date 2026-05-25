@@ -11,6 +11,7 @@ import DashboardView from '../views/DashboardView.vue'
 import UsuariosView from '../views/UsuariosView.vue'
 import CategoriasView from '../views/CategoriasView.vue'
 import ProductosView from '../views/ProductosView.vue'
+import ClientesView from '../views/ClientesView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -66,11 +67,23 @@ const router = createRouter({
           component: CategoriasView, 
           meta: { permission: 'modulo-categorias' } 
         },
-        { 
-          path: 'productos', 
-          name: 'productos', 
-          component: ProductosView, 
-          meta: { permission: 'modulo-productos' } 
+        {
+          path: 'productos',
+          name: 'productos',
+          component: ProductosView,
+          meta: { permission: 'modulo-productos' }
+        },
+        {
+          path: 'clientes',
+          name: 'clientes',
+          component: ClientesView,
+          meta: { permission: 'modulo-clientes' }
+        },
+        {
+          path: 'inventario',
+          name: 'inventario',
+          component: () => import('../views/InventarioView.vue'),
+          meta: { permission: 'modulo-inventario', title: 'Control de Stock' }
         },
         { 
           path: 'productos/:id/imagenes', 
