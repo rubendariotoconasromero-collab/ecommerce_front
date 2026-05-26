@@ -3,24 +3,13 @@
     <!-- Public Navbar Reutilizable -->
     <PublicNavbar />
 
-    <!-- Hero Section Reducida con Efecto Líquido -->
-    <section class="catalog-hero pt-5 mt-5 pb-4 position-relative overflow-hidden">
-      <!-- Fondo Líquido Premium -->
-      <div class="premium-liquid-bg position-absolute inset-0 z-0">
-        <div class="liquid-blob blob-1"></div>
-        <div class="liquid-blob blob-2"></div>
-        <div class="liquid-blob blob-3"></div>
-        <div class="liquid-overlay"></div>
-      </div>
-      
-      <div class="container py-5 position-relative z-1">
+    <!-- Hero Section Reducida Shopify Style -->
+    <section class="catalog-hero pt-5 mt-5 pb-4 position-relative overflow-hidden bg-white border-bottom">
+      <div class="container py-4 position-relative z-1">
         <div class="row align-items-center gy-4">
           <div class="col-lg-12">
-            <BaseBadge variant="primary" soft class="mb-3 px-3 py-2 rounded-pill fw-bold">
-              <i class="bi bi-box-seam me-1"></i> Inventario Premium
-            </BaseBadge>
-            <h1 class="display-4 fw-900 mb-3 lh-1 text-body-emphasis">Catálogo de Productos</h1>
-            <p class="lead text-body-secondary mb-0 max-w-600">Descubre soluciones plásticas de alta ingeniería diseñadas para el máximo rendimiento.</p>
+            <h1 class="display-4 fw-900 mb-3 lh-1 text-dark" style="letter-spacing: -0.04em;">Catálogo de Productos</h1>
+            <p class="lead text-muted mb-0 max-w-600">Descubre soluciones plásticas de alta ingeniería diseñadas para el máximo rendimiento.</p>
           </div>
         </div>
       </div>
@@ -32,11 +21,11 @@
         <div class="row g-4">
           <!-- Sidebar Filtros -->
           <div class="col-lg-3">
-            <div class="filters-card bg-white p-5 rounded-5 shadow-sm sticky-top" style="top: 100px;">
-              <div class="d-flex align-items-center justify-content-between mb-4">
-                <h5 class="fw-800 mb-0">Filtros</h5>
-                <button v-if="hasActiveFilters" class="btn btn-link btn-sm text-danger p-0" @click="resetFilters">
-                  <i class="bi bi-x-circle me-1"></i> Limpiar
+            <div class="filters-card bg-white p-4 border sticky-top" style="top: 100px;">
+              <div class="d-flex align-items-center justify-content-between mb-4 pb-2 border-bottom">
+                <h6 class="fw-bold mb-0 text-dark text-uppercase tracking-wider">Filtros</h6>
+                <button v-if="hasActiveFilters" class="btn btn-link btn-sm text-danger p-0 fw-bold text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.05em;" @click="resetFilters">
+                  Limpiar
                 </button>
               </div>
 
@@ -228,33 +217,21 @@
                         </div>
                       </div>
 
-                      <!-- Info Area -->
-                      <div class="product-body-premium p-4 pt-2 text-center">
-                        <div class="text-primary smaller fw-800 tracking-wider mb-2 opacity-50">{{ product.category?.name || 'General' }}</div>
-                        <h5 class="product-title-premium fw-800 mb-2 text-truncate-2">{{ product.name }}</h5>
-
-                        <div class="price-container-premium mb-4">
-                          <span class="currency-symbol fs-6 opacity-75">Bs.</span>
-                          <span class="price-value fs-4 fw-900 text-dark">{{ parseFloat(product.sale_price).toLocaleString() }}</span>
+                        <!-- Info Area -->
+                        <div class="product-body-premium p-3 text-center border-top bg-white">
+                          <div class="text-muted smaller mb-1 text-uppercase tracking-wider" style="font-size: 0.65rem; font-weight: 700;">{{ product.category?.name || 'General' }}</div>
+                          <h6 class="fw-bold mb-2 text-dark text-truncate" style="font-size: 0.95rem; line-height: 1.3;">{{ product.name }}</h6>
+                          
+                          <div class="price-container-premium mb-3">
+                            <span class="price-value fs-5 fw-bold text-dark">Bs. {{ parseFloat(product.sale_price).toLocaleString() }}</span>
+                          </div>
+ 
+                          <div class="d-grid">
+                            <router-link :to="{ name: 'producto-detalle', params: { id: product.id } }" class="btn btn-brand btn-sm py-2">
+                              Ver Detalles
+                            </router-link>
+                          </div>
                         </div>
-
-                        <div class="d-flex gap-2">
-                          <router-link
-                            :to="{ name: 'producto-detalle', params: { id: product.id } }"
-                            class="btn btn-outline-secondary rounded-pill py-2 fw-semibold flex-shrink-0 px-3"
-                            style="font-size: 0.8rem;"
-                            title="Ver detalles del producto"
-                          >
-                            <i class="bi bi-eye"></i>
-                          </router-link>
-                          <button
-                            class="btn btn-add-cart rounded-pill py-2 fw-bold flex-grow-1"
-                            @click.prevent="handleAddToCart(product)"
-                          >
-                            <i class="bi bi-cart-plus-fill me-1"></i> Agregar
-                          </button>
-                        </div>
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -287,12 +264,12 @@
     </section>
 
     <!-- CTA Section -->
-    <section class="py-8 bg-brand text-white mt-5">
-      <div class="container text-center">
-        <h3 class="fw-800 mb-3">¿No encuentras lo que necesitas?</h3>
-        <p class="lead mb-4 text-white-75">Nuestro equipo de ventas está disponible para ayudarte a encontrar la solución perfecta.</p>
-        <BaseButton variant="light" class="rounded-pill px-5 py-3 fw-bold">
-          Contactar Ventas <i class="fa-solid fa-arrow-right ms-2"></i>
+    <section class="py-5 bg-light text-dark mt-5 border-top">
+      <div class="container text-center py-3">
+        <h3 class="fw-900 mb-3 text-uppercase tracking-wide" style="font-size: 1.5rem;">¿No encuentras lo que necesitas?</h3>
+        <p class="lead mb-4 text-muted">Nuestro equipo de ventas está disponible para ayudarte a encontrar la solución perfecta.</p>
+        <BaseButton variant="brand" class="px-5 py-3 fw-bold shadow-none">
+          Contactar Ventas
         </BaseButton>
       </div>
     </section>
@@ -748,83 +725,181 @@ watch(() => route.query.category, () => {
   box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2);
 }
 
-.btn-add-cart {
-  background: var(--color-primary);
-  color: white;
-  border: none;
-  font-size: 0.85rem;
+/* SHOPIFY GLOBAL STYLING OVERRIDES FOR VUE COMPONENTS */
+:deep(.btn) {
+  border-radius: 0px !important;
+  box-shadow: none !important;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+  font-weight: 700;
+  padding: 0.8rem 1.6rem !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border-width: 1px !important;
+}
+
+:deep(.btn-brand) {
+  background-color: #121212 !important;
+  border-color: #121212 !important;
+  color: #ffffff !important;
+}
+
+:deep(.btn-brand:hover) {
+  background-color: #333333 !important;
+  border-color: #333333 !important;
+  transform: none !important;
+}
+
+:deep(.btn-outline-secondary) {
+  border: 1px solid #121212 !important;
+  color: #121212 !important;
+  background: transparent !important;
+}
+
+:deep(.btn-outline-secondary:hover) {
+  background-color: #121212 !important;
+  color: #ffffff !important;
+  transform: none !important;
+}
+
+:deep(.btn-outline-brand) {
+  border: 1px solid #121212 !important;
+  color: #121212 !important;
+  background: transparent !important;
+  border-radius: 0px !important;
+}
+
+:deep(.btn-outline-brand:hover) {
+  background-color: #121212 !important;
+  color: #ffffff !important;
+  transform: none !important;
+}
+
+/* BaseBadge override */
+:deep(.badge) {
+  border-radius: 0px !important;
+  font-weight: 700;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* NAVBAR */
+:deep(.glass-navbar) {
+  background: #ffffff !important;
+  backdrop-filter: none !important;
+  border-bottom: 1px solid #e8e8e1 !important;
+  box-shadow: none !important;
+  padding-top: 1rem !important;
+  padding-bottom: 1rem !important;
+}
+
+:deep(.nav-link) {
+  color: #121212 !important;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.82rem;
+  letter-spacing: 0.1em;
+  opacity: 0.75;
+}
+
+:deep(.nav-link:hover),
+:deep(.nav-link.active) {
+  opacity: 1;
+}
+
+:deep(.nav-link::after) {
+  display: none !important;
+}
+
+:deep(.cart-btn-desktop),
+:deep(.cart-btn-mobile) {
+  border-radius: 0px !important;
+  border: 1px solid #121212 !important;
+  background: transparent !important;
+  color: #121212 !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+}
+
+:deep(.cart-btn-desktop:hover),
+:deep(.cart-btn-mobile:hover) {
+  background: #121212 !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+:deep(.cart-badge-pill) {
+  border-radius: 0px !important;
+  background-color: #121212 !important;
+  color: #ffffff !important;
+  font-weight: 800;
+}
+
+/* PREMIUM PRODUCT CARDS SHOPIFY */
+.premium-product-card {
+  perspective: none;
+}
+
+.card-inner-premium {
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  background: white;
+  position: relative;
+  border: 1px solid #e8e8e1 !important;
+  border-radius: 0px !important;
+  box-shadow: none !important;
 }
 
-.btn-add-cart:hover {
-  background: #1d4ed8;
-  color: white;
-  box-shadow: 0 8px 20px rgba(var(--bs-primary-rgb), 0.35);
-  transform: translateY(-1px);
+.premium-product-card:hover .card-inner-premium {
+  transform: translateY(-6px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.06) !important;
+  border-color: #121212 !important;
 }
 
-.btn-add-cart:active {
-  transform: translateY(0);
-}
-
-/* Pagination */
-.pagination-premium {
-  border-radius: 12px;
+.product-img-main-container {
+  aspect-ratio: 1/1;
   overflow: hidden;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.pagination-premium .page-link:focus {
-  border: none;
+  border-radius: 0px !important;
+  background: #f9f9f9 !important;
   transition: all 0.3s ease;
-  color: white;
 }
 
-.pagination-premium .page-link:hover:not(.disabled) {
-  background-color: var(--color-primary-soft);
-  color: var(--color-primary);
+.premium-product-card:hover .product-img-main-container {
+  background: #f4f4f4 !important;
+}
+
+.price-container-premium {
+  color: #121212 !important;
+}
+
+.filters-card {
+  border-radius: 0px !important;
+  box-shadow: none !important;
+}
+
+.form-check-input {
+  border-radius: 0px !important;
+}
+
+.form-control, .form-select {
+  border-radius: 0px !important;
+}
+
+.pagination-premium {
+  border-radius: 0px !important;
+}
+
+.pagination-premium .page-link {
+  border-radius: 0px !important;
+  color: #121212 !important;
 }
 
 .pagination-premium .page-item.active .page-link {
-  background-color: var(--color-primary);
-  border-color: var(--color-primary);
-}
-
-.pagination-premium .page-item.disabled .page-link {
-  color: rgba(0, 0, 0, 0.3);
-  cursor: not-allowed;
-}
-
-/* Skeletons */
-.skeleton-product {
-  background: linear-gradient(90deg, var(--bg-hover) 25%, var(--border-light) 50%, var(--bg-hover) 75%);
-  background-size: 200% 100%;
-  animation: skeleton-loading 1.5s infinite;
-}
-
-@keyframes skeleton-loading {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-
-/* Utilities */
-.inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
-.rounded-5 { border-radius: 2rem !important; }
-.bg-gradient-subtle {
-  background: radial-gradient(circle at 10% 20%, rgba(79, 70, 229, 0.03) 0%, transparent 40%),
-              radial-gradient(circle at 90% 80%, rgba(14, 165, 233, 0.03) 0%, transparent 40%);
-}
-
-/* Responsive */
-@media (max-width: 991px) {
-  .filters-card {
-    position: static !important;
-  }
-}
-
-/* Button sizing */
-.btn-sm {
-  padding: 0.375rem 0.75rem;
-  font-size: 0.875rem;
+  background-color: #121212 !important;
+  border-color: #121212 !important;
+  color: white !important;
 }
 </style>

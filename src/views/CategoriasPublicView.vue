@@ -2,30 +2,14 @@
   <div class="categorias-page bg-body min-vh-100 d-flex flex-column">
     <PublicNavbar />
 
-    <!-- Hero -->
-    <section class="cats-hero pt-5 mt-5 pb-4 position-relative overflow-hidden">
-      <div class="premium-liquid-bg position-absolute inset-0 z-0">
-        <div class="liquid-blob blob-1"></div>
-        <div class="liquid-blob blob-2"></div>
-        <div class="liquid-overlay"></div>
-      </div>
-      <div class="container py-5 position-relative z-1">
-        <nav aria-label="breadcrumb" class="mb-4">
-          <ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item">
-              <router-link to="/" class="text-body-secondary text-decoration-none small opacity-60">Inicio</router-link>
-            </li>
-            <li class="breadcrumb-item active text-body-emphasis fw-bold small" aria-current="page">Categorías</li>
-          </ol>
-        </nav>
-        <div class="animate__animated animate__fadeInUp">
-          <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 rounded-pill px-3 py-2 fw-bold mb-3 d-inline-block">
-            <i class="fa-solid fa-layer-group me-1"></i> Colección Completa
-          </span>
-          <h1 class="display-4 fw-900 mb-3 lh-1 text-body-emphasis">Categorías de Productos</h1>
-          <p class="lead text-body-secondary mb-0" style="max-width: 600px;">
-            Encuentra exactamente lo que necesitas explorando nuestras líneas de soluciones plásticas industriales.
-          </p>
+    <!-- Hero Section Reducida Shopify Style -->
+    <section class="catalog-hero pt-5 mt-5 pb-4 position-relative overflow-hidden bg-white border-bottom">
+      <div class="container py-4 position-relative z-1">
+        <div class="row align-items-center gy-4">
+          <div class="col-lg-12">
+            <h1 class="display-4 fw-900 mb-3 lh-1 text-dark" style="letter-spacing: -0.04em;">Categorías de Productos</h1>
+            <p class="lead text-muted mb-0 max-w-600">Encuentra exactamente lo que necesitas explorando nuestras líneas de soluciones plásticas industriales.</p>
+          </div>
         </div>
       </div>
     </section>
@@ -35,19 +19,20 @@
       <div class="container">
 
         <!-- Barra de búsqueda -->
-        <div class="row justify-content-center mb-6">
+        <div class="row justify-content-center mb-5">
           <div class="col-lg-6">
-            <div class="input-group input-group-lg search-bar shadow-sm rounded-pill overflow-hidden">
+            <div class="input-group input-group-lg search-bar border overflow-hidden">
               <span class="input-group-text bg-white border-0 ps-4">
-                <i class="fa-solid fa-magnifying-glass text-primary"></i>
+                <i class="fa-solid fa-magnifying-glass text-muted" style="font-size: 1.1rem;"></i>
               </span>
               <input
                 v-model="searchQuery"
                 type="text"
                 class="form-control bg-white border-0 shadow-none"
+                style="border-radius: 0px !important; font-size: 0.95rem;"
                 placeholder="Buscar categoría..."
               >
-              <button v-if="searchQuery" class="btn bg-white border-0 pe-4" @click="searchQuery = ''">
+              <button v-if="searchQuery" class="btn bg-white border-0 pe-4" style="border-radius: 0px !important;" @click="searchQuery = ''">
                 <i class="fa-solid fa-xmark text-muted"></i>
               </button>
             </div>
@@ -69,8 +54,8 @@
             <i class="fa-solid fa-folder-open display-4 text-body-secondary opacity-30 mb-4 d-block"></i>
             <h4 class="fw-800 text-body-emphasis mb-2">Sin resultados</h4>
             <p class="text-body-secondary">No hay categorías que coincidan con "{{ searchQuery }}".</p>
-            <button class="btn btn-outline-primary rounded-pill px-4 mt-2" @click="searchQuery = ''">
-              <i class="fa-solid fa-xmark me-1"></i> Limpiar búsqueda
+            <button class="btn btn-outline-secondary px-4 mt-2" @click="searchQuery = ''">
+              Limpiar búsqueda
             </button>
           </div>
         </template>
@@ -124,13 +109,11 @@
             </div>
           </div>
 
-          <!-- CTA Ver Catálogo -->
-          <div class="text-center mt-8">
+          <div class="text-center mt-5">
             <router-link
               :to="{ name: 'catalogo' }"
-              class="btn btn-brand btn-lg rounded-pill px-5 py-3 shadow text-decoration-none fw-bold"
+              class="btn btn-brand btn-lg px-5 py-3 text-decoration-none fw-bold"
             >
-              <i class="fa-solid fa-store me-2"></i>
               Ver Todo el Catálogo
             </router-link>
           </div>
@@ -226,12 +209,13 @@ onMounted(() => {
 
 /* Search bar */
 .search-bar {
-  border: 1px solid rgba(0,0,0,0.08);
-  transition: box-shadow 0.2s ease;
+  border: 1px solid #e8e8e1 !important;
+  border-radius: 0px !important;
+  box-shadow: none !important;
+  transition: all 0.2s ease;
 }
 .search-bar:focus-within {
-  box-shadow: 0 0 0 3px rgba(var(--bs-primary-rgb), 0.15) !important;
-  border-color: var(--color-primary);
+  border-color: #121212 !important;
 }
 
 /* Category cards */
@@ -239,17 +223,18 @@ onMounted(() => {
 
 .cat-card {
   background: white;
-  border-radius: 1.25rem;
+  border-radius: 0px !important;
   overflow: hidden;
-  border: 1px solid rgba(0,0,0,0.06);
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid #e8e8e1 !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
+  box-shadow: none !important;
 }
 
 .cat-card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 30px 60px rgba(0,0,0,0.1);
-  border-color: rgba(var(--bs-primary-rgb), 0.2);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05) !important;
+  border-color: #121212 !important;
 }
 
 /* Image */
@@ -297,16 +282,15 @@ onMounted(() => {
   position: absolute;
   top: 0.75rem;
   right: 0.75rem;
-  background: rgba(255,255,255,0.9);
-  color: var(--color-primary);
-  font-size: 0.7rem;
-  font-weight: 800;
-  letter-spacing: 0.03em;
+  background: #121212 !important;
+  color: #ffffff !important;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  padding: 0.25rem 0.65rem;
-  border-radius: 50px;
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(var(--bs-primary-rgb), 0.15);
+  padding: 0.3rem 0.8rem;
+  border-radius: 0px !important;
+  border: none !important;
 }
 
 /* Info */
@@ -353,8 +337,95 @@ onMounted(() => {
   100% { background-position: -200% 0; }
 }
 
-/* Responsive */
-@media (max-width: 767px) {
-  .cat-img-wrapper { height: 150px; }
+/* SHOPIFY GLOBAL STYLING OVERRIDES FOR VUE COMPONENTS */
+:deep(.btn) {
+  border-radius: 0px !important;
+  box-shadow: none !important;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+  font-weight: 700;
+  padding: 0.8rem 1.6rem !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border-width: 1px !important;
+}
+
+:deep(.btn-brand) {
+  background-color: #121212 !important;
+  border-color: #121212 !important;
+  color: #ffffff !important;
+}
+
+:deep(.btn-brand:hover) {
+  background-color: #333333 !important;
+  border-color: #333333 !important;
+  transform: none !important;
+}
+
+:deep(.btn-outline-secondary) {
+  border: 1px solid #121212 !important;
+  color: #121212 !important;
+  background: transparent !important;
+}
+
+:deep(.btn-outline-secondary:hover) {
+  background-color: #121212 !important;
+  color: #ffffff !important;
+  transform: none !important;
+}
+
+/* NAVBAR */
+:deep(.glass-navbar) {
+  background: #ffffff !important;
+  backdrop-filter: none !important;
+  border-bottom: 1px solid #e8e8e1 !important;
+  box-shadow: none !important;
+  padding-top: 1rem !important;
+  padding-bottom: 1rem !important;
+}
+
+:deep(.nav-link) {
+  color: #121212 !important;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.82rem;
+  letter-spacing: 0.1em;
+  opacity: 0.75;
+}
+
+:deep(.nav-link:hover),
+:deep(.nav-link.active) {
+  opacity: 1;
+}
+
+:deep(.nav-link::after) {
+  display: none !important;
+}
+
+:deep(.cart-btn-desktop),
+:deep(.cart-btn-mobile) {
+  border-radius: 0px !important;
+  border: 1px solid #121212 !important;
+  background: transparent !important;
+  color: #121212 !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+}
+
+:deep(.cart-btn-desktop:hover),
+:deep(.cart-btn-mobile:hover) {
+  background: #121212 !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+:deep(.cart-badge-pill) {
+  border-radius: 0px !important;
+  background-color: #121212 !important;
+  color: #ffffff !important;
+  font-weight: 800;
 }
 </style>

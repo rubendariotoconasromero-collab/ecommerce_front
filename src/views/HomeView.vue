@@ -3,21 +3,12 @@
     <!-- Public Navbar Reutilizable -->
     <PublicNavbar />
 
-    <!-- Hero Section: Impacto Total -->
-    <header id="hero" class="hero-section min-vh-100 d-flex align-items-center pt-5 overflow-hidden position-relative">
-      <!-- Fondo Líquido Premium (Animated Mesh Gradient) -->
-      <div class="premium-liquid-bg position-absolute inset-0 z-0">
-        <div class="liquid-blob blob-1"></div>
-        <div class="liquid-blob blob-2"></div>
-        <div class="liquid-blob blob-3"></div>
-        <div class="liquid-overlay"></div>
-      </div>
-
-      <div class="container position-relative z-1">
+    <!-- Hero Section: Shopify Minimalist Split Banner -->
+    <header id="hero" class="hero-section min-vh-100 d-flex align-items-center pt-5 overflow-hidden position-relative bg-white border-bottom">
+      <div class="container position-relative z-1 py-5">
         <template v-if="isLoading">
           <div class="row align-items-center gy-5">
             <div class="col-lg-6">
-              <div class="skeleton-badge mb-3"></div>
               <div class="skeleton-title mb-4"></div>
               <div class="skeleton-text mb-5"></div>
               <div class="d-flex gap-3">
@@ -32,45 +23,51 @@
         </template>
         <template v-else>
           <div class="row align-items-center gy-5">
-            <div class="col-lg-6 animate__animated animate__fadeInLeft">
-              <BaseBadge variant="primary" soft class="mb-3 px-3 py-2 rounded-pill">
-                ✨ Bienvenido a la nueva era de compras
-              </BaseBadge>
-              <h1 class="display-3 fw-800 mb-4 lh-1">
+            <div class="col-lg-6 animate__animated animate__fadeIn">
+              <h1 class="display-3 fw-900 mb-4 lh-1 tracking-tight text-dark" style="font-size: 3.5rem; letter-spacing: -0.04em;">
                 {{ settings.hero_title || 'Impulsamos tu industria con calidad premium' }}
               </h1>
-              <p class="lead text-body-secondary mb-5 pe-lg-5">
+              <p class="lead text-muted mb-5 pe-lg-5 fs-5">
                 {{ settings.hero_subtitle || 'Descubre nuestro catálogo exclusivo de productos plásticos diseñados para el máximo rendimiento y durabilidad.' }}
               </p>
               <div class="d-flex flex-wrap gap-3">
-                <BaseButton size="lg" variant="brand" class="px-5 rounded-pill shadow-lg" @click="scrollTo('#productos')">
+                <BaseButton size="lg" variant="brand" class="px-5 shadow-none hover-lift" @click="scrollTo('#productos')">
                   Comenzar ahora
                 </BaseButton>
-                <router-link :to="{ name: 'catalogo' }" class="btn btn-outline-primary px-5 rounded-pill text-decoration-none fw-bold">
+                <router-link :to="{ name: 'catalogo' }" class="btn btn-outline-secondary px-5 text-decoration-none fw-bold hover-lift">
                   Ver Catálogo <i class="bi bi-arrow-right ms-2"></i>
                 </router-link>
               </div>
             </div>
-            <div class="col-lg-6 position-relative animate__animated animate__fadeInRight">
-              <div class="hero-visual-wrapper position-relative text-center text-lg-end">
-                <!-- Glow Effect Background -->
-                <div class="hero-glow position-absolute top-50 start-50 translate-middle"></div>
-                <img
-                  :src="settings.hero_image_url || '/src/assets/images/hero-mockup.png'"
-                  @error="handleImageError"
-                  alt="Premium Product"
-                  class="img-fluid position-relative z-1 hero-img floating-anim shadow-2xl rounded-4"
-                >
-
-                <!-- Floating Card -->
-                <div class="floating-card bg-body-tertiary border p-3 rounded-4 shadow-xl position-absolute animate__animated animate__zoomIn animate__delay-2s">
-                  <div class="d-flex align-items-center gap-3">
-                    <div class="p-2 bg-success-subtle rounded-3"><i class="bi bi-shield-check text-success fs-4"></i></div>
-                    <div>
-                      <div class="fw-bold small">Calidad Certificada</div>
-                      <div class="smaller text-body-secondary">Normas ISO 9001</div>
-                    </div>
+            <div class="col-lg-6 position-relative animate__animated animate__fadeIn" style="animation-delay: 0.15s;">
+              <!-- Hero Slider -->
+              <div class="hero-slider-container">
+                <template v-if="heroImages.length > 0">
+                  <div
+                    v-for="(img, idx) in heroImages"
+                    :key="idx"
+                    class="hero-slide"
+                    :class="{ 'hero-slide--active': idx === heroSlideIdx }"
+                  >
+                    <img :src="img" :alt="`Hero ${idx + 1}`" class="hero-slide-img">
                   </div>
+                </template>
+                <template v-else>
+                  <div class="hero-slide hero-slide--active">
+                    <img src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=1000&auto=format&fit=crop" alt="Hero" class="hero-slide-img" @error="handleImageError">
+                  </div>
+                </template>
+
+                <!-- Dot indicators (solo si hay más de 1 imagen) -->
+                <div v-if="heroImages.length > 1" class="hero-dots">
+                  <button
+                    v-for="(_, idx) in heroImages"
+                    :key="idx"
+                    class="hero-dot"
+                    :class="{ 'hero-dot--active': idx === heroSlideIdx }"
+                    @click="goToHeroSlide(idx)"
+                    :aria-label="`Imagen ${idx + 1}`"
+                  ></button>
                 </div>
               </div>
             </div>
@@ -80,7 +77,9 @@
     </header>
 
     <!-- Marcas: Trusted by (Nueva Sección) -->
-    <section class="py-5 bg-white border-bottom opacity-75">
+    <section class="py-5 bg-body-tertiary border-bottom position-relative overflow-hidden">
+      <!-- Subtle top color accent line -->
+      <div class="position-absolute top-0 start-0 end-0" style="height: 3px; background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-secondary) 50%, var(--color-success) 100%); opacity: 0.8;"></div>
       <div class="container py-2">
         <div class="d-flex flex-wrap justify-content-center justify-content-lg-between align-items-center gap-5 grayscale-100 opacity-40 transition-all hover-opacity-100">
           <div class="brand-item d-flex align-items-center gap-2" v-for="brand in brands" :key="brand.name">
@@ -91,18 +90,18 @@
       </div>
     </section>
 
-    <!-- Beneficios: Rediseño Moderno -->
-    <section class="py-10 bg-white position-relative z-1">
-      <div class="container">
+    <!-- Beneficios: Shopify Trust Columns -->
+    <section class="py-5 bg-white border-bottom position-relative z-1">
+      <div class="container py-3">
         <div class="row g-4 justify-content-center">
           <div class="col-lg-3 col-md-6" v-for="(benefit, index) in benefits" :key="index">
             <div class="benefit-card-stable group h-100">
-              <div class="benefit-card-inner p-5 rounded-5 text-center transition-premium h-100 border-glass-light animate__animated animate__fadeIn" :style="{ animationDelay: `${index * 0.1}s` }">
-                <div class="benefit-icon-premium mb-4 mx-auto shadow-sm transition-all">
-                  <i :class="[benefit.icon, 'fs-1 text-primary']"></i>
+              <div class="benefit-card-inner p-4 text-center transition-premium h-100 animate__animated animate__fadeIn" :style="{ animationDelay: `${index * 0.1}s` }">
+                <div class="benefit-icon-premium mb-3 mx-auto transition-all">
+                  <i :class="[benefit.icon, 'fs-2']" style="color: #121212 !important;"></i>
                 </div>
-                <h5 class="fw-800 text-body-emphasis mb-3">{{ benefit.title }}</h5>
-                <p class="text-body-secondary mb-0 lh-base smaller">{{ benefit.desc }}</p>
+                <h6 class="fw-bold text-dark text-uppercase tracking-wider mb-2" style="font-size: 0.8rem;">{{ benefit.title }}</h6>
+                <p class="text-muted mb-0 smaller" style="line-height: 1.4;">{{ benefit.desc }}</p>
               </div>
             </div>
           </div>
@@ -110,14 +109,14 @@
       </div>
     </section>
 
-    <!-- Categorías Destacadas: Rediseño Premium -->
-    <section id="categorias" class="py-10 bg-gradient-subtle overflow-hidden">
-      <div class="container py-5">
-        <div class="text-center mb-6 animate__animated animate__fadeInUp">
-          <BaseBadge variant="primary" soft class="mb-3 px-3 py-2 rounded-pill fw-bold">Nuestra Colección</BaseBadge>
-          <h2 class="display-4 fw-800 text-body-emphasis mb-3">Explora por Categoría</h2>
-          <p class="text-body-secondary mx-auto fs-5" style="max-width: 700px;">
-            Soluciones de alta ingeniería diseñadas para elevar el estándar de tu industria y hogar.
+    <!-- Categorías Destacadas: Shopify Collections -->
+    <section id="categorias" class="py-5 bg-white border-bottom overflow-hidden">
+      <div class="container py-4">
+        <div class="text-center mb-5 animate__animated animate__fadeInUp">
+          <span class="text-muted small fw-bold text-uppercase tracking-wider mb-2 d-block">Explorar Soluciones</span>
+          <h2 class="display-5 fw-900 text-dark mb-3" style="letter-spacing: -0.03em;">Nuestras Colecciones</h2>
+          <p class="text-muted mx-auto fs-6 max-w-600">
+            Productos diseñados bajo altos estándares de ingeniería para su industria y hogar.
           </p>
         </div>
 
@@ -169,23 +168,18 @@
       </div>
     </section>
 
-    <!-- Productos Destacados: Rediseño Premium -->
-    <section id="productos" class="py-10 bg-body-tertiary position-relative overflow-hidden">
-      <!-- Decoración de fondo sutil -->
-      <div class="position-absolute top-0 end-0 p-5 opacity-10 rotate-12 d-none d-xl-block">
-        <!-- <i class="bi bi-boxes display-1 text-primary"></i> -->
-      </div>
-
-      <div class="container py-5">
-        <div class="d-flex flex-column flex-md-row align-items-md-end justify-content-between mb-6 gap-4 animate__animated animate__fadeInUp">
+    <!-- Productos Destacados: Shopify Grid -->
+    <section id="productos" class="py-5 bg-white border-bottom position-relative overflow-hidden">
+      <div class="container py-4">
+        <div class="d-flex flex-column flex-md-row align-items-md-end justify-content-between mb-5 animate__animated animate__fadeInUp">
           <div class="max-w-600">
-            <BaseBadge variant="success" soft class="mb-3 px-3 py-2 rounded-pill fw-bold">Trending Now</BaseBadge>
-            <h2 class="display-4 fw-800 text-body-emphasis mb-2 lh-1">Lo más buscado</h2>
-            <p class="text-body-secondary mb-0 fs-5">Los productos preferidos por nuestros clientes este mes.</p>
+            <span class="text-muted small fw-bold text-uppercase tracking-wider mb-2 d-block">Destacados</span>
+            <h2 class="display-5 fw-900 text-dark mb-2" style="letter-spacing: -0.03em;">Los Más Vendidos</h2>
+            <p class="text-muted mb-0 fs-6">Los productos preferidos por nuestros clientes este mes.</p>
           </div>
           <div class="d-none d-md-block">
-            <router-link :to="{ name: 'catalogo' }" class="btn btn-outline-primary rounded-pill px-4 py-3 group text-decoration-none fw-bold">
-              Ver Catálogo Completo <i class="bi bi-arrow-right ms-2 transition-all group-hover:translate-x-1"></i>
+            <router-link :to="{ name: 'catalogo' }" class="btn btn-outline-secondary px-4 py-3 text-decoration-none fw-bold hover-lift">
+              Ver Catálogo Completo <i class="bi bi-arrow-right ms-2"></i>
             </router-link>
           </div>
         </div>
@@ -222,24 +216,21 @@
                         <i class="bi bi-cart-plus-fill"></i>
                       </button>
                     </div>
-                  </div>
-
-                  <!-- Info Area -->
-                  <div class="product-body-premium p-4 pt-2 text-center">
-                    <div class="text-primary smaller fw-800 tracking-wider mb-2 opacity-50">{{ product.category }}</div>
-                    <h5 class="product-title-premium fw-800 mb-2 text-truncate-2">{{ product.name }}</h5>
+                        <!-- Info Area -->
+                  <div class="product-body-premium p-3 text-center border-top bg-white">
+                    <div class="text-muted smaller mb-1 text-uppercase tracking-wider" style="font-size: 0.65rem; font-weight: 700;">{{ product.category }}</div>
+                    <h6 class="fw-bold mb-2 text-dark text-truncate" style="font-size: 0.95rem; line-height: 1.3;">{{ product.name }}</h6>
                     
-                    <div class="price-container-premium mb-4">
-                      <span class="currency-symbol fs-6 opacity-75">Bs.</span>
-                      <span class="price-value fs-3 fw-900 text-dark">{{ product.price }}</span>
+                    <div class="price-container-premium mb-3">
+                      <span class="price-value fs-5 fw-bold text-dark">Bs. {{ product.price }}</span>
                     </div>
-
+ 
                     <div class="d-grid">
-                      <router-link :to="{ name: 'producto-detalle', params: { id: product.id } }" class="btn btn-premium-action rounded-pill py-2 fw-bold">
-                        Ver Detalles <i class="bi bi-arrow-right ms-2"></i>
+                      <router-link :to="{ name: 'producto-detalle', params: { id: product.id } }" class="btn btn-brand btn-sm py-2">
+                        Ver Detalles
                       </router-link>
                     </div>
-                  </div>
+                  </div>              </div>
                 </div>
               </div>
             </div>
@@ -255,62 +246,26 @@
       </div>
     </section>
 
-    <!-- Product Spotlight: Innovación (Nueva Sección Estilo Apple) -->
-    <section class="py-10 bg-dark text-white overflow-hidden position-relative">
-      <div class="container py-5">
-        <div class="row align-items-center gy-5">
-          <div class="col-lg-7 order-lg-2 animate__animated animate__fadeInRight">
-            <div class="spotlight-visual position-relative">
-              <div class="spotlight-glow position-absolute top-50 start-50 translate-middle"></div>
-              <img src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=1000&auto=format&fit=crop" class="img-fluid rounded-5 shadow-2xl position-relative z-1" alt="Innovación">
-              <div class="floating-badge-spotlight position-absolute bottom-0 start-0 mb-4 ms-4 z-2 animate__animated animate__bounceIn animate__delay-1s">
-                <div class="bg-white text-dark p-3 rounded-4 shadow-lg d-flex align-items-center gap-3">
-                  <div class="bg-primary-soft p-2 rounded-3 text-primary"><i class="bi bi-cpu fs-4"></i></div>
-                  <div>
-                    <div class="fw-800 smaller">ECO-TECH</div>
-                    <div class="smallest opacity-75">Materiales Sostenibles</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-5 order-lg-1 animate__animated animate__fadeInLeft">
-            <h4 class="text-primary fw-800 mb-3 tracking-wider text-uppercase small">Nuestra Obra Maestra</h4>
-            <h2 class="text-primary display-3 fw-800 mb-4 lh-1">Ingeniería de polímeros reinventada</h2>
-            <p class="fs-4 text-white-50 mb-5">
-              Hemos desarrollado una nueva línea de productos industriales que combinan resistencia extrema con un 40% menos de huella de carbono.
-            </p>
-            <ul class="list-unstyled d-flex flex-column gap-3 mb-5">
-              <li class="d-flex align-items-center gap-3 fs-5"><i class="fa-solid fa-check-circle text-primary"></i> Resistencia a temperaturas extremas</li>
-              <li class="d-flex align-items-center gap-3 fs-5"><i class="fa-solid fa-check-circle text-primary"></i> 100% Reciclable y biodegradable</li>
-              <li class="d-flex align-items-center gap-3 fs-5"><i class="fa-solid fa-check-circle text-primary"></i> Garantía extendida de 5 años</li>
-            </ul>
-            <BaseButton variant="brand" size="lg" class="rounded-pill px-5 py-3 shadow-lg">Descubrir la Tecnología</BaseButton>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Testimonios: Nueva Sección Premium -->
-    <section class="py-10 bg-white border-top">
-      <div class="container">
-        <div class="text-center mb-6">
-          <h2 class="display-5 fw-800 text-body-emphasis mb-3">Voces de Confianza</h2>
-          <p class="text-body-secondary fs-5">Lo que dicen nuestros aliados estratégicos.</p>
+    <!-- Testimonios: Shopify Reviews -->
+    <section class="py-5 bg-white border-top">
+      <div class="container py-3">
+        <div class="text-center mb-5">
+          <span class="text-muted small fw-bold text-uppercase tracking-wider mb-2 d-block">Testimonios</span>
+          <h2 class="display-5 fw-900 text-dark mb-3" style="letter-spacing: -0.03em;">Opiniones de Clientes</h2>
         </div>
         <div class="row g-4">
           <div class="col-lg-4" v-for="i in 3" :key="i">
-            <div class="testimonial-card p-5 rounded-5 border h-100 transition-all shadow-hover">
-              <div class="d-flex align-items-center gap-3 mb-4">
-                <img :src="`https://i.pravatar.cc/150?u=${i}`" class="avatar-md rounded-circle border-3 border-white shadow-sm" alt="User">
+            <div class="testimonial-card p-4 h-100 transition-all">
+              <div class="d-flex align-items-center gap-3 mb-3">
+                <img :src="`https://i.pravatar.cc/150?u=${i}`" class="avatar-md rounded-circle shadow-sm" alt="User">
                 <div>
-                  <h6 class="fw-800 mb-0">Carlos Rivera</h6>
+                  <h6 class="fw-bold text-dark mb-0">Carlos Rivera</h6>
                   <p class="smaller text-muted mb-0">Director Industrial, CorpX</p>
                 </div>
               </div>
-              <p class="fs-5 text-body-secondary italic mb-4">"La calidad de los polímeros y la puntualidad en la entrega han transformado nuestra cadena de suministro. Son un aliado indispensable."</p>
+              <p class="smaller text-muted italic mb-3">"La calidad de los polímeros y la puntualidad en la entrega han transformado nuestra cadena de suministro. Son un aliado indispensable."</p>
               <div class="text-warning">
-                <i class="bi bi-star-fill me-1" v-for="j in 5" :key="j"></i>
+                <i class="bi bi-star-fill me-1" style="color: var(--color-warning) !important;" v-for="j in 5" :key="j"></i>
               </div>
             </div>
           </div>
@@ -333,27 +288,27 @@
             <div class="d-flex flex-wrap align-items-center gap-4 gap-md-5 mb-5">
               <div class="stat-item-horizontal">
                 <div class="d-flex align-items-center gap-3">
-                  <div class="p-2 bg-primary-soft rounded-3 text-primary fs-4"><i class="bi bi-award"></i></div>
+                  <div class="p-2 rounded-3 fs-4" style="background: rgba(0, 41, 84, 0.08); color: var(--color-primary) !important;"><i class="bi bi-award"></i></div>
                   <div>
-                    <div class="fw-900 fs-4 mb-0">+10 Años</div>
+                    <div class="fw-900 fs-4 mb-0" style="color: var(--color-primary) !important;">+10 Años</div>
                     <div class="smallest text-uppercase tracking-tighter text-muted fw-bold">Experiencia</div>
                   </div>
                 </div>
               </div>
               <div class="stat-item-horizontal border-start-md ps-md-4">
                 <div class="d-flex align-items-center gap-3">
-                  <div class="p-2 bg-success-soft rounded-3 text-success fs-4"><i class="bi bi-globe"></i></div>
+                  <div class="p-2 rounded-3 fs-4" style="background: rgba(0, 113, 158, 0.08); color: var(--color-secondary) !important;"><i class="bi bi-globe"></i></div>
                   <div>
-                    <div class="fw-900 fs-4 mb-0">Nacional</div>
+                    <div class="fw-900 fs-4 mb-0" style="color: var(--color-secondary) !important;">Nacional</div>
                     <div class="smallest text-uppercase tracking-tighter text-muted fw-bold">Presencia</div>
                   </div>
                 </div>
               </div>
               <div class="stat-item-horizontal border-start-md ps-md-4">
                 <div class="d-flex align-items-center gap-3">
-                  <div class="p-2 bg-warning-soft rounded-3 text-warning fs-4"><i class="bi bi-emoji-smile"></i></div>
+                  <div class="p-2 rounded-3 fs-4" style="background: rgba(16, 185, 129, 0.08); color: var(--color-success) !important;"><i class="bi bi-emoji-smile"></i></div>
                   <div>
-                    <div class="fw-900 fs-4 mb-0">99%</div>
+                    <div class="fw-900 fs-4 mb-0" style="color: var(--color-success) !important;">99%</div>
                     <div class="smallest text-uppercase tracking-tighter text-muted fw-bold">Satisfacción</div>
                   </div>
                 </div>
@@ -394,7 +349,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import api from '../plugins/axios';
 import { useCartStore } from '../stores/cart';
 import Swal from 'sweetalert2';
@@ -418,11 +373,39 @@ const handleAddToCart = (product) => {
   });
 };
 
-const settings = ref({});
-const categories = ref([]);
+const settings        = ref({});
+const categories      = ref([]);
 const featuredProducts = ref([]);
-const isLoading = ref(true);
-const scrollY = ref(0);
+const isLoading       = ref(true);
+const scrollY         = ref(0);
+
+// ── Hero Slider ─────────────────────────────────────────────────────────────
+const heroSlideIdx = ref(0);
+let   heroInterval = null;
+
+const heroImages = computed(() => [
+  settings.value.hero_image_url,
+  settings.value.hero_image_2_url,
+  settings.value.hero_image_3_url,
+].filter(Boolean));
+
+const goToHeroSlide = (idx) => {
+  heroSlideIdx.value = idx;
+  resetHeroInterval();
+};
+
+const startHeroInterval = () => {
+  heroInterval = setInterval(() => {
+    if (heroImages.value.length > 1) {
+      heroSlideIdx.value = (heroSlideIdx.value + 1) % heroImages.value.length;
+    }
+  }, 5000);
+};
+
+const resetHeroInterval = () => {
+  if (heroInterval) clearInterval(heroInterval);
+  startHeroInterval();
+};
 
 const handleScroll = () => {
   scrollY.value = window.scrollY;
@@ -518,14 +501,90 @@ onMounted(async () => {
   ]);
   isLoading.value = false;
   window.addEventListener('scroll', handleScroll);
+  startHeroInterval();
 });
 
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll);
+  if (heroInterval) clearInterval(heroInterval);
 });
 </script>
 
 <style scoped>
+/* ========================================================
+   HERO SLIDER
+======================================================== */
+.hero-slider-container {
+  position: relative;
+  width: 100%;
+  min-height: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 1s ease;
+  pointer-events: none;
+}
+
+.hero-slide--active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.hero-slide-img {
+  max-width: 100%;
+  max-height: 480px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  /* Blend / fusion effect: soft radial fade on all edges */
+  -webkit-mask-image: radial-gradient(ellipse 82% 88% at 55% 50%, black 30%, transparent 100%);
+  mask-image: radial-gradient(ellipse 82% 88% at 55% 50%, black 30%, transparent 100%);
+}
+
+/* Dot indicators */
+.hero-dots {
+  position: absolute;
+  bottom: -1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 10;
+}
+
+.hero-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.18);
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.hero-dot--active {
+  background: var(--color-primary);
+  width: 24px;
+  border-radius: 4px;
+}
+
+@media (max-width: 991px) {
+  .hero-slider-container { min-height: 280px; }
+  .hero-slide-img { max-height: 300px; }
+}
+
 /* ========================================================
    TYPOGRAPHY & SPACING
 ======================================================== */
@@ -552,82 +611,141 @@ p {
   line-height: 1.75;
 }
 
+/* SHOPIFY GLOBAL STYLING OVERRIDES FOR VUE COMPONENTS */
+:deep(.btn) {
+  border-radius: 0px !important;
+  box-shadow: none !important;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+  font-weight: 700;
+  padding: 0.8rem 1.6rem !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border-width: 1px !important;
+}
+
+:deep(.btn-brand) {
+  background-color: #121212 !important;
+  border-color: #121212 !important;
+  color: #ffffff !important;
+}
+
+:deep(.btn-brand:hover) {
+  background-color: #333333 !important;
+  border-color: #333333 !important;
+  transform: none !important;
+}
+
+:deep(.btn-outline-secondary) {
+  border: 1px solid #121212 !important;
+  color: #121212 !important;
+  background: transparent !important;
+}
+
+:deep(.btn-outline-secondary:hover) {
+  background-color: #121212 !important;
+  color: #ffffff !important;
+  transform: none !important;
+}
+
+:deep(.btn-outline-brand) {
+  border: 1px solid #121212 !important;
+  color: #121212 !important;
+  background: transparent !important;
+  border-radius: 0px !important;
+}
+
+:deep(.btn-outline-brand:hover) {
+  background-color: #121212 !important;
+  color: #ffffff !important;
+  transform: none !important;
+}
+
+/* BaseBadge override */
+:deep(.badge) {
+  border-radius: 0px !important;
+  font-weight: 700;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
 /* NAVBAR */
-.glass-navbar {
-  background: rgba(var(--bs-body-bg-rgb), 0.7);
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  border-bottom: 1px solid var(--border-color);
-  z-index: 1100;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+:deep(.glass-navbar) {
+  background: #ffffff !important;
+  backdrop-filter: none !important;
+  border-bottom: 1px solid #e8e8e1 !important;
+  box-shadow: none !important;
+  padding-top: 1rem !important;
+  padding-bottom: 1rem !important;
 }
 
-.glass-navbar:hover {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+:deep(.nav-link) {
+  color: #121212 !important;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.82rem;
+  letter-spacing: 0.1em;
+  opacity: 0.75;
 }
 
-/* HERO IMPROVEMENTS */
-.hero-glow {
-  width: 500px;
-  height: 500px;
-  background: var(--color-primary);
-  filter: blur(150px);
-  opacity: 0.2;
-  animation: glow-pulse 4s ease-in-out infinite;
+:deep(.nav-link:hover),
+:deep(.nav-link.active) {
+  opacity: 1;
 }
 
-@keyframes glow-pulse {
-  0%, 100% { opacity: 0.15; }
-  50% { opacity: 0.25; }
+:deep(.nav-link::after) {
+  display: none !important;
 }
 
-/* Hero image enhancement */
-.hero-img {
-  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.1));
-  transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+:deep(.cart-btn-desktop),
+:deep(.cart-btn-mobile) {
+  border-radius: 0px !important;
+  border: 1px solid #121212 !important;
+  background: transparent !important;
+  color: #121212 !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
 }
 
-.floating-anim {
-  animation: floating 3s ease-in-out infinite;
+:deep(.cart-btn-desktop:hover),
+:deep(.cart-btn-mobile:hover) {
+  background: #121212 !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+  transform: none !important;
 }
 
-@keyframes floating {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
+:deep(.cart-badge-pill) {
+  border-radius: 0px !important;
+  background-color: #121212 !important;
+  color: #ffffff !important;
+  font-weight: 800;
 }
 
-/* MODERN CATEGORY CARDS */
+/* SHOPIFY COLLECTION CARDS */
 .modern-category-card {
-  height: 480px;
+  height: 440px;
   cursor: pointer;
-  perspective: 1000px;
   transition: all 0.4s ease;
 }
 
-@media (max-width: 992px) {
-  .modern-category-card {
-    height: 400px;
-  }
-}
-
-@media (max-width: 576px) {
-  .modern-category-card {
-    height: 320px;
-  }
-}
-
 .card-inner {
-  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  background: var(--bg-card);
-  border-radius: 2.5rem;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  background: #f4f4f4;
+  border-radius: 0px !important;
   overflow: hidden;
   position: relative;
   height: 100%;
+  border: 1px solid #e8e8e1;
 }
 
 .modern-category-card:hover .card-inner {
-  transform: translateY(-12px) scale(1.02);
-  box-shadow: 0 40px 80px rgba(0,0,0,0.25);
+  transform: scale(1.01);
+  border-color: #121212;
+  box-shadow: none;
 }
 
 .category-img-container {
@@ -640,49 +758,40 @@ p {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .modern-category-card:hover .category-img {
-  transform: scale(1.1);
+  transform: scale(1.05);
 }
 
 .category-overlay-modern {
-  background: linear-gradient(to bottom, 
-    transparent 0%, 
-    rgba(0,0,0,0) 40%, 
-    rgba(0,0,0,0.4) 70%, 
-    rgba(0,0,0,0.9) 100%);
-  transition: all 0.5s ease;
+  background: rgba(18, 18, 18, 0.2) !important;
+  transition: all 0.4s ease;
 }
 
 .modern-category-card:hover .category-overlay-modern {
-  background: linear-gradient(to bottom, 
-    transparent 0%, 
-    rgba(0,0,0,0.1) 30%, 
-    rgba(0,0,0,0.6) 60%, 
-    rgba(0,0,0,1) 100%);
+  background: rgba(18, 18, 18, 0.4) !important;
 }
 
 .category-badge-floating {
   position: absolute;
-  top: 2rem;
-  right: 2rem;
+  top: 1.5rem;
+  right: 1.5rem;
   z-index: 10;
 }
 
 .glass-pill {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 50px;
-  padding: 0.5rem 1.25rem;
-  font-size: 0.75rem;
-  font-weight: 800;
-  letter-spacing: 0.05em;
-  color: rgb(65, 65, 65);
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  background: #121212 !important;
+  border: none !important;
+  border-radius: 0px !important;
+  padding: 0.4rem 1rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #ffffff !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
 }
 
 .category-content-modern {
@@ -691,45 +800,29 @@ p {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 2.5rem;
+  padding: 2rem;
   z-index: 2;
-  transition: all 0.4s ease;
-}
-
-@media (max-width: 576px) {
-  .category-content-modern {
-    padding: 1.5rem;
-  }
 }
 
 .category-title-modern {
-  font-size: 2.25rem;
-  line-height: 1.1;
-  letter-spacing: -0.03em;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  font-size: 1.6rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
   color: white;
-  font-weight: 850;
-  margin-bottom: 1.25rem;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-}
-
-@media (max-width: 992px) {
-  .category-title-modern {
-    font-size: 1.75rem;
-  }
-}
-
-.modern-category-card:hover .category-title-modern {
-  transform: translateY(-5px);
+  font-weight: 900;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.2);
 }
 
 .category-action-hidden {
-  opacity: 0;
-  transform: translateY(15px);
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  opacity: 1 !important;
+  transform: none !important;
 }
 
-.modern-category-card:hover .category-action-hidden {
+.category-action-hidden span {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}dden {
   opacity: 1;
   transform: translateY(0);
 }
@@ -808,77 +901,73 @@ p {
   cursor: default;
 }
 
+/* SHOPIFY TRUST COLUMNS */
 .benefit-card-inner {
-  background: white;
-  border: 1px solid #f1f5f9;
-  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  background: #ffffff !important;
+  border: 1px solid #e8e8e1 !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
   overflow: hidden;
+  border-radius: 0px !important;
 }
 
 .benefit-card-stable:hover .benefit-card-inner {
-  transform: translateY(-10px);
-  box-shadow: 0 30px 60px rgba(0,0,0,0.06);
-  border-color: var(--color-primary-soft);
+  transform: translateY(-5px) !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  border-color: #121212 !important;
 }
 
 .benefit-icon-premium {
-  width: 70px;
-  height: 70px;
-  background: #f8fafc;
-  border-radius: 20px;
+  width: 55px;
+  height: 55px;
+  background: #f4f4f4 !important;
+  border-radius: 0px !important;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .benefit-card-stable:hover .benefit-icon-premium {
-  background: var(--color-primary);
-  transform: scale(1.1) rotate(8deg);
-  box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2);
+  background: #121212 !important;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 .benefit-card-stable:hover .benefit-icon-premium i {
   color: white !important;
 }
 
-.transition-premium {
-  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.border-glass-light {
-  border: 1px solid rgba(0,0,0,0.03);
-}
-
-/* PREMIUM PRODUCT CARDS */
+/* PREMIUM PRODUCT CARDS SHOPIFY */
 .premium-product-card {
-  perspective: 1000px;
+  perspective: none;
 }
 
 .card-inner-premium {
-  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   background: white;
   position: relative;
-  border: 1px solid var(--border-light) !important;
+  border: 1px solid #e8e8e1 !important;
+  border-radius: 0px !important;
+  box-shadow: none !important;
 }
 
 .premium-product-card:hover .card-inner-premium {
-  transform: translateY(-12px);
-  box-shadow: 0 40px 80px rgba(0,0,0,0.1) !important;
-  border-color: var(--color-primary-soft) !important;
+  transform: translateY(-6px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.06) !important;
+  border-color: #121212 !important;
 }
 
 .product-img-main-container {
   aspect-ratio: 1/1;
   overflow: hidden;
-  border-radius: 1.5rem;
-  background: #f8fafc;
-  transition: all 0.5s ease;
+  border-radius: 0px !important;
+  background: #f9f9f9 !important;
+  transition: all 0.3s ease;
 }
 
 .premium-product-card:hover .product-img-main-container {
-  background: white;
+  background: #f4f4f4 !important;
 }
 
 .product-display-img {
@@ -936,7 +1025,7 @@ p {
 }
 
 .price-container-premium {
-  color: var(--color-primary);
+  color: #121212 !important;
 }
 
 .price-value {
@@ -985,84 +1074,27 @@ p {
   border-color: var(--color-primary);
 }
 
-/* PREMIUM LIQUID BACKGROUND */
+/* PREMIUM LIQUID BACKGROUND MINIMALIST WIH BRAND GLOW */
 .premium-liquid-bg {
   pointer-events: none;
-  background: var(--bs-body-bg);
+  background: radial-gradient(circle at 80% 20%, rgba(0, 113, 158, 0.08) 0%, rgba(0, 41, 84, 0.03) 50%, var(--bs-body-bg) 100%);
   overflow: hidden;
 }
 
-.liquid-blob {
-  position: absolute;
-  filter: blur(160px);
-  border-radius: 50%;
-  opacity: 0.65;
-  transition: all 1s ease;
+.border-glass {
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-.blob-1 {
-  width: 800px;
-  height: 800px;
-  background: var(--color-primary);
-  top: -20%;
-  left: -10%;
-  animation: liquid-move-1 10s infinite alternate;
+.hover-lift {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-.blob-2 {
-  width: 700px;
-  height: 700px;
-  background: var(--color-primary);
-  filter: blur(160px) brightness(1.2) hue-rotate(-10deg);
-  bottom: -20%;
-  right: -5%;
-  animation: liquid-move-2 12s infinite alternate;
-}
-
-.blob-3 {
-  width: 600px;
-  height: 600px;
-  background: var(--color-primary);
-  filter: blur(160px) brightness(0.8) hue-rotate(10deg);
-  top: 20%;
-  left: 30%;
-  animation: liquid-move-3 8s infinite alternate;
-}
-
-@keyframes liquid-move-1 {
-  0% { transform: translate(0, 0) scale(1) rotate(0deg); }
-  50% { transform: translate(120px, 60px) scale(1.15) rotate(45deg); }
-  100% { transform: translate(60px, 120px) scale(0.95) rotate(90deg); }
-}
-
-@keyframes liquid-move-2 {
-  0% { transform: translate(0, 0) scale(1) rotate(0deg); }
-  50% { transform: translate(-100px, -50px) scale(1.25) rotate(-45deg); }
-  100% { transform: translate(-50px, -100px) scale(0.85) rotate(-90deg); }
-}
-
-@keyframes liquid-move-3 {
-  0% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(70px, -70px) scale(1.1); }
-  100% { transform: translate(-70px, 70px) scale(0.9); }
-}
-
-.liquid-overlay {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 50% 50%, transparent 0%, var(--bs-body-bg) 90%);
-  opacity: 0.5;
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 /* HERO SKELETONS */
-.skeleton-badge {
-  width: 200px;
-  height: 32px;
-  background: var(--bg-hover);
-  border-radius: 50px;
-  animation: skeleton-loading 1.5s infinite;
-}
-
 .skeleton-title {
   width: 100%;
   height: 120px;
@@ -1269,32 +1301,7 @@ p {
   transform: translateY(-2px);
 }
 
-/* Spotlight enhancements */
-.spotlight-visual {
-  position: relative;
-}
 
-.spotlight-glow {
-  width: 400px;
-  height: 400px;
-  background: var(--color-primary);
-  filter: blur(100px);
-  opacity: 0.15;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  animation: glow-pulse 4s ease-in-out infinite;
-}
-
-.floating-badge-spotlight {
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.floating-badge-spotlight:hover {
-  transform: scale(1.08) translateY(-4px);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
-}
 
 /* Text color enhancements */
 .text-white-50 {
@@ -1315,8 +1322,63 @@ img {
   transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Smooth scroll behavior */
-html {
-  scroll-behavior: smooth;
+/* Testimonial & Brands Shopify Refinement */
+.testimonial-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #e8e8e1 !important;
+  border-top: 3px solid #121212 !important;
+  border-radius: 0px !important;
+  transition: all 0.3s ease;
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.testimonial-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05) !important;
+  border-top-color: #333333 !important;
+}
+
+.brand-item {
+  transition: all 0.3s ease;
+}
+
+.brand-item:hover {
+  color: #121212 !important;
+  transform: scale(1.05);
+}
+
+.about-visual-refined {
+  border-radius: 0px !important;
+}
+
+.image-stack {
+  border-radius: 0px !important;
+  background: #ffffff !important;
+  border: 1px solid #e8e8e1 !important;
+}
+
+/* SCROLL TOP SHOPIFY STYLE */
+.btn-scroll-top {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 45px;
+  height: 45px;
+  background: #121212 !important;
+  color: white !important;
+  border: none;
+  border-radius: 0px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(20px);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: none !important;
 }
 </style>
