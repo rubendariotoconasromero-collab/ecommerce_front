@@ -90,6 +90,36 @@ const router = createRouter({
           meta: { permission: 'modulo-clientes' }
         },
         {
+          path: 'pedidos',
+          name: 'pedidos',
+          component: () => import('../views/OrdenesView.vue'),
+          meta: { permission: 'modulo-pedidos', title: 'Gestión de Pedidos' },
+        },
+        {
+          path: 'produccion',
+          name: 'produccion',
+          component: () => import('../views/ProduccionView.vue'),
+          meta: { permission: 'modulo-pedidos', title: 'Producción' },
+        },
+        {
+          path: 'envios',
+          name: 'envios',
+          component: () => import('../views/EnviosView.vue'),
+          meta: { permission: 'modulo-pedidos', title: 'Envíos y Logística' },
+        },
+        {
+          path: 'pagos',
+          name: 'pagos',
+          component: () => import('../views/PagosView.vue'),
+          meta: { permission: 'modulo-pedidos', title: 'Gestión de Pagos' },
+        },
+        {
+          path: 'devoluciones',
+          name: 'devoluciones',
+          component: () => import('../views/DevolucionesView.vue'),
+          meta: { permission: 'modulo-pedidos', title: 'Devoluciones' },
+        },
+        {
           path: 'inventario',
           name: 'inventario',
           component: () => import('../views/InventarioView.vue'),

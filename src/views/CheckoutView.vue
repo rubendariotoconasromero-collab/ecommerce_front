@@ -163,6 +163,11 @@
                 </div>
               </div>
 
+              <!-- Error del servidor -->
+              <div v-if="serverError" class="alert alert-danger rounded-0 py-2 px-3 small mb-3">
+                <i class="fa-solid fa-circle-exclamation me-2"></i>{{ serverError }}
+              </div>
+
               <!-- Submit -->
               <button
                 type="submit"
@@ -260,8 +265,11 @@
         <p class="lead text-muted mb-2 mx-auto" style="max-width: 480px; font-size: 1.1rem;">
           Recibimos tu solicitud. Nuestro equipo te contactará para coordinar la entrega.
         </p>
-        <p class="text-muted smaller mb-5 mx-auto opacity-80" style="max-width: 400px;">
-          Número de referencia: <span class="fw-bold text-dark">{{ orderRef }}</span>
+        <p class="text-muted smaller mb-2 mx-auto opacity-80" style="max-width: 400px;">
+          Número de referencia: <span class="fw-bold text-dark font-monospace">#{{ orderRef }}</span>
+        </p>
+        <p v-if="orderDate" class="text-muted smaller mb-5 mx-auto opacity-80" style="max-width: 400px;">
+          Entrega estimada: <span class="fw-bold text-dark">{{ orderDate }}</span>
         </p>
         <div class="d-flex gap-3 justify-content-center flex-wrap">
           <router-link :to="{ name: 'home' }" class="btn btn-brand rounded-0 px-5 py-3 text-decoration-none fw-bold text-uppercase">
@@ -280,17 +288,18 @@
 
 <script setup>
 import { ref, reactive } from 'vue';
-import { useRouter } from 'vue-router';
 import { useCartStore } from '../stores/cart';
+import api from '../plugins/axios';
 import PublicNavbar from '../components/PublicNavbar.vue';
 import PublicFooter from '../components/PublicFooter.vue';
 
-const cartStore   = useCartStore();
-const router      = useRouter();
+const cartStore = useCartStore();
 
 const isSubmitting = ref(false);
 const orderSuccess = ref(false);
 const orderRef     = ref('');
+const orderDate    = ref('');
+const serverError  = ref('');
 
 const fallbackImg = 'https://images.unsplash.com/photo-1560393464-5c69a73c5770?q=80&w=400&auto=format&fit=crop';
 
@@ -306,49 +315,48 @@ const errors = reactive({
 const validate = () => {
   let valid = true;
   errors.name = errors.tax_id = errors.phone = errors.address = errors.city = '';
-
-  if (!form.name.trim()) { errors.name = 'El nombre es requerido.'; valid = false; }
-  if (!form.tax_id.trim()) { errors.tax_id = 'El NIT/CI es requerido.'; valid = false; }
-  if (!form.phone.trim()) { errors.phone = 'El teléfono es requerido.'; valid = false; }
+  if (!form.name.trim())    { errors.name    = 'El nombre es requerido.';    valid = false; }
+  if (!form.tax_id.trim())  { errors.tax_id  = 'El NIT/CI es requerido.';   valid = false; }
+  if (!form.phone.trim())   { errors.phone   = 'El teléfono es requerido.';  valid = false; }
   if (!form.address.trim()) { errors.address = 'La dirección es requerida.'; valid = false; }
-  if (!form.city.trim()) { errors.city = 'La ciudad es requerida.'; valid = false; }
-
+  if (!form.city.trim())    { errors.city    = 'La ciudad es requerida.';    valid = false; }
   return valid;
 };
 
 const submitOrder = async () => {
   if (!validate()) return;
-
+  serverError.value  = '';
   isSubmitting.value = true;
+
   try {
-    // Simulación — integrar con POST /api/orders cuando el checkout público esté disponible en el backend
-    await new Promise(resolve => setTimeout(resolve, 1200));
-
-    const ref = `SOL-${new Date().getFullYear()}-${String(Date.now()).slice(-5)}`;
-    orderRef.value = ref;
-
-    const simulated = JSON.parse(localStorage.getItem('soluplast_simulated_orders') || '[]');
-    simulated.unshift({
-      id: simulated.length + 101,
-      ref,
-      client: form.name,
-      address: `${form.address}, ${form.city}`,
-      phone: form.phone,
-      tax_id: form.tax_id,
-      email: form.email,
-      notes: form.notes,
-      items: cartStore.items.map(i => ({ id: i.id, name: i.name, qty: i.qty, price: i.price })),
-      total: cartStore.cartTotal,
-      status: 'pending',
-      created_at: new Date().toISOString()
+    const { data } = await api.post('/public/orders', {
+      name:      form.name.trim(),
+      tax_id:    form.tax_id.trim(),
+      phone:     form.phone.trim(),
+      email:     form.email.trim() || undefined,
+      address:   form.address.trim(),
+      city:      form.city.trim(),
+      reference: form.reference.trim() || undefined,
+      notes:     form.notes.trim() || undefined,
+      items:     cartStore.items.map(i => ({
+        product_id: i.id,
+        quantity:   i.qty,
+      })),
     });
-    localStorage.setItem('soluplast_simulated_orders', JSON.stringify(simulated));
+
+    orderRef.value  = data.reference;
+    orderDate.value = data.delivery_date
+      ? new Date(data.delivery_date).toLocaleDateString('es-BO', { day: '2-digit', month: 'long', year: 'numeric' })
+      : '';
 
     cartStore.clearCart();
     orderSuccess.value = true;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   } catch (e) {
-    console.error(e);
+    serverError.value =
+      e.response?.data?.message ||
+      e.response?.data?.errors?.items?.[0] ||
+      'Ocurrió un error al procesar el pedido. Por favor, inténtalo nuevamente.';
   } finally {
     isSubmitting.value = false;
   }

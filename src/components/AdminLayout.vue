@@ -48,8 +48,28 @@
             </div>
             <ul v-if="openGroups.operaciones && !isCollapsed" class="nav-sub flex-column">
               <li class="nav-item">
-                <router-link to="/admin/pedidos" class="nav-link-sub" active-class="active">
-                  Pedidos Recientes
+                <router-link :to="{ name: 'pedidos' }" class="nav-link-sub" active-class="active">
+                  Pedidos
+                </router-link>
+              </li>
+              <li class="nav-item">
+                <router-link :to="{ name: 'produccion' }" class="nav-link-sub" active-class="active">
+                  Producción
+                </router-link>
+              </li>
+              <li class="nav-item">
+                <router-link :to="{ name: 'envios' }" class="nav-link-sub" active-class="active">
+                  Envíos
+                </router-link>
+              </li>
+              <li class="nav-item">
+                <router-link :to="{ name: 'pagos' }" class="nav-link-sub" active-class="active">
+                  Pagos
+                </router-link>
+              </li>
+              <li class="nav-item">
+                <router-link :to="{ name: 'devoluciones' }" class="nav-link-sub" active-class="active">
+                  Devoluciones
                 </router-link>
               </li>
             </ul>
@@ -219,7 +239,7 @@ const toggleGroup = (group) => {
 
 const isGroupActive = (group) => {
   const routes = {
-    operaciones: ['pedidos'],
+    operaciones: ['pedidos', 'produccion', 'envios', 'pagos', 'devoluciones'],
     catalogo: ['categorias', 'productos', 'inventario'],
     admin: ['usuarios', 'roles', 'configuracion']
   };
