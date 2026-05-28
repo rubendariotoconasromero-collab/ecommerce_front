@@ -8,11 +8,25 @@
       <!-- Sidebar Header (Logo con Contraste Elevado) -->
       <div class="sidebar-header d-flex align-items-center justify-content-center border-bottom bg-body sticky-top">
         <div class="logo-area d-flex align-items-center justify-content-center w-100 px-3 gap-2">
-          <i class="fa-solid fa-cubes text-primary fs-4"></i>
-          <span v-if="!isCollapsed" class="fw-900 text-body-emphasis fs-5 animate__animated animate__fadeIn">SOLUPLAST</span>
-          <div v-else class="collapsed-logo-pill animate__animated animate__zoomIn">
-            <span class="fw-bold">S</span>
-          </div>
+          <!-- Sidebar expandido -->
+          <template v-if="!isCollapsed">
+            <img v-if="settingsStore.settings?.logo_sidebar_url"
+              :src="settingsStore.settings.logo_sidebar_url"
+              alt="Logo" class="sidebar-logo animate__animated animate__fadeIn">
+            <template v-else>
+              <i class="fa-solid fa-cubes text-primary fs-4"></i>
+              <span class="fw-900 text-body-emphasis fs-5 animate__animated animate__fadeIn">SOLUPLAST</span>
+            </template>
+          </template>
+          <!-- Sidebar colapsado -->
+          <template v-else>
+            <img v-if="settingsStore.settings?.logo_sidebar_compact_url"
+              :src="settingsStore.settings.logo_sidebar_compact_url"
+              alt="Logo" class="collapsed-logo-pill animate__animated animate__zoomIn" style="object-fit:contain;background:transparent;border:none">
+            <div v-else class="collapsed-logo-pill animate__animated animate__zoomIn">
+              <span class="fw-bold">S</span>
+            </div>
+          </template>
         </div>
       </div>
 
@@ -215,10 +229,12 @@
 import { ref, computed, reactive, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
+import { useSettingsStore } from '../stores/settings';
 
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
+const settingsStore = useSettingsStore();
 
 const isCollapsed = ref(false);
 const currentTheme = ref(localStorage.getItem('app-theme') || 'light');
@@ -256,6 +272,7 @@ onMounted(() => {
   if (isGroupActive('operaciones')) openGroups.operaciones = true;
   if (isGroupActive('catalogo')) openGroups.catalogo = true;
   if (isGroupActive('admin')) openGroups.admin = true;
+  settingsStore.fetch();
 });
 </script>
 
@@ -275,6 +292,12 @@ onMounted(() => {
 .sidebar-header {
   height: 64px;
   flex-shrink: 0;
+}
+
+.sidebar-logo {
+  height: 34px;
+  max-width: 160px;
+  object-fit: contain;
 }
 
 .collapsed-logo-pill {

@@ -3,77 +3,88 @@
     <!-- Public Navbar Reutilizable -->
     <PublicNavbar />
 
-    <!-- Hero Section: Shopify Minimalist Split Banner -->
-    <header id="hero" class="hero-section min-vh-100 d-flex align-items-center pt-5 overflow-hidden position-relative bg-white border-bottom">
-      <div class="container position-relative z-1 py-5">
-        <template v-if="isLoading">
-          <div class="row align-items-center gy-5">
-            <div class="col-lg-6">
-              <div class="skeleton-title mb-4"></div>
-              <div class="skeleton-text mb-5"></div>
-              <div class="d-flex gap-3">
-                <div class="skeleton-btn"></div>
-                <div class="skeleton-btn"></div>
-              </div>
-            </div>
-            <div class="col-lg-6">
-              <div class="skeleton-hero-img"></div>
-            </div>
-          </div>
-        </template>
-        <template v-else>
-          <div class="row align-items-center gy-5">
-            <div class="col-lg-6 animate__animated animate__fadeIn">
-              <h1 class="display-3 fw-900 mb-4 lh-1 tracking-tight text-dark" style="font-size: 3.5rem; letter-spacing: -0.04em;">
-                {{ settings.hero_title || 'Impulsamos tu industria con calidad premium' }}
-              </h1>
-              <p class="lead text-muted mb-5 pe-lg-5 fs-5">
-                {{ settings.hero_subtitle || 'Descubre nuestro catálogo exclusivo de productos plásticos diseñados para el máximo rendimiento y durabilidad.' }}
-              </p>
-              <div class="d-flex flex-wrap gap-3">
-                <BaseButton size="lg" variant="brand" class="px-5 shadow-none hover-lift" @click="scrollTo('#productos')">
-                  Comenzar ahora
-                </BaseButton>
-                <router-link :to="{ name: 'catalogo' }" class="btn btn-outline-secondary px-5 text-decoration-none fw-bold hover-lift">
-                  Ver Catálogo <i class="bi bi-arrow-right ms-2"></i>
-                </router-link>
-              </div>
-            </div>
-            <div class="col-lg-6 position-relative animate__animated animate__fadeIn" style="animation-delay: 0.15s;">
-              <!-- Hero Slider -->
-              <div class="hero-slider-container">
-                <template v-if="heroImages.length > 0">
-                  <div
-                    v-for="(img, idx) in heroImages"
-                    :key="idx"
-                    class="hero-slide"
-                    :class="{ 'hero-slide--active': idx === heroSlideIdx }"
-                  >
-                    <img :src="img" :alt="`Hero ${idx + 1}`" class="hero-slide-img">
-                  </div>
-                </template>
-                <template v-else>
-                  <div class="hero-slide hero-slide--active">
-                    <img src="https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=1000&auto=format&fit=crop" alt="Hero" class="hero-slide-img" @error="handleImageError">
-                  </div>
-                </template>
+    <!-- ═══════════════════════════════════════════════════════
+         HERO SECTION — Full-bleed background
+    ═══════════════════════════════════════════════════════ -->
+    <header id="hero" class="hero-section overflow-hidden position-relative">
 
-                <!-- Dot indicators (solo si hay más de 1 imagen) -->
-                <div v-if="heroImages.length > 1" class="hero-dots">
-                  <button
-                    v-for="(_, idx) in heroImages"
-                    :key="idx"
-                    class="hero-dot"
-                    :class="{ 'hero-dot--active': idx === heroSlideIdx }"
-                    @click="goToHeroSlide(idx)"
-                    :aria-label="`Imagen ${idx + 1}`"
-                  ></button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </template>
+      <!-- ── Skeleton while loading ──────────────────── -->
+      <div v-if="isLoading" class="hero-skeleton"></div>
+
+      <!-- ── Slide track — full-bleed background ─────── -->
+      <div v-else class="hero-track" aria-hidden="true">
+        <div
+          v-for="(img, idx) in heroImages"
+          :key="idx"
+          class="hero-slide"
+          :class="{ 'hero-slide--on': idx === heroSlideIdx }"
+        >
+          <img
+            :src="img"
+            :alt="`Soluplast Producto ${idx + 1}`"
+            class="hero-slide__img"
+            :fetchpriority="idx === 0 ? 'high' : 'auto'"
+            :loading="idx === 0 ? 'eager' : 'lazy'"
+            decoding="async"
+            @error="handleImageError"
+          >
+        </div>
       </div>
+
+      <!-- ── Overlay layers ────────────────────────────── -->
+      <div class="hero-overlay" aria-hidden="true"></div>
+      <div class="hero-overlay-bottom" aria-hidden="true"></div>
+
+      <!-- ── Content ──────────────────────────────────── -->
+      <div class="container hero-content-wrap position-relative" style="z-index:10">
+        <div class="hero-content animate__animated animate__fadeInUp" style="animation-duration:.85s;animation-fill-mode:both">
+
+          <h1 class="hero-headline mb-4">
+            {{ settings.hero_title || 'Impulsamos tu industria con calidad premium' }}
+          </h1>
+
+          <p class="hero-body mb-5">
+            {{ settings.hero_subtitle || 'Soluciones de polímeros avanzados para industrias que exigen lo máximo en durabilidad, tolerancias exactas y eficiencia logística.' }}
+          </p>
+
+          <div class="d-flex align-items-center gap-3 flex-wrap">
+            <button class="hero-btn-primary" @click="scrollTo('#productos')">
+              Explorar productos
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="hero-btn-arrow">
+                <line x1="5" y1="12" x2="19" y2="12"/>
+                <polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </button>
+            <router-link :to="{ name: 'catalogo' }" class="hero-btn-ghost">
+              Ver catálogo
+            </router-link>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── Control bar — bottom ──────────────────────── -->
+      <div v-if="!isLoading && heroImages.length > 1" class="hero-bar" style="z-index:10">
+        <div class="hero-bar__dots">
+          <button
+            v-for="(_, idx) in heroImages"
+            :key="idx"
+            class="hero-bar__dot"
+            :class="{ 'hero-bar__dot--on': idx === heroSlideIdx }"
+            @click="selectSlide(idx)"
+            :aria-label="`Imagen ${idx + 1}`"
+          ></button>
+        </div>
+        <div class="hero-bar__nav">
+          <button class="hero-bar__btn" @click="prevSlide" aria-label="Anterior">
+            <i class="bi bi-chevron-left"></i>
+          </button>
+          <button class="hero-bar__btn" @click="nextSlide" aria-label="Siguiente">
+            <i class="bi bi-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+
     </header>
 
     <!-- Marcas: Trusted by (Nueva Sección) -->
@@ -379,22 +390,29 @@ const featuredProducts = ref([]);
 const isLoading       = ref(true);
 const scrollY         = ref(0);
 
-// ── Hero Slider ─────────────────────────────────────────────────────────────
+// ── Hero Images / Carousel State ─────────────────────────────────────────────
 const heroSlideIdx = ref(0);
 let   heroInterval = null;
 
-const heroImages = computed(() => [
-  settings.value.hero_image_url,
-  settings.value.hero_image_2_url,
-  settings.value.hero_image_3_url,
-].filter(Boolean));
-
-const goToHeroSlide = (idx) => {
-  heroSlideIdx.value = idx;
-  resetHeroInterval();
-};
+const heroImages = computed(() => {
+  const imgs = [
+    settings.value.hero_image_url,
+    settings.value.hero_image_2_url,
+    settings.value.hero_image_3_url,
+  ].filter(Boolean);
+  
+  if (imgs.length > 0) return imgs;
+  
+  // Fallbacks: 3 high-quality product/industrial photos from Unsplash
+  return [
+    'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=1000&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=1000&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1563986768609-322da13575f3?q=80&w=1000&auto=format&fit=crop'
+  ];
+});
 
 const startHeroInterval = () => {
+  if (heroInterval) clearInterval(heroInterval);
   heroInterval = setInterval(() => {
     if (heroImages.value.length > 1) {
       heroSlideIdx.value = (heroSlideIdx.value + 1) % heroImages.value.length;
@@ -402,9 +420,23 @@ const startHeroInterval = () => {
   }, 5000);
 };
 
-const resetHeroInterval = () => {
-  if (heroInterval) clearInterval(heroInterval);
+const selectSlide = (idx) => {
+  heroSlideIdx.value = idx;
   startHeroInterval();
+};
+
+const prevSlide = () => {
+  if (heroImages.value.length > 1) {
+    heroSlideIdx.value = (heroSlideIdx.value - 1 + heroImages.value.length) % heroImages.value.length;
+    startHeroInterval();
+  }
+};
+
+const nextSlide = () => {
+  if (heroImages.value.length > 1) {
+    heroSlideIdx.value = (heroSlideIdx.value + 1) % heroImages.value.length;
+    startHeroInterval();
+  }
 };
 
 const handleScroll = () => {
@@ -500,89 +532,224 @@ onMounted(async () => {
     fetchFeaturedProducts()
   ]);
   isLoading.value = false;
-  window.addEventListener('scroll', handleScroll);
   startHeroInterval();
+  window.addEventListener('scroll', handleScroll);
 });
 
 onUnmounted(() => {
+  if (heroInterval) {
+    clearInterval(heroInterval);
+  }
   window.removeEventListener('scroll', handleScroll);
-  if (heroInterval) clearInterval(heroInterval);
 });
 </script>
 
 <style scoped>
-/* ========================================================
-   HERO SLIDER
-======================================================== */
-.hero-slider-container {
+/* ═══════════════════════════════════════════════════════
+   HERO — Premium Industrial v2
+   Inspirado en Apple, Stripe y SaaS moderno
+═══════════════════════════════════════════════════════ */
+
+/* ── Contenedor principal ────────────────────────── */
+/* ── Hero: Full-bleed background ─────────────────── */
+.hero-section {
   position: relative;
-  width: 100%;
-  min-height: 420px;
+  min-height: 100vh;
   display: flex;
   align-items: center;
-  justify-content: center;
+  background: #0a0a0a;
+}
+
+/* Slide track — absolute, covers entire hero */
+.hero-track {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
 }
 
 .hero-slide {
   position: absolute;
   inset: 0;
+  opacity: 0;
+  transition: opacity 1.4s cubic-bezier(.16,1,.3,1);
+}
+.hero-slide--on { opacity: 1; }
+
+.hero-slide__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+/* Skeleton while loading */
+.hero-skeleton {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(90deg, #141414 25%, #1e1e1e 50%, #141414 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+}
+
+/* Overlay — left-side darkness for text legibility */
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    100deg,
+    rgba(0,0,0,.75) 0%,
+    rgba(0,0,0,.48) 45%,
+    rgba(0,0,0,.10) 100%
+  );
+}
+
+/* Overlay — bottom darkness for controls */
+.hero-overlay-bottom {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,.6) 0%,
+    transparent 40%
+  );
+}
+
+/* Content wrapper — vertically centered, left-aligned */
+.hero-content-wrap {
+  display: flex;
+  align-items: center;
+  min-height: 100vh;
+  padding-top: 88px;
+  padding-bottom: 110px;
+}
+
+.hero-content { max-width: 640px; }
+
+/* Headline */
+.hero-headline {
+  font-size: clamp(2.5rem, 1rem + 4.8vw, 5rem);
+  font-weight: 350;
+  line-height: 1.08;
+  letter-spacing: -.03em;
+  color: #ffffff;
+  text-wrap: balance;
+}
+
+/* Body */
+.hero-body {
+  font-size: 1.1rem;
+  color: rgba(255,255,255,.7);
+  line-height: 1.72;
+  max-width: 520px;
+}
+
+/* Primary CTA — white solid */
+.hero-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  background: #ffffff;
+  color: #0a0a0a;
+  border: none;
+  border-radius: 10px;
+  padding: .9rem 2rem;
+  font-size: .82rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background .2s ease,
+              transform .25s cubic-bezier(.16,1,.3,1),
+              box-shadow .25s ease;
+}
+.hero-btn-primary:hover {
+  background: #efefef;
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px rgba(0,0,0,.35);
+}
+.hero-btn-arrow {
+  transition: transform .25s cubic-bezier(.16,1,.3,1);
+}
+.hero-btn-primary:hover .hero-btn-arrow { transform: translateX(4px); }
+
+/* Ghost CTA — white border underline */
+.hero-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  color: rgba(255,255,255,.85);
+  text-decoration: none;
+  font-size: .82rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  border-bottom: 1.5px solid rgba(255,255,255,.35);
+  padding-bottom: 2px;
+  transition: border-color .2s ease, color .2s ease;
+}
+.hero-btn-ghost:hover {
+  color: #ffffff;
+  border-color: rgba(255,255,255,.9);
+}
+
+/* ── Control bar — pinned to bottom ─────────────── */
+.hero-bar {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 2.5rem;
+}
+
+.hero-bar__dots { display: flex; gap: .55rem; align-items: center; }
+.hero-bar__dot {
+  width: 32px; height: 2px;
+  background: rgba(255,255,255,.3);
+  border: none; border-radius: 2px;
+  cursor: pointer; padding: 0;
+  transition: width .45s cubic-bezier(.16,1,.3,1), background .3s ease;
+}
+.hero-bar__dot--on { width: 56px; background: #ffffff; }
+
+.hero-bar__nav { display: flex; gap: .5rem; }
+.hero-bar__btn {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.2);
+  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0;
-  transition: opacity 1s ease;
-  pointer-events: none;
-}
-
-.hero-slide--active {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.hero-slide-img {
-  max-width: 100%;
-  max-height: 480px;
-  width: auto;
-  height: auto;
-  object-fit: contain;
-  display: block;
-  /* Blend / fusion effect: soft radial fade on all edges */
-  -webkit-mask-image: radial-gradient(ellipse 82% 88% at 55% 50%, black 30%, transparent 100%);
-  mask-image: radial-gradient(ellipse 82% 88% at 55% 50%, black 30%, transparent 100%);
-}
-
-/* Dot indicators */
-.hero-dots {
-  position: absolute;
-  bottom: -1.5rem;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  z-index: 10;
-}
-
-.hero-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(0, 0, 0, 0.18);
-  padding: 0;
   cursor: pointer;
-  transition: all 0.3s ease;
+  font-size: .82rem;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background .2s ease, transform .2s ease;
+}
+.hero-bar__btn:hover {
+  background: rgba(255,255,255,.22);
+  transform: scale(1.08);
 }
 
-.hero-dot--active {
-  background: var(--color-primary);
-  width: 24px;
-  border-radius: 4px;
-}
-
+/* ── Responsive ──────────────────────────────────── */
 @media (max-width: 991px) {
-  .hero-slider-container { min-height: 280px; }
-  .hero-slide-img { max-height: 300px; }
+  .hero-content { max-width: 100%; }
+  .hero-body { max-width: 100%; }
+  .hero-content-wrap { padding-top: 80px; padding-bottom: 100px; }
+  .hero-bar { padding: 1.25rem 1.5rem; }
+}
+
+@media (max-width: 575px) {
+  .hero-headline { font-size: clamp(1.9rem, 9vw, 2.8rem); }
+  .hero-bar { padding: 1rem 1.25rem; }
+  .hero-bar__dot { width: 24px; }
+  .hero-bar__dot--on { width: 40px; }
 }
 
 /* ========================================================
@@ -1086,12 +1253,16 @@ p {
 }
 
 .hover-lift {
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
 }
 
 .hover-lift:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.05);
+}
+
+.hover-lift:active {
+  transform: translateY(-1px);
 }
 
 /* HERO SKELETONS */
@@ -1121,10 +1292,12 @@ p {
 
 .skeleton-hero-img {
   width: 100%;
-  aspect-ratio: 4/3;
+  max-width: 440px;
+  aspect-ratio: 1 / 1;
   background: var(--bg-hover);
-  border-radius: 2rem;
+  border-radius: 0px;
   animation: skeleton-loading 1.5s infinite;
+  margin: 0 auto;
 }
 
 /* UTILITIES */

@@ -2,8 +2,13 @@
   <nav class="navbar navbar-expand-lg fixed-top glass-navbar py-3 px-md-5">
     <div class="container-fluid">
       <router-link to="/" class="navbar-brand d-flex align-items-center gap-2">
-        <i class="fa-solid fa-cubes text-primary fs-3"></i>
-        <span class="fw-bold text-body-emphasis fs-4 d-none d-sm-block">SOLUPLAST</span>
+        <img v-if="settingsStore.settings?.logo_landing_url"
+          :src="settingsStore.settings.logo_landing_url"
+          alt="Logo" class="navbar-logo">
+        <template v-else>
+          <i class="fa-solid fa-cubes text-primary fs-3"></i>
+          <span class="fw-bold text-body-emphasis fs-4 d-none d-sm-block">SOLUPLAST</span>
+        </template>
       </router-link>
 
       <div class="d-flex align-items-center gap-3 d-lg-none">
@@ -66,13 +71,17 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useCartStore } from '../stores/cart';
+import { useSettingsStore } from '../stores/settings';
 import BaseButton from './base/BaseButton.vue';
 
 const cartStore = useCartStore();
+const settingsStore = useSettingsStore();
 const route = useRoute();
+
+onMounted(() => settingsStore.fetch());
 
 const isHome       = computed(() => route.name === 'home');
 const isCatalog    = computed(() => route.name === 'catalogo');
@@ -91,6 +100,12 @@ const scrollTo = (id) => {
 </script>
 
 <style scoped>
+.navbar-logo {
+  height: 38px;
+  max-width: 180px;
+  object-fit: contain;
+}
+
 .glass-navbar {
   background: rgba(var(--bs-body-bg-rgb), 0.85);
   backdrop-filter: blur(18px);

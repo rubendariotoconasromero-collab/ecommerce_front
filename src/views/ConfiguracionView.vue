@@ -45,6 +45,51 @@
         </div>
       </div>
 
+      <!-- Logos del Sistema -->
+      <div class="col-12">
+        <div class="sol-config-section">
+          <div class="sol-config-section__title">
+            <i class="fa-solid fa-image"></i> Logos del Sistema
+          </div>
+          <p class="smaller text-muted mb-4">
+            Sube un logo para cada área del sistema. Formatos soportados: JPG, PNG, WEBP, SVG. Máx: 2MB.
+            Si no se sube un logo, se usa el texto/ícono de respaldo.
+          </p>
+          <div class="row g-4">
+            <div class="col-lg-3 col-md-6" v-for="logo in logoSlots" :key="logo.key">
+              <label class="form-label smaller fw-800 text-body-secondary text-uppercase tracking-tighter mb-2">
+                {{ logo.label }}
+              </label>
+              <div class="hero-img-slot" :class="{ 'has-image': logo.previewUrl }" style="min-height:150px">
+                <!-- Preview -->
+                <div v-if="logo.previewUrl" class="slot-preview">
+                  <img :src="logo.previewUrl" :alt="logo.label" class="slot-img" style="height:130px;object-fit:contain;background:#f8fafc">
+                  <button type="button" class="slot-remove-btn" @click="removeLogoImage(logo)" title="Eliminar logo">
+                    <i class="fa-solid fa-xmark"></i>
+                  </button>
+                </div>
+                <!-- Upload vacío -->
+                <label v-else class="slot-upload-area" :for="`logo-file-${logo.key}`" style="min-height:130px">
+                  <i class="fa-solid fa-cloud-arrow-up mb-2" style="font-size:1.6rem;opacity:.3"></i>
+                  <span class="smaller fw-semibold text-muted">Subir logo</span>
+                  <span class="sol-smallest text-muted opacity-60">JPG, PNG, SVG — Máx 2MB</span>
+                </label>
+                <input :id="`logo-file-${logo.key}`" type="file" class="d-none"
+                  accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml"
+                  @change="onLogoFileChange($event, logo)">
+                <!-- Reemplazar si ya tiene imagen -->
+                <div v-if="logo.previewUrl" class="slot-replace-bar">
+                  <label :for="`logo-file-${logo.key}`" class="btn btn-sm btn-outline-secondary rounded-pill px-3 cursor-pointer mb-0 w-100">
+                    <i class="fa-solid fa-arrow-up-from-bracket me-1"></i> Reemplazar
+                  </label>
+                </div>
+              </div>
+              <p class="sol-smallest text-muted mt-1">{{ logo.hint }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Sección Hero -->
       <div class="col-12">
         <div class="sol-config-section">
@@ -171,7 +216,9 @@ import api from '../plugins/axios'
 import Swal from 'sweetalert2'
 import BaseInput from '../components/base/BaseInput.vue'
 import BaseButton from '../components/base/BaseButton.vue'
+import { useSettingsStore } from '../stores/settings'
 
+const settingsStore = useSettingsStore()
 const loading = ref(false)
 const form = ref({
   company_name: '', email: '', phone: '', address: '',
@@ -179,42 +226,95 @@ const form = ref({
   hero_title: '', hero_subtitle: '',
   hero_image_url: null, hero_image_2_url: null, hero_image_3_url: null,
   about_title: '', about_description: '',
-  about_image_url: null, footer_text: ''
+  about_image_url: null, footer_text: '',
+  logo_login_url: null, logo_sidebar_url: null,
+  logo_sidebar_compact_url: null, logo_landing_url: null,
 })
 
-// Archivos de las 3 imágenes hero (nuevos uploads)
-const heroFiles = reactive({ hero: null, hero2: null, hero3: null })
-// Flags para eliminar imágenes del slider
+// ── Hero slider ──────────────────────────────────────────────────
+const heroFiles   = reactive({ hero: null, hero2: null, hero3: null })
 const removeFlags = reactive({ hero: false, hero2: false, hero3: false })
 
-const aboutFile   = ref(null)
-const previewAbout = ref(null)
-
-// Slots del slider: gestión reactiva de preview + file + remove
 const heroSlots = computed(() => [
   {
-    key:        'hero',
-    label:      'Imagen 1',
-    urlField:   'hero_image_url',
-    fileKey:    'hero',
+    key: 'hero', label: 'Imagen 1', fileKey: 'hero',
     previewUrl: removeFlags.hero ? null : (heroFiles.hero ? URL.createObjectURL(heroFiles.hero) : form.value.hero_image_url),
   },
   {
-    key:        'hero2',
-    label:      'Imagen 2',
-    urlField:   'hero_image_2_url',
-    fileKey:    'hero2',
+    key: 'hero2', label: 'Imagen 2', fileKey: 'hero2',
     previewUrl: removeFlags.hero2 ? null : (heroFiles.hero2 ? URL.createObjectURL(heroFiles.hero2) : form.value.hero_image_2_url),
   },
   {
-    key:        'hero3',
-    label:      'Imagen 3',
-    urlField:   'hero_image_3_url',
-    fileKey:    'hero3',
+    key: 'hero3', label: 'Imagen 3', fileKey: 'hero3',
     previewUrl: removeFlags.hero3 ? null : (heroFiles.hero3 ? URL.createObjectURL(heroFiles.hero3) : form.value.hero_image_3_url),
-  }
+  },
 ])
 
+const onHeroFileChange = (event, slot) => {
+  const file = event.target.files[0]
+  if (!file) return
+  heroFiles[slot.fileKey] = file
+  removeFlags[slot.fileKey] = false
+}
+const removeSlotImage = (slot) => {
+  heroFiles[slot.fileKey] = null
+  removeFlags[slot.fileKey] = true
+}
+
+// ── Logos ────────────────────────────────────────────────────────
+const logoFiles   = reactive({ login: null, sidebar: null, sidebar_compact: null, landing: null })
+const logoRemove  = reactive({ login: false, sidebar: false, sidebar_compact: false, landing: false })
+
+const logoSlots = computed(() => [
+  {
+    key: 'login', label: 'Logo Login', fileKey: 'login', urlField: 'logo_login_url',
+    hint: 'Panel izquierdo de la pantalla de acceso.',
+    previewUrl: logoRemove.login ? null : (logoFiles.login ? URL.createObjectURL(logoFiles.login) : form.value.logo_login_url),
+  },
+  {
+    key: 'sidebar', label: 'Logo Sidebar', fileKey: 'sidebar', urlField: 'logo_sidebar_url',
+    hint: 'Sidebar expandido del panel admin.',
+    previewUrl: logoRemove.sidebar ? null : (logoFiles.sidebar ? URL.createObjectURL(logoFiles.sidebar) : form.value.logo_sidebar_url),
+  },
+  {
+    key: 'sidebar_compact', label: 'Logo Sidebar Compacto', fileKey: 'sidebar_compact', urlField: 'logo_sidebar_compact_url',
+    hint: 'Sidebar colapsado (ícono cuadrado ~36px).',
+    previewUrl: logoRemove.sidebar_compact ? null : (logoFiles.sidebar_compact ? URL.createObjectURL(logoFiles.sidebar_compact) : form.value.logo_sidebar_compact_url),
+  },
+  {
+    key: 'landing', label: 'Logo Landing', fileKey: 'landing', urlField: 'logo_landing_url',
+    hint: 'Navbar de la tienda pública.',
+    previewUrl: logoRemove.landing ? null : (logoFiles.landing ? URL.createObjectURL(logoFiles.landing) : form.value.logo_landing_url),
+  },
+])
+
+const onLogoFileChange = (event, logo) => {
+  const file = event.target.files[0]
+  if (!file) return
+  logoFiles[logo.fileKey] = file
+  logoRemove[logo.fileKey] = false
+}
+const removeLogoImage = (logo) => {
+  logoFiles[logo.fileKey] = null
+  logoRemove[logo.fileKey] = true
+}
+
+// ── Nosotros ─────────────────────────────────────────────────────
+const aboutFile    = ref(null)
+const previewAbout = ref(null)
+
+const onFileChange = (event) => {
+  const file = event.target.files[0]
+  if (!file) return
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    aboutFile.value    = file
+    previewAbout.value = e.target.result
+  }
+  reader.readAsDataURL(file)
+}
+
+// ── Fetch / Save ─────────────────────────────────────────────────
 const fetchSettings = async () => {
   try {
     const response = await api.get('/settings')
@@ -224,37 +324,17 @@ const fetchSettings = async () => {
   }
 }
 
-const onHeroFileChange = (event, slot) => {
-  const file = event.target.files[0]
-  if (!file) return
-  heroFiles[slot.fileKey] = file
-  removeFlags[slot.fileKey] = false
-}
-
-const removeSlotImage = (slot) => {
-  heroFiles[slot.fileKey] = null
-  removeFlags[slot.fileKey] = true
-}
-
-const onFileChange = (event, type) => {
-  const file = event.target.files[0]
-  if (!file) return
-  const reader = new FileReader()
-  reader.onload = (e) => {
-    aboutFile.value = file
-    previewAbout.value = e.target.result
-  }
-  reader.readAsDataURL(file)
-}
-
 const saveSettings = async () => {
   loading.value = true
   const formData = new FormData()
 
   const skipFields = [
+    'id', 'created_at', 'updated_at',
     'hero_image_url', 'hero_image_2_url', 'hero_image_3_url',
-    'about_image_url', 'id', 'created_at', 'updated_at',
-    'hero_image_path', 'hero_image_2_path', 'hero_image_3_path', 'about_image_path'
+    'hero_image_path', 'hero_image_2_path', 'hero_image_3_path',
+    'about_image_url', 'about_image_path',
+    'logo_login_url', 'logo_sidebar_url', 'logo_sidebar_compact_url', 'logo_landing_url',
+    'logo_login_path', 'logo_sidebar_path', 'logo_sidebar_compact_path', 'logo_landing_path',
   ]
 
   Object.keys(form.value).forEach(key => {
@@ -263,33 +343,39 @@ const saveSettings = async () => {
     }
   })
 
-  // Imágenes hero slider
+  // Hero slider
   if (heroFiles.hero)  formData.append('hero_image',   heroFiles.hero)
   if (heroFiles.hero2) formData.append('hero_image_2', heroFiles.hero2)
   if (heroFiles.hero3) formData.append('hero_image_3', heroFiles.hero3)
-
-  // Flags de eliminación
   if (removeFlags.hero)  formData.append('remove_hero_image',   '1')
   if (removeFlags.hero2) formData.append('remove_hero_image_2', '1')
   if (removeFlags.hero3) formData.append('remove_hero_image_3', '1')
 
-  // Imagen de nosotros
+  // Nosotros
   if (aboutFile.value) formData.append('about_image', aboutFile.value)
+
+  // Logos
+  if (logoFiles.login)           formData.append('logo_login',           logoFiles.login)
+  if (logoFiles.sidebar)         formData.append('logo_sidebar',         logoFiles.sidebar)
+  if (logoFiles.sidebar_compact) formData.append('logo_sidebar_compact', logoFiles.sidebar_compact)
+  if (logoFiles.landing)         formData.append('logo_landing',         logoFiles.landing)
+  if (logoRemove.login)           formData.append('remove_logo_login',           '1')
+  if (logoRemove.sidebar)         formData.append('remove_logo_sidebar',         '1')
+  if (logoRemove.sidebar_compact) formData.append('remove_logo_sidebar_compact', '1')
+  if (logoRemove.landing)         formData.append('remove_logo_landing',         '1')
 
   try {
     await api.post('/settings', formData, { headers: { 'Content-Type': 'multipart/form-data' } })
     Swal.fire({ icon: 'success', title: '¡Guardado!', text: 'Configuración actualizada correctamente.', timer: 2200, showConfirmButton: false })
 
     // Reset temporales
-    heroFiles.hero  = null
-    heroFiles.hero2 = null
-    heroFiles.hero3 = null
-    removeFlags.hero  = false
-    removeFlags.hero2 = false
-    removeFlags.hero3 = false
-    aboutFile.value  = null
-    previewAbout.value = null
+    heroFiles.hero = null; heroFiles.hero2 = null; heroFiles.hero3 = null
+    removeFlags.hero = false; removeFlags.hero2 = false; removeFlags.hero3 = false
+    logoFiles.login = null; logoFiles.sidebar = null; logoFiles.sidebar_compact = null; logoFiles.landing = null
+    logoRemove.login = false; logoRemove.sidebar = false; logoRemove.sidebar_compact = false; logoRemove.landing = false
+    aboutFile.value = null; previewAbout.value = null
 
+    settingsStore.invalidate()
     await fetchSettings()
   } catch (error) {
     console.error('Error al guardar:', error)

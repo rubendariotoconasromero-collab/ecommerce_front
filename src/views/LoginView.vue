@@ -19,10 +19,13 @@
 
         <!-- Logo -->
         <div class="brand-logo animate__animated animate__fadeInDown">
-          <div class="brand-logo__icon">
-            <i class="fa-solid fa-cubes"></i>
-          </div>
-          <span class="brand-logo__name">SOLUPLAST</span>
+          <img v-if="settingsStore.settings?.logo_login_url"
+            :src="settingsStore.settings.logo_login_url"
+            alt="Logo" class="brand-logo__img">
+          <template v-else>
+            <div class="brand-logo__icon"><i class="fa-solid fa-cubes"></i></div>
+            <span class="brand-logo__name">SOLUPLAST</span>
+          </template>
         </div>
 
         <!-- Claim central -->
@@ -83,11 +86,16 @@
       <div class="form-wrapper animate__animated animate__fadeIn">
 
         <!-- Logo mobile -->
-        <div class="form-mobile-logo d-flex d-lg-none">
-          <div class="brand-logo__icon brand-logo__icon--sm">
-            <i class="fa-solid fa-cubes"></i>
-          </div>
-          <span class="brand-logo__name brand-logo__name--dark">SOLUPLAST</span>
+        <div class="form-mobile-logo d-flex d-lg-none align-items-center gap-2">
+          <img v-if="settingsStore.settings?.logo_login_url"
+            :src="settingsStore.settings.logo_login_url"
+            alt="Logo" style="height:36px;object-fit:contain">
+          <template v-else>
+            <div class="brand-logo__icon brand-logo__icon--sm">
+              <i class="fa-solid fa-cubes"></i>
+            </div>
+            <span class="brand-logo__name brand-logo__name--dark">SOLUPLAST</span>
+          </template>
         </div>
 
         <!-- Encabezado del formulario -->
@@ -216,9 +224,11 @@
 import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
+import { useSettingsStore } from '../stores/settings';
 
 const router = useRouter();
 const authStore = useAuthStore();
+const settingsStore = useSettingsStore();
 
 const form = reactive({ email: '', password: '' });
 const isLoading = ref(false);
@@ -243,6 +253,7 @@ const handleLogin = async () => {
 onMounted(() => {
   const savedTheme = localStorage.getItem('app-theme') || 'light';
   document.documentElement.setAttribute('data-theme', savedTheme);
+  settingsStore.fetch();
 });
 </script>
 
@@ -332,6 +343,12 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 0.875rem;
+}
+.brand-logo__img {
+  height: 48px;
+  max-width: 220px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
 }
 .brand-logo__icon {
   width: 44px;
