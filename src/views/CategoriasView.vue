@@ -29,12 +29,17 @@
     >
       <!-- Avatar de Categoría -->
       <template #item-avatar="{ item }">
-        <div class="sol-item-frame border-2 border-white shadow-sm">
-          <img v-if="item.image_url" :src="item.image_url" alt="Cat" class="w-100 h-100 object-fit-cover sol-transition-slow">
-          <div v-else class="w-100 h-100 d-flex align-items-center justify-content-center text-primary sol-fw-800 fs-5"
-               style="background: var(--sol-color-primary-soft)">
-            {{ item.name?.charAt(0).toUpperCase() }}
-          </div>
+        <div class="sol-item-frame border-2 border-white shadow-sm bg-white d-flex align-items-center justify-content-center overflow-hidden">
+          <img
+            v-if="item.image_url && !imageLoadErrors[item.id]"
+            :src="item.image_url"
+            alt="Cat"
+            class="w-100 h-100 object-fit-cover sol-transition-slow"
+            @error="handleImageError(item.id)"
+          >
+          <svg v-else class="w-100 h-100 text-muted opacity-25 p-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
         </div>
       </template>
 
@@ -162,6 +167,11 @@ const isLoading = ref(true);
 const isSaving = ref(false);
 const isEditing = ref(false);
 const showModal = ref(false);
+const imageLoadErrors = ref({});
+
+const handleImageError = (id) => {
+  imageLoadErrors.value[id] = true;
+};
 
 const gridColumns = [
   { label: 'PRODUCTOS', key: 'products_count', align: 'center' }

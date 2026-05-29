@@ -1,263 +1,280 @@
 <template>
-  <div>
-    <!-- ── HEADER ─────────────────────────────────────────────────── -->
-    <div class="d-flex align-items-start justify-content-between mb-4 flex-wrap gap-3">
+  <div class="animate__animated animate__fadeIn">
+
+    <!-- ── ENCABEZADO ─────────────────────────────────────────────── -->
+    <div class="sol-page-header mb-3">
       <div>
-        <h4 class="fw-bold mb-1 text-body-emphasis">Producción</h4>
-        <p class="text-muted small mb-0">{{ meta.total ?? 0 }} órdenes de producción</p>
+        <h2 class="sol-page-title">Producción</h2>
+        <p class="sol-page-subtitle">{{ meta.total ?? 0 }} órdenes de producción registradas</p>
       </div>
     </div>
 
-    <!-- ── STATUS TABS ───────────────────────────────────────────── -->
-    <div class="d-flex gap-2 flex-wrap mb-3 pb-3 border-bottom">
-      <button
-        v-for="tab in STATUS_TABS" :key="tab.key"
-        class="btn btn-sm px-3 rounded-0"
-        :class="filters.status === tab.key ? 'btn-dark' : 'btn-outline-secondary'"
-        @click="setStatus(tab.key)"
-      >{{ tab.label }}</button>
-      <button
-        class="btn btn-sm px-3 rounded-0 ms-auto"
-        :class="filters.unassigned ? 'btn-warning text-dark' : 'btn-outline-secondary'"
-        @click="toggleUnassigned"
-      >
-        <i class="bi bi-person-x me-1"></i>Sin asignar
-      </button>
-    </div>
-
-    <!-- ── TABLE ─────────────────────────────────────────────────── -->
-    <div class="card border shadow-sm rounded-0">
-      <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-          <thead class="border-bottom bg-body-tertiary">
-            <tr>
-              <th class="ps-4 py-3 fw-semibold small text-muted text-uppercase">Pedido</th>
-              <th class="py-3 fw-semibold small text-muted text-uppercase">Producto</th>
-              <th class="py-3 fw-semibold small text-muted text-uppercase text-center">Cant.</th>
-              <th class="py-3 fw-semibold small text-muted text-uppercase">Trabajador</th>
-              <th class="py-3 fw-semibold small text-muted text-uppercase">Notas internas</th>
-              <th class="py-3 fw-semibold small text-muted text-uppercase">Estado</th>
-              <th class="py-3 fw-semibold small text-muted text-uppercase">Creado</th>
-              <th class="pe-4 py-3"></th>
-            </tr>
-          </thead>
-          <tbody>
-            <template v-if="loading">
-              <tr v-for="n in 8" :key="n">
-                <td class="ps-4"><div class="skel w-75"></div></td>
-                <td><div class="skel w-100"></div></td>
-                <td class="text-center"><div class="skel mx-auto" style="width:30px"></div></td>
-                <td><div class="skel w-75"></div></td>
-                <td><div class="skel w-100"></div></td>
-                <td><div class="skel" style="width:90px"></div></td>
-                <td><div class="skel w-75"></div></td>
-                <td></td>
-              </tr>
-            </template>
-            <tr v-else-if="prodOrders.length === 0">
-              <td colspan="8" class="text-center py-5">
-                <i class="bi bi-gear text-muted d-block mb-2" style="font-size:2.5rem;opacity:.3"></i>
-                <p class="text-muted small mb-0">No hay órdenes de producción con estos filtros</p>
-              </td>
-            </tr>
-            <tr v-else v-for="p in prodOrders" :key="p.id">
-              <td class="ps-4">
-                <span class="fw-bold font-monospace small">
-                  #{{ (p.order_item?.order_id || '').slice(0,8).toUpperCase() }}
-                </span>
-              </td>
-              <td>
-                <div class="small fw-semibold">{{ p.order_item?.product_name ?? '—' }}</div>
-                <div v-if="p.order_item?.customization_notes" class="text-muted" style="font-size:.7rem">
-                  {{ p.order_item.customization_notes }}
-                </div>
-              </td>
-              <td class="text-center">
-                <span class="badge bg-secondary bg-opacity-10 text-secondary border small">
-                  {{ p.order_item?.quantity ?? '—' }}
-                </span>
-              </td>
-              <td>
-                <template v-if="p.worker">
-                  <span class="small fw-semibold">{{ p.worker.name }}</span>
-                </template>
-                <span v-else class="badge rounded-0 bg-warning text-dark small px-2">Sin asignar</span>
-              </td>
-              <td class="small text-muted" style="max-width:160px">
-                <span class="text-truncate d-block">{{ p.internal_notes || '—' }}</span>
-              </td>
-              <td>
-                <span class="badge rounded-0 px-2 py-1" :class="STATUS_CONFIG[p.status]?.badge ?? 'bg-secondary'">
-                  {{ STATUS_CONFIG[p.status]?.label ?? p.status }}
-                </span>
-              </td>
-              <td class="text-muted small">{{ fmtDate(p.created_at) }}</td>
-              <td class="pe-4">
-                <div class="d-flex gap-1 justify-content-end flex-wrap">
-                  <!-- Assign/Reassign worker (queued or in_progress) -->
-                  <button
-                    v-if="['queued','in_progress'].includes(p.status)"
-                    @click="openAssign(p)"
-                    class="btn btn-sm btn-outline-secondary rounded-0 px-2" title="Asignar trabajador">
-                    <i class="bi bi-person-check"></i>
-                  </button>
-                  <!-- Start: queued → in_progress -->
-                  <button
-                    v-if="p.status === 'queued'"
-                    @click="openAction(p, 'start')"
-                    class="btn btn-sm btn-info rounded-0 px-2" title="Iniciar producción">
-                    <i class="bi bi-play-fill"></i>
-                  </button>
-                  <!-- Complete: in_progress → completed -->
-                  <button
-                    v-if="p.status === 'in_progress'"
-                    @click="openAction(p, 'complete')"
-                    class="btn btn-sm btn-success rounded-0 px-2" title="Completar producción">
-                    <i class="bi bi-check-lg"></i>
-                  </button>
-                  <!-- Cancel: queued or in_progress -->
-                  <button
-                    v-if="['queued','in_progress'].includes(p.status)"
-                    @click="openAction(p, 'cancel')"
-                    class="btn btn-sm btn-outline-danger rounded-0 px-2" title="Cancelar">
-                    <i class="bi bi-x-lg"></i>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div v-if="meta.last_page > 1" class="d-flex justify-content-between align-items-center px-4 py-3 border-top">
-        <span class="text-muted small">Página {{ meta.current_page }} de {{ meta.last_page }} · {{ meta.total }} órdenes</span>
-        <div class="d-flex gap-2">
-          <button class="btn btn-sm btn-outline-secondary rounded-0" :disabled="meta.current_page <= 1" @click="fetchProdOrders(meta.current_page - 1)"><i class="bi bi-chevron-left"></i></button>
-          <button class="btn btn-sm btn-outline-secondary rounded-0" :disabled="meta.current_page >= meta.last_page" @click="fetchProdOrders(meta.current_page + 1)"><i class="bi bi-chevron-right"></i></button>
+    <!-- ── GRID ──────────────────────────────────────────────────── -->
+    <BaseDataGrid
+      :items="prodOrders"
+      :columns="gridColumns"
+      :loading="loading"
+      :pagination="paginationObj"
+      search-placeholder="Buscar por pedido, producto o trabajador…"
+      empty-title="Sin órdenes de producción"
+      empty-icon="fa-solid fa-gears"
+      empty-description="No hay órdenes que coincidan con los filtros aplicados."
+      compact
+      @search="handleSearch"
+      @page-change="fetchProdOrders"
+    >
+      <!-- Filtros -->
+      <template #filters>
+        <div class="d-flex gap-2 flex-wrap align-items-center">
+          <BaseFilterSelect
+            v-model="filters.status"
+            :options="statusOptions"
+            width="175px"
+            @update:modelValue="fetchProdOrders(1)"
+          />
+          <button
+            class="btn rounded-pill px-3 border"
+            :class="filters.unassigned ? 'btn-warning' : 'btn-light'"
+            style="height:38px;font-size:.8125rem;font-weight:600;"
+            @click="toggleUnassigned"
+          >
+            <i class="fa-solid fa-user-slash me-1"></i>Sin asignar
+          </button>
+          <button
+            v-if="filters.status !== '' || filters.unassigned"
+            type="button"
+            class="btn btn-light rounded-pill px-3 border"
+            style="height:38px;font-size:.8125rem;font-weight:600;"
+            @click="resetFilters"
+          >
+            <i class="fa-solid fa-xmark me-1"></i>Limpiar
+          </button>
         </div>
-      </div>
-    </div>
+      </template>
 
-    <!-- ── ACTION MODAL (start / complete / cancel) ──────────────── -->
-    <div v-if="showActionModal" class="modal d-block" tabindex="-1" style="background:rgba(0,0,0,.4)">
-      <div class="modal-dialog modal-dialog-centered" style="max-width:420px">
-        <div class="modal-content rounded-0 border-0 shadow-lg">
-          <div class="modal-header px-4 py-3 border-bottom">
-            <h6 class="modal-title fw-bold mb-0">
-              <i class="bi me-2" :class="ACTION_CONFIG[currentAction]?.icon"></i>
-              {{ ACTION_CONFIG[currentAction]?.title }}
-            </h6>
-            <button class="btn-close btn-sm" @click="showActionModal = false"></button>
+      <!-- Columna: Pedido + Producto -->
+      <template #col-order_info="{ item }">
+        <div class="d-flex align-items-center gap-3">
+          <div class="bg-light text-secondary border d-flex align-items-center justify-content-center rounded-3"
+               style="width:40px;height:40px;flex-shrink:0;">
+            <i class="fa-solid fa-gears" style="font-size:.9rem;"></i>
           </div>
-          <div class="modal-body px-4 py-4">
-            <div class="mb-3 p-3 bg-body-tertiary border">
-              <div class="d-flex justify-content-between small mb-1">
-                <span class="text-muted">Pedido</span>
-                <span class="fw-bold font-monospace">#{{ (selectedProd?.order_item?.order_id || '').slice(0,8).toUpperCase() }}</span>
-              </div>
-              <div class="d-flex justify-content-between small">
-                <span class="text-muted">Producto</span>
-                <span>{{ selectedProd?.order_item?.product_name }}</span>
-              </div>
+          <div>
+            <div class="fw-bold text-body-emphasis small font-monospace">
+              #{{ (item.order_item?.order_id || '').slice(0,8).toUpperCase() }}
             </div>
-            <div>
-              <label class="form-label fw-semibold small text-uppercase opacity-70">Notas internas (opcional)</label>
-              <textarea v-model="actionNotes" class="form-control form-control-sm rounded-0" rows="3"
-                placeholder="Observaciones del operario…"></textarea>
+            <div class="text-body-secondary smaller mt-1">
+              {{ item.order_item?.product_name ?? '—' }}
+              <span v-if="item.order_item?.customization_notes" class="ms-1 opacity-60">
+                · {{ item.order_item.customization_notes }}
+              </span>
             </div>
-            <p v-if="currentAction === 'cancel'" class="text-danger small mt-2 mb-0">
-              <i class="bi bi-exclamation-triangle me-1"></i>
-              Si la producción estaba iniciada, el stock se revertirá a "reservado".
-            </p>
           </div>
-          <div class="modal-footer px-4 py-3 border-top gap-2">
-            <button class="btn btn-sm btn-outline-secondary rounded-0 px-4" @click="showActionModal = false">Cancelar</button>
-            <button class="btn btn-sm rounded-0 px-4" :class="ACTION_CONFIG[currentAction]?.btn" :disabled="processing" @click="confirmAction">
-              <span v-if="processing" class="spinner-border spinner-border-sm me-1"></span>
-              {{ ACTION_CONFIG[currentAction]?.confirm }}
+        </div>
+      </template>
+
+      <!-- Columna: Cantidad -->
+      <template #col-quantity="{ item }">
+        <span class="badge rounded-pill bg-light border text-dark px-3 py-1 sol-fw-800 sol-smallest">
+          {{ item.order_item?.quantity ?? '—' }} unid.
+        </span>
+      </template>
+
+      <!-- Columna: Trabajador -->
+      <template #col-worker="{ item }">
+        <span v-if="item.worker" class="small fw-semibold text-body-emphasis">
+          {{ item.worker.name }}
+        </span>
+        <span v-else class="badge rounded-pill px-3 py-1 sol-fw-800 sol-smallest"
+              style="background:rgba(245,158,11,.1);color:#d97706;border:1px solid rgba(245,158,11,.2);">
+          <i class="fa-solid fa-user-slash me-1"></i>Sin asignar
+        </span>
+      </template>
+
+      <!-- Columna: Notas -->
+      <template #col-internal_notes="{ item }">
+        <span class="small text-body-secondary text-truncate d-block" style="max-width:160px;">
+          {{ item.internal_notes || '—' }}
+        </span>
+      </template>
+
+      <!-- Columna: Estado -->
+      <template #col-status="{ item }">
+        <span class="badge rounded-pill px-3 py-1 sol-fw-800 sol-smallest border"
+              :class="STATUS_CONFIG[item.status]?.cls ?? 'bg-secondary-subtle text-secondary border-secondary-subtle'">
+          {{ STATUS_CONFIG[item.status]?.label ?? item.status }}
+        </span>
+      </template>
+
+      <!-- Columna: Fecha -->
+      <template #col-created_at="{ item }">
+        <span class="small text-body-secondary">{{ fmtDate(item.created_at) }}</span>
+      </template>
+
+      <!-- Acciones -->
+      <template #item-actions="{ item }">
+        <template v-if="['queued','in_progress'].includes(item.status)">
+          <li>
+            <button class="dropdown-item rounded-3 py-2 small" @click="openAssign(item)">
+              <i class="fa-solid fa-user-check me-2 text-primary"></i>Asignar trabajador
             </button>
-          </div>
-        </div>
-      </div>
-    </div>
+          </li>
+          <li><hr class="dropdown-divider mx-2 opacity-50"></li>
+        </template>
+        <li v-if="item.status === 'queued'">
+          <button class="dropdown-item rounded-3 py-2 small" @click="openAction(item, 'start')">
+            <i class="fa-solid fa-play me-2 text-info"></i>Iniciar producción
+          </button>
+        </li>
+        <li v-if="item.status === 'in_progress'">
+          <button class="dropdown-item rounded-3 py-2 small" @click="openAction(item, 'complete')">
+            <i class="fa-solid fa-check me-2 text-success"></i>Completar
+          </button>
+        </li>
+        <li v-if="['queued','in_progress'].includes(item.status)">
+          <hr class="dropdown-divider mx-2 opacity-50">
+        </li>
+        <li v-if="['queued','in_progress'].includes(item.status)">
+          <button class="dropdown-item text-danger rounded-3 py-2 small" @click="openAction(item, 'cancel')">
+            <i class="fa-solid fa-ban me-2"></i>Cancelar
+          </button>
+        </li>
+      </template>
+    </BaseDataGrid>
 
-    <!-- ── ASSIGN WORKER MODAL ───────────────────────────────────── -->
-    <div v-if="showAssignModal" class="modal d-block" tabindex="-1" style="background:rgba(0,0,0,.4)">
-      <div class="modal-dialog modal-dialog-centered" style="max-width:380px">
-        <div class="modal-content rounded-0 border-0 shadow-lg">
-          <div class="modal-header px-4 py-3 border-bottom">
-            <h6 class="modal-title fw-bold mb-0"><i class="bi bi-person-check me-2"></i>Asignar trabajador</h6>
-            <button class="btn-close btn-sm" @click="showAssignModal = false"></button>
+    <!-- ── MODAL: Acción (iniciar / completar / cancelar) ─────────── -->
+    <BaseModal v-model="showActionModal" :title="ACTION_CONFIG[currentAction]?.title" size="md">
+      <div class="p-2">
+        <div class="p-3 rounded-3 border bg-body-tertiary mb-4">
+          <div class="d-flex justify-content-between small mb-2">
+            <span class="text-muted">Pedido</span>
+            <span class="fw-bold font-monospace">#{{ (selectedProd?.order_item?.order_id || '').slice(0,8).toUpperCase() }}</span>
           </div>
-          <div class="modal-body px-4 py-4">
-            <p class="text-muted small mb-3">
-              Producto: <strong class="text-dark">{{ selectedProd?.order_item?.product_name }}</strong>
-            </p>
-            <label class="form-label fw-semibold small text-uppercase opacity-70">Trabajador</label>
-            <div v-if="loadingWorkers" class="text-center py-3">
-              <div class="spinner-border spinner-border-sm text-secondary"></div>
-            </div>
-            <select v-else v-model="assignWorkerId" class="form-select form-select-sm rounded-0">
-              <option value="">— Sin asignar —</option>
-              <option v-for="w in workers" :key="w.id" :value="w.id">{{ w.name }}</option>
-            </select>
-          </div>
-          <div class="modal-footer px-4 py-3 border-top gap-2">
-            <button class="btn btn-sm btn-outline-secondary rounded-0 px-4" @click="showAssignModal = false">Cancelar</button>
-            <button class="btn btn-sm btn-dark rounded-0 px-4" :disabled="processing || loadingWorkers" @click="confirmAssign">
-              <span v-if="processing" class="spinner-border spinner-border-sm me-1"></span>
-              Asignar
-            </button>
+          <div class="d-flex justify-content-between small">
+            <span class="text-muted">Producto</span>
+            <span class="fw-semibold">{{ selectedProd?.order_item?.product_name }}</span>
           </div>
         </div>
+        <label class="form-label smaller fw-800 text-body-secondary text-uppercase tracking-tighter mb-2">
+          Notas internas (opcional)
+        </label>
+        <textarea v-model="actionNotes" class="form-control sol-textarea" rows="3"
+          placeholder="Observaciones del operario…"></textarea>
+        <p v-if="currentAction === 'cancel'" class="text-danger smaller mt-2 mb-0">
+          <i class="fa-solid fa-triangle-exclamation me-1"></i>
+          Si la producción estaba iniciada, el stock se revertirá a "reservado".
+        </p>
       </div>
-    </div>
+      <template #footer>
+        <div class="d-flex justify-content-end gap-3 w-100 p-2">
+          <BaseButton variant="light" class="rounded-pill px-4" @click="showActionModal = false">Cancelar</BaseButton>
+          <BaseButton
+            :variant="ACTION_CONFIG[currentAction]?.variant ?? 'brand'"
+            class="rounded-pill px-5"
+            :loading="processing"
+            @click="confirmAction"
+          >
+            {{ ACTION_CONFIG[currentAction]?.confirm }}
+          </BaseButton>
+        </div>
+      </template>
+    </BaseModal>
+
+    <!-- ── MODAL: Asignar trabajador ─────────────────────────────── -->
+    <BaseModal v-model="showAssignModal" title="Asignar trabajador" size="md">
+      <div class="p-2">
+        <p class="text-muted small mb-3">
+          Producto: <strong class="text-body-emphasis">{{ selectedProd?.order_item?.product_name }}</strong>
+        </p>
+        <label class="form-label smaller fw-800 text-body-secondary text-uppercase tracking-tighter mb-2">
+          Trabajador
+        </label>
+        <div v-if="loadingWorkers" class="text-center py-3">
+          <div class="spinner-border spinner-border-sm text-secondary"></div>
+        </div>
+        <select v-else v-model="assignWorkerId" class="form-select">
+          <option value="">— Sin asignar —</option>
+          <option v-for="w in workers" :key="w.id" :value="w.id">{{ w.name }}</option>
+        </select>
+      </div>
+      <template #footer>
+        <div class="d-flex justify-content-end gap-3 w-100 p-2">
+          <BaseButton variant="light" class="rounded-pill px-4" @click="showAssignModal = false">Cancelar</BaseButton>
+          <BaseButton variant="brand" class="rounded-pill px-5 sol-shadow-brand"
+            :loading="processing || loadingWorkers" @click="confirmAssign">
+            Asignar
+          </BaseButton>
+        </div>
+      </template>
+    </BaseModal>
 
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted } from 'vue';
 import api from '../plugins/axios';
-
-const STATUS_TABS = [
-  { key: '',            label: 'Todos' },
-  { key: 'queued',      label: 'En cola' },
-  { key: 'in_progress', label: 'En producción' },
-  { key: 'completed',   label: 'Completados' },
-  { key: 'cancelled',   label: 'Cancelados' },
-];
+import { Toast } from '../plugins/swal';
+import BaseDataGrid from '../components/base/BaseDataGrid.vue';
+import BaseButton from '../components/base/BaseButton.vue';
+import BaseModal from '../components/base/BaseModal.vue';
+import BaseFilterSelect from '../components/base/BaseFilterSelect.vue';
 
 const STATUS_CONFIG = {
-  queued:      { label: 'En cola',         badge: 'bg-warning text-dark' },
-  in_progress: { label: 'En producción',   badge: 'bg-info text-dark' },
-  completed:   { label: 'Completado',      badge: 'bg-success text-white' },
-  cancelled:   { label: 'Cancelado',       badge: 'bg-danger text-white' },
+  queued:      { label: 'En cola',        cls: 'bg-warning-subtle text-warning border-warning-subtle' },
+  in_progress: { label: 'En producción',  cls: 'bg-info-subtle text-info border-info-subtle' },
+  completed:   { label: 'Completado',     cls: 'bg-success-subtle text-success border-success-subtle' },
+  cancelled:   { label: 'Cancelado',      cls: 'bg-danger-subtle text-danger border-danger-subtle' },
 };
 
 const ACTION_CONFIG = {
-  start:    { title: 'Iniciar producción',       icon: 'bi-play-fill',   btn: 'btn-info',    confirm: 'Iniciar' },
-  complete: { title: 'Completar producción',     icon: 'bi-check-circle', btn: 'btn-success', confirm: 'Completar' },
-  cancel:   { title: 'Cancelar orden de producción', icon: 'bi-x-circle', btn: 'btn-danger',  confirm: 'Cancelar' },
+  start:    { title: 'Iniciar producción',           variant: 'brand', confirm: 'Iniciar' },
+  complete: { title: 'Completar producción',         variant: 'brand', confirm: 'Completar' },
+  cancel:   { title: 'Cancelar orden de producción', variant: 'danger', confirm: 'Cancelar' },
 };
 
-const prodOrders = ref([]);
-const meta       = ref({});
-const loading    = ref(false);
-const filters    = reactive({ status: '', unassigned: false });
+const statusOptions = [
+  { label: 'Todos los estados',  value: '' },
+  { label: 'En cola',            value: 'queued' },
+  { label: 'En producción',      value: 'in_progress' },
+  { label: 'Completados',        value: 'completed' },
+  { label: 'Cancelados',         value: 'cancelled' },
+];
 
-const selectedProd   = ref(null);
-const processing     = ref(false);
+const gridColumns = [
+  { label: 'PEDIDO / PRODUCTO', key: 'order_info',     width: '35%' },
+  { label: 'CANTIDAD',          key: 'quantity',        align: 'center' },
+  { label: 'TRABAJADOR',        key: 'worker' },
+  { label: 'NOTAS',             key: 'internal_notes' },
+  { label: 'ESTADO',            key: 'status' },
+  { label: 'FECHA',             key: 'created_at' },
+];
 
-// Action modal
+const prodOrders   = ref([]);
+const meta         = ref({});
+const loading      = ref(false);
+const filters      = reactive({ status: '', unassigned: false, search: '' });
+let debounceTimer  = null;
+
+const selectedProd    = ref(null);
+const processing      = ref(false);
+
 const showActionModal = ref(false);
 const currentAction   = ref('');
 const actionNotes     = ref('');
 
-// Assign modal
 const showAssignModal = ref(false);
 const assignWorkerId  = ref('');
 const workers         = ref([]);
 const loadingWorkers  = ref(false);
+
+const paginationObj = computed(() => ({
+  current_page: meta.value.current_page ?? 1,
+  last_page:    meta.value.last_page    ?? 1,
+  total:        meta.value.total        ?? 0,
+  from:         meta.value.from         ?? 0,
+  to:           meta.value.to           ?? 0,
+}));
 
 async function fetchProdOrders(page = 1) {
   loading.value = true;
@@ -265,6 +282,7 @@ async function fetchProdOrders(page = 1) {
     const params = { page };
     if (filters.status)     params.status     = filters.status;
     if (filters.unassigned) params.unassigned = 1;
+    if (filters.search)     params.search     = filters.search;
     const { data } = await api.get('/production-orders', { params });
     prodOrders.value = data.data;
     meta.value       = data.meta ?? {};
@@ -273,10 +291,20 @@ async function fetchProdOrders(page = 1) {
   }
 }
 
-function setStatus(val) { filters.status = val; fetchProdOrders(1); }
+function handleSearch(value) {
+  filters.search = value;
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => fetchProdOrders(1), 450);
+}
 
 function toggleUnassigned() {
   filters.unassigned = !filters.unassigned;
+  fetchProdOrders(1);
+}
+
+function resetFilters() {
+  filters.status     = '';
+  filters.unassigned = false;
   fetchProdOrders(1);
 }
 
@@ -292,29 +320,27 @@ async function confirmAction() {
   processing.value = true;
   const p       = selectedProd.value;
   const orderId = p.order_item?.order_id;
-  const url     = `/orders/${orderId}/production-orders/${p.id}/${currentAction.value}`;
   try {
-    await api.patch(url, { internal_notes: actionNotes.value || null });
+    await api.patch(`/orders/${orderId}/production-orders/${p.id}/${currentAction.value}`,
+      { internal_notes: actionNotes.value || null });
     showActionModal.value = false;
+    Toast.fire({ icon: 'success', title: 'Acción procesada correctamente' });
     fetchProdOrders(meta.value.current_page ?? 1);
   } catch (e) {
-    alert(e.response?.data?.message ?? 'Error al procesar la acción.');
+    Toast.fire({ icon: 'error', title: e.response?.data?.message ?? 'Error al procesar la acción.' });
   } finally {
     processing.value = false;
   }
 }
 
 async function openAssign(prod) {
-  selectedProd.value  = prod;
-  assignWorkerId.value = prod.worker?.id ?? '';
+  selectedProd.value    = prod;
+  assignWorkerId.value  = prod.worker?.id ?? '';
   showAssignModal.value = true;
-
-  // Load workers lazily
   if (workers.value.length === 0) {
     loadingWorkers.value = true;
     try {
       const { data } = await api.get('/users', { params: { page: 1 } });
-      // Filter only active, non-deleted users that have no customer profile (internal staff)
       workers.value = (data.data ?? []).filter(u => u.is_active && !u.deleted_at);
     } catch {
       workers.value = [];
@@ -330,13 +356,13 @@ async function confirmAssign() {
   const p       = selectedProd.value;
   const orderId = p.order_item?.order_id;
   try {
-    await api.patch(`/orders/${orderId}/production-orders/${p.id}/assign`, {
-      assigned_worker_id: assignWorkerId.value || null,
-    });
+    await api.patch(`/orders/${orderId}/production-orders/${p.id}/assign`,
+      { assigned_worker_id: assignWorkerId.value || null });
     showAssignModal.value = false;
+    Toast.fire({ icon: 'success', title: 'Trabajador asignado correctamente' });
     fetchProdOrders(meta.value.current_page ?? 1);
   } catch (e) {
-    alert(e.response?.data?.message ?? 'Error al asignar el trabajador.');
+    Toast.fire({ icon: 'error', title: e.response?.data?.message ?? 'Error al asignar el trabajador.' });
   } finally {
     processing.value = false;
   }
@@ -349,8 +375,3 @@ function fmtDate(d) {
 
 onMounted(() => fetchProdOrders());
 </script>
-
-<style scoped>
-.skel { height: 14px; border-radius: 2px; background: linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; }
-@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-</style>

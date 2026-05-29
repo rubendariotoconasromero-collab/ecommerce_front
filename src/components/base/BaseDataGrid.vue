@@ -64,7 +64,7 @@
                     </div>
                   </slot>
                   <div class="lh-sm">
-                    <div class="fw-bold text-body-emphasis small d-flex align-items-center flex-wrap gap-2">
+                    <div class="fw-bold text-body-emphasis sol-grid-title d-flex align-items-center flex-wrap gap-2">
                       {{ item[titleKey] }}
                       <slot name="item-title-badge" :item="item" />
                     </div>
@@ -129,7 +129,7 @@
                     </div>
                   </slot>
                   <div class="lh-sm">
-                    <div class="fw-bold text-body-emphasis small d-flex align-items-center flex-wrap gap-2">
+                    <div class="fw-bold text-body-emphasis sol-grid-title d-flex align-items-center flex-wrap gap-2">
                       {{ item[titleKey] }}
                       <slot name="item-title-badge" :item="item" />
                     </div>
@@ -280,6 +280,14 @@ const visiblePages = computed(() => {
 </script>
 
 <style scoped>
+.sol-grid-title {
+  font-size: 0.95rem;
+}
+
+.base-data-grid--compact .sol-grid-title {
+  font-size: 0.85rem;
+}
+
 .smaller { font-size: 0.75rem; }
 
 .table thead th {

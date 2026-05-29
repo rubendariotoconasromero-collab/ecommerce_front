@@ -27,7 +27,7 @@ export const useCartStore = defineStore('cart', () => {
         name: product.name,
         price: parseFloat(product.sale_price || product.price),
         sale_price: parseFloat(product.sale_price || product.price),
-        image: product.primaryImage || (product.images?.find(img => img.is_primary)?.url) || 'https://images.unsplash.com/photo-1560393464-5c69a73c5770?q=80&w=400&auto=format&fit=crop',
+        image: product.primaryImage || (product.images?.find(img => img.is_primary)?.image_url) || (product.images?.[0]?.image_url) || '',
         qty: qty
       })
     }

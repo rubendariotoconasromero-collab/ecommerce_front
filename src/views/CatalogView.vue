@@ -413,7 +413,7 @@ const fetchProducts = async () => {
       const primaryImage = p.images?.find(img => img.is_primary) || p.images?.[0];
       return {
         ...p,
-        primaryImage: primaryImage ? (primaryImage.url || primaryImage.image_url) : null
+        primaryImage: primaryImage ? primaryImage.image_url : null
       };
     });
   } catch (error) {

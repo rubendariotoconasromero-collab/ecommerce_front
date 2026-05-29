@@ -64,11 +64,13 @@
                   <!-- Imagen -->
                   <div class="cart-item-img-wrap flex-shrink-0">
                     <img
-                      :src="item.image || fallbackImg"
+                      v-if="item.image && !brokenImages[item.id]"
+                      :src="item.image"
                       :alt="item.name"
                       class="img-fluid cart-item-img"
-                      @error="e => e.target.src = fallbackImg"
+                      @error="brokenImages[item.id] = true"
                     >
+                    <i v-else class="fa-solid fa-cube text-muted" style="font-size:1.4rem;opacity:.3;"></i>
                   </div>
 
                   <!-- Info -->
@@ -170,6 +172,7 @@
 </template>
 
 <script setup>
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import Swal from 'sweetalert2';
 import { useCartStore } from '../stores/cart';
@@ -179,7 +182,7 @@ import PublicFooter from '../components/PublicFooter.vue';
 const cartStore = useCartStore();
 const router = useRouter();
 
-const fallbackImg = 'https://images.unsplash.com/photo-1560393464-5c69a73c5770?q=80&w=400&auto=format&fit=crop';
+const brokenImages = ref({});
 
 const handleClearCart = () => {
   Swal.fire({
@@ -223,11 +226,12 @@ const handleClearCart = () => {
   height: 64px;
   border-radius: 0px !important;
   overflow: hidden;
-  background: #fafafa;
+  background: #f5f5f5;
   border: 1px solid #e8e8e1;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 .cart-item-img {
   max-width: 90%;

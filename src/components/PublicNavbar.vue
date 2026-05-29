@@ -1,5 +1,5 @@
 <template>
-  <nav class="navbar navbar-expand-lg fixed-top glass-navbar py-3 px-md-5">
+  <nav class="navbar navbar-expand-lg fixed-top glass-navbar py-3 px-md-5" :class="{ 'glass-navbar--hidden': isNavbarHidden }">
     <div class="container-fluid">
       <router-link to="/" class="navbar-brand d-flex align-items-center gap-2">
         <img v-if="settingsStore.settings?.logo_landing_url"
@@ -46,7 +46,7 @@
           </li>
         </ul>
 
-        <div class="d-flex align-items-center gap-3">
+        <div class="d-flex align-items-center gap-3 ms-auto">
           <!-- Cart button desktop -->
           <router-link :to="{ name: 'carrito' }" class="cart-btn-desktop position-relative d-none d-lg-flex align-items-center gap-2" aria-label="Ver carrito">
             <i class="fa-solid fa-shopping-bag fs-5"></i>
@@ -57,13 +57,6 @@
           <router-link :to="{ name: 'login' }" class="btn btn-link text-body-emphasis text-decoration-none fw-semibold p-0 d-none d-sm-block">
             Iniciar Sesión
           </router-link>
-
-          <BaseButton variant="brand" class="px-4 py-2 rounded-pill shadow d-none d-lg-block" v-if="isHome" @click="scrollTo('#productos')">
-            Explorar
-          </BaseButton>
-          <router-link v-else-if="!isCatalog" to="/catalogo" class="btn btn-brand px-4 py-2 rounded-pill shadow text-decoration-none fw-semibold d-none d-lg-block">
-            Ver Catálogo
-          </router-link>
         </div>
       </div>
     </div>
@@ -71,17 +64,45 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useCartStore } from '../stores/cart';
 import { useSettingsStore } from '../stores/settings';
-import BaseButton from './base/BaseButton.vue';
 
 const cartStore = useCartStore();
 const settingsStore = useSettingsStore();
 const route = useRoute();
 
-onMounted(() => settingsStore.fetch());
+const isNavbarHidden = ref(false);
+let lastScrollY = 0;
+
+const handleScroll = () => {
+  const currentScrollY = window.scrollY;
+  if (currentScrollY < 0) return; // Prevent issues on iOS rubber-band bounce scroll
+  
+  if (currentScrollY > 120) {
+    if (currentScrollY > lastScrollY) {
+      // Scrolling down: hide
+      isNavbarHidden.value = true;
+    } else {
+      // Scrolling up: show
+      isNavbarHidden.value = false;
+    }
+  } else {
+    // Near top: always show
+    isNavbarHidden.value = false;
+  }
+  lastScrollY = currentScrollY;
+};
+
+onMounted(() => {
+  settingsStore.fetch();
+  window.addEventListener('scroll', handleScroll, { passive: true });
+});
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll);
+});
 
 const isHome       = computed(() => route.name === 'home');
 const isCatalog    = computed(() => route.name === 'catalogo');
@@ -101,8 +122,8 @@ const scrollTo = (id) => {
 
 <style scoped>
 .navbar-logo {
-  height: 38px;
-  max-width: 180px;
+  height: 46px;
+  max-width: 200px;
   object-fit: contain;
 }
 
@@ -112,7 +133,11 @@ const scrollTo = (id) => {
   -webkit-backdrop-filter: blur(18px);
   border-bottom: 1px solid var(--border-color);
   z-index: 1100;
-  transition: all 0.3s ease;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-navbar--hidden {
+  transform: translateY(-100%);
 }
 
 .glass-navbar:hover {
@@ -229,6 +254,19 @@ const scrollTo = (id) => {
 
   .nav-link {
     padding: 0.5rem 0;
+  }
+}
+
+@media (min-width: 992px) {
+  .glass-navbar .container-fluid {
+    position: relative;
+  }
+
+  .navbar-nav {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0 !important;
   }
 }
 </style>

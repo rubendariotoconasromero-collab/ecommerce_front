@@ -8,15 +8,20 @@
         <!-- Columna 1: Branding & Bio -->
         <div class="col-lg-4 col-md-6">
           <div class="footer-brand-wrapper mb-4">
-            <div class="d-flex align-items-center gap-3">
-              <div class="brand-icon-neon">
-                <i class="fa-solid fa-cubes"></i>
-              </div>
-              <span class="brand-text-premium">SOLUPLAST</span>
-            </div>
+            <router-link to="/" class="d-inline-flex align-items-center gap-3 text-decoration-none">
+              <img v-if="logoUrl"
+                :src="logoUrl"
+                alt="Logo" class="footer-logo">
+              <template v-else>
+                <div class="brand-icon-neon">
+                  <i class="fa-solid fa-cubes"></i>
+                </div>
+                <span class="brand-text-premium">SOLUPLAST</span>
+              </template>
+            </router-link>
           </div>
           <p class="footer-bio-text mb-5">
-            {{ settings?.about_description || 'Líderes globales en soluciones plásticas de alta ingeniería. Comprometidos con la sostenibilidad y la innovación constante para la industria 4.0.' }}
+            {{ aboutDescription }}
           </p>
           <div class="social-grid-premium">
             <a href="#" class="social-neon-link" data-color="blue"><i class="bi bi-facebook"></i></a>
@@ -79,7 +84,7 @@
         <div class="row align-items-center">
           <div class="col-md-6 text-center text-md-start">
             <p class="copyright-text">
-              &copy; 2026 <span class="fw-bold">SOLUPLAST S.A.</span> {{ settings?.footer_text || 'Excelencia en Polímeros.' }}
+              &copy; 2026 <span class="fw-bold">SOLUPLAST S.A.</span> {{ footerText }}
             </p>
           </div>
           <div class="col-md-6 mt-3 mt-md-0">
@@ -96,17 +101,56 @@
 </template>
 
 <script setup>
-defineProps({
+import { computed, onMounted } from 'vue';
+import { useSettingsStore } from '../stores/settings';
+
+const props = defineProps({
   settings: {
     type: Object,
     default: () => ({})
   }
 });
+
+const settingsStore = useSettingsStore();
+
+onMounted(() => {
+  if (!settingsStore.settings || !Object.keys(settingsStore.settings).length) {
+    settingsStore.fetch();
+  }
+});
+
+const activeSettings = computed(() => {
+  if (props.settings && Object.keys(props.settings).length > 0) {
+    return props.settings;
+  }
+  return settingsStore.settings || {};
+});
+
+const logoUrl = computed(() => activeSettings.value?.logo_landing_url);
+const aboutDescription = computed(() => activeSettings.value?.about_description || 'Líderes globales en soluciones plásticas de alta ingeniería. Comprometidos con la sostenibilidad y la innovación constante para la industria 4.0.');
+const footerText = computed(() => activeSettings.value?.footer_text || 'Excelencia en Polímeros.');
 </script>
 
 <style scoped>
 .bg-dark-deep {
   background-color: #050505;
+}
+
+.footer-brand-wrapper {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.footer-logo {
+  height: 46px;
+  max-width: 200px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  transition: transform 0.3s ease;
+}
+
+.footer-logo:hover {
+  transform: scale(1.04);
 }
 
 .footer-premium {

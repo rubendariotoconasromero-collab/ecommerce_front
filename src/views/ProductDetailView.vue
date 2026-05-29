@@ -46,15 +46,15 @@
               </div>
               
               <div v-if="product.images && product.images.length > 1" class="thumbnails-track d-flex gap-3 overflow-auto pb-3 custom-scrollbar">
-                <div 
-                  v-for="(img, idx) in product.images" 
+                <div
+                  v-for="(img, idx) in product.images"
                   :key="idx"
                   class="thumbnail-frame border p-2 bg-white cursor-pointer transition-all"
                   style="border-radius: 0px !important;"
-                  :class="{ 'active-thumbnail': selectedImage === img.url }"
-                  @click="selectedImage = img.url"
+                  :class="{ 'active-thumbnail': selectedImage === img.image_url }"
+                  @click="selectedImage = img.image_url"
                 >
-                  <img :src="img.url" class="img-fluid" width="85" alt="Vista miniatura">
+                  <img :src="img.image_url" class="img-fluid" width="85" alt="Vista miniatura">
                 </div>
               </div>
             </div>
@@ -253,7 +253,7 @@ const fetchProduct = async (id) => {
     
     // Configurar imagen inicial
     const primaryImg = product.value.images?.find(img => img.is_primary) || product.value.images?.[0];
-    selectedImage.value = primaryImg ? primaryImg.url : '';
+    selectedImage.value = primaryImg ? primaryImg.image_url : '';
     
     // Cargar relacionados (mismo categoría)
     fetchRelated(product.value.category_id);
@@ -293,6 +293,10 @@ const fetchSettings = async () => {
   } catch (error) {
     console.error('Error al cargar configuración');
   }
+};
+
+const handleImageError = (e) => {
+  e.target.src = '/src/assets/images/product-placeholder.png';
 };
 
 const scrollToTop = () => {

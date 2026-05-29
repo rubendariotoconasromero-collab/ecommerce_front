@@ -109,7 +109,7 @@
             <div class="benefit-card-stable group h-100">
               <div class="benefit-card-inner p-4 text-center transition-premium h-100 animate__animated animate__fadeIn" :style="{ animationDelay: `${index * 0.1}s` }">
                 <div class="benefit-icon-premium mb-3 mx-auto transition-all">
-                  <i :class="[benefit.icon, 'fs-2']" style="color: #121212 !important;"></i>
+                  <i :class="[benefit.icon, 'fs-2']"></i>
                 </div>
                 <h6 class="fw-bold text-dark text-uppercase tracking-wider mb-2" style="font-size: 0.8rem;">{{ benefit.title }}</h6>
                 <p class="text-muted mb-0 smaller" style="line-height: 1.4;">{{ benefit.desc }}</p>
@@ -655,16 +655,19 @@ onUnmounted(() => {
   background: #ffffff;
   color: #0a0a0a;
   border: none;
-  border-radius: 10px;
+  border-radius: 0px;
   padding: .9rem 2rem;
-  font-size: .82rem;
+  font-size: .8rem;
   font-weight: 700;
-  letter-spacing: .08em;
+  letter-spacing: .15em;
   text-transform: uppercase;
   cursor: pointer;
   transition: background .2s ease,
               transform .25s cubic-bezier(.16,1,.3,1),
               box-shadow .25s ease;
+}
+.hero-btn-primary:active {
+  transform: translateY(-1px);
 }
 .hero-btn-primary:hover {
   background: #efefef;
@@ -1087,22 +1090,26 @@ p {
 .benefit-icon-premium {
   width: 55px;
   height: 55px;
-  background: #f4f4f4 !important;
-  border-radius: 0px !important;
+  background: #f8f8f6 !important;
+  border-radius: 12px !important;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+.benefit-icon-premium i {
+  color: #121212 !important;
+  transition: color 0.3s ease;
+}
+
 .benefit-card-stable:hover .benefit-icon-premium {
   background: #121212 !important;
-  transform: none !important;
-  box-shadow: none !important;
+  transform: scale(1.05);
 }
 
 .benefit-card-stable:hover .benefit-icon-premium i {
-  color: white !important;
+  color: #ffffff !important;
 }
 
 /* PREMIUM PRODUCT CARDS SHOPIFY */
