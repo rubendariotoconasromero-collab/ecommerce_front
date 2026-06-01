@@ -512,9 +512,11 @@ const fetchFeaturedProducts = async () => {
       const primaryImage = p.images?.find(img => img.is_primary) || p.images?.[0];
       return {
         id: p.id,
+        sku: p.sku || '',
         name: p.name,
         category: p.category?.name || 'General',
         price: parseFloat(p.sale_price).toFixed(2),
+        sale_price: parseFloat(p.sale_price),
         is_new: true,
         image: primaryImage ? (primaryImage.url || primaryImage.image_url) : '/src/assets/images/product-placeholder.png'
       };

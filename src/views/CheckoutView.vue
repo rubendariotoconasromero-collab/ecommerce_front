@@ -2,25 +2,26 @@
   <div class="checkout-page bg-white min-vh-100 d-flex flex-column">
     <PublicNavbar />
 
-    <!-- Hero minimal -->
-    <section class="checkout-hero pt-5 mt-5 pb-4 position-relative bg-light border-bottom flex-shrink-0">
+    <!-- Hero Section Reducida Style (idéntico a CatalogView) -->
+    <section class="checkout-hero pt-5 mt-5 pb-4 position-relative overflow-hidden bg-white border-bottom flex-shrink-0">
       <div class="container py-4 position-relative z-1">
-        <nav aria-label="breadcrumb" class="mb-3">
-          <ol class="breadcrumb mb-0">
-            <li class="breadcrumb-item">
-              <router-link to="/" class="text-body-secondary text-decoration-none small opacity-60">Inicio</router-link>
-            </li>
-            <li class="breadcrumb-item">
-              <router-link :to="{ name: 'carrito' }" class="text-body-secondary text-decoration-none small opacity-60">Carrito</router-link>
-            </li>
-            <li class="breadcrumb-item active text-dark fw-bold small">Checkout</li>
-          </ol>
-        </nav>
-        <h1 class="display-6 fw-bold mb-1 lh-1 text-dark">
-          <i class="fa-solid fa-credit-card text-dark me-2" style="font-size: 1.5rem;"></i>
-          Confirmar Pedido
-        </h1>
-        <p class="text-muted small mb-0 mt-2">Revisa tu pedido y completa los datos de despacho.</p>
+        <div class="row align-items-center gy-4">
+          <div class="col-lg-12">
+            <nav aria-label="breadcrumb" class="mb-3">
+              <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                  <router-link to="/" class="text-body-secondary text-decoration-none small opacity-60">Inicio</router-link>
+                </li>
+                <li class="breadcrumb-item">
+                  <router-link :to="{ name: 'carrito' }" class="text-body-secondary text-decoration-none small opacity-60">Carrito</router-link>
+                </li>
+                <li class="breadcrumb-item active text-dark fw-bold small">Checkout</li>
+              </ol>
+            </nav>
+            <h1 class="display-4 fw-900 mb-3 lh-1 text-dark" style="letter-spacing: -0.04em;">Confirmar Pedido</h1>
+            <p class="lead text-muted mb-0 max-w-600">Revisa tu pedido y completa los datos de despacho para procesar tu solicitud.</p>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -256,28 +257,39 @@
     </section>
 
     <!-- Pantalla de éxito -->
-    <div v-if="orderSuccess" class="flex-grow-1 d-flex align-items-center">
-      <div class="container text-center py-5">
-        <div class="success-checkmark mx-auto mb-4">
-          <i class="fa-solid fa-circle-check"></i>
-        </div>
-        <h2 class="fw-bold text-dark mb-3 text-uppercase" style="letter-spacing: 0.05em;">¡Pedido Confirmado!</h2>
-        <p class="lead text-muted mb-2 mx-auto" style="max-width: 480px; font-size: 1.1rem;">
-          Recibimos tu solicitud. Nuestro equipo te contactará para coordinar la entrega.
-        </p>
-        <p class="text-muted smaller mb-2 mx-auto opacity-80" style="max-width: 400px;">
-          Número de referencia: <span class="fw-bold text-dark font-monospace">#{{ orderRef }}</span>
-        </p>
-        <p v-if="orderDate" class="text-muted smaller mb-5 mx-auto opacity-80" style="max-width: 400px;">
-          Entrega estimada: <span class="fw-bold text-dark">{{ orderDate }}</span>
-        </p>
-        <div class="d-flex gap-3 justify-content-center flex-wrap">
-          <router-link :to="{ name: 'home' }" class="btn btn-brand rounded-0 px-5 py-3 text-decoration-none fw-bold text-uppercase">
-            <i class="fa-solid fa-house me-2"></i>Ir al Inicio
-          </router-link>
-          <router-link :to="{ name: 'catalogo' }" class="btn btn-outline-dark rounded-0 px-5 py-3 text-decoration-none fw-bold text-uppercase">
-            Seguir Comprando
-          </router-link>
+    <!-- Pantalla de éxito -->
+    <div v-if="orderSuccess" class="flex-grow-1 d-flex align-items-center py-5">
+      <div class="container py-4">
+        <div class="row justify-content-center">
+          <div class="col-lg-6 col-md-8">
+            <div class="card border border-light-subtle rounded-0 p-5 text-center shadow-sm bg-white animate__animated animate__fadeIn">
+              <div class="success-checkmark mx-auto">
+                <i class="fa-solid fa-circle-check"></i>
+              </div>
+              <h2 class="fw-bold text-dark mb-3 text-uppercase" style="letter-spacing: 0.05em; font-size: 1.75rem;">¡Pedido Confirmado!</h2>
+              <p class="lead text-muted mb-4 mx-auto" style="max-width: 440px; font-size: 1.05rem; line-height: 1.6;">
+                Hemos recibido tu solicitud de cotización correctamente. Nuestro equipo comercial te contactará a la brevedad para coordinar los detalles y tiempos de entrega.
+              </p>
+              <div class="p-3 bg-light border border-light-subtle mb-4 text-start">
+                <div class="d-flex justify-content-between mb-2 small text-muted">
+                  <span>Número de referencia:</span>
+                  <span class="fw-bold text-dark font-monospace">#{{ orderRef }}</span>
+                </div>
+                <div v-if="orderDate" class="d-flex justify-content-between small text-muted">
+                  <span>Entrega estimada:</span>
+                  <span class="fw-bold text-dark">{{ orderDate }}</span>
+                </div>
+              </div>
+              <div class="d-flex gap-3 justify-content-center flex-wrap">
+                <router-link :to="{ name: 'home' }" class="btn btn-brand rounded-0 px-4 py-3 text-decoration-none fw-bold text-uppercase flex-grow-1 flex-sm-grow-0">
+                  <i class="fa-solid fa-house me-2"></i>Ir al Inicio
+                </router-link>
+                <router-link :to="{ name: 'catalogo' }" class="btn btn-outline-dark rounded-0 px-4 py-3 text-decoration-none fw-bold text-uppercase flex-grow-1 flex-sm-grow-0">
+                  Seguir Comprando
+                </router-link>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -448,17 +460,18 @@ const submitOrder = async () => {
 
 /* Success animation */
 .success-checkmark {
-  width: 80px;
-  height: 80px;
-  border-radius: 0px !important;
-  display: flex;
+  font-size: 5rem;
+  color: #10b981;
+  margin-bottom: 1.5rem;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #121212;
+  animation: scale-up 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
-.success-checkmark i {
-  font-size: 3rem;
-  color: #121212;
+
+@keyframes scale-up {
+  0% { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 /* Form inputs styling */
@@ -503,5 +516,65 @@ const submitOrder = async () => {
 .btn-outline-dark:hover {
   background-color: #121212 !important;
   color: white !important;
+}
+
+/* NAVBAR */
+:deep(.glass-navbar) {
+  background: #ffffff !important;
+  backdrop-filter: none !important;
+  border-bottom: 1px solid #e8e8e1 !important;
+  box-shadow: none !important;
+  padding-top: 1rem !important;
+  padding-bottom: 1rem !important;
+}
+
+:deep(.nav-link) {
+  color: #121212 !important;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.82rem;
+  letter-spacing: 0.1em;
+  opacity: 0.75;
+}
+
+:deep(.nav-link:hover),
+:deep(.nav-link.active) {
+  opacity: 1;
+}
+
+:deep(.nav-link::after) {
+  display: none !important;
+}
+
+:deep(.cart-btn-desktop),
+:deep(.cart-btn-mobile) {
+  border-radius: 0px !important;
+  border: 1px solid #121212 !important;
+  background: transparent !important;
+  color: #121212 !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+}
+
+:deep(.cart-btn-desktop:hover),
+:deep(.cart-btn-mobile:hover) {
+  background: #121212 !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+:deep(.cart-badge-pill) {
+  border-radius: 0px !important;
+  background-color: #121212 !important;
+  color: #ffffff !important;
+  font-weight: 800;
+}
+
+/* Hero section style */
+.checkout-hero {
+  padding-top: 6rem;
+  background: var(--bs-body-bg);
 }
 </style>

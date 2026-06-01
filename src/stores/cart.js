@@ -23,11 +23,18 @@ export const useCartStore = defineStore('cart', () => {
     } else {
       items.value.push({
         id: product.id,
-        sku: product.sku,
+        sku: product.sku || '',
         name: product.name,
         price: parseFloat(product.sale_price || product.price),
         sale_price: parseFloat(product.sale_price || product.price),
-        image: product.primaryImage || (product.images?.find(img => img.is_primary)?.image_url) || (product.images?.[0]?.image_url) || '',
+        image: product.primaryImage || 
+               product.image || 
+               product.image_url || 
+               (product.images?.find(img => img.is_primary)?.image_url) || 
+               (product.images?.find(img => img.is_primary)?.url) || 
+               (product.images?.[0]?.image_url) || 
+               (product.images?.[0]?.url) || 
+               '',
         qty: qty
       })
     }

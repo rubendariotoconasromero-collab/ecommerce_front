@@ -1,354 +1,364 @@
 <template>
   <div class="animate__animated animate__fadeIn">
 
-    <!-- ── ENCABEZADO ─────────────────────────────────────────────── -->
-    <div class="sol-page-header mb-3">
-      <div>
-        <h2 class="sol-page-title">Gestión de Pedidos</h2>
-        <p class="sol-page-subtitle">{{ meta.total ?? 0 }} pedidos registrados en el sistema</p>
+    <!-- ── VISTA 1: LISTADO DE PEDIDOS ───────────────────────────── -->
+    <div v-if="!showDetail" class="animate__animated animate__fadeIn">
+      <!-- Encabezado de la página -->
+      <div class="sol-page-header mb-3">
+        <div>
+          <h2 class="sol-page-title">Gestión de Pedidos</h2>
+          <p class="sol-page-subtitle">{{ meta.total ?? 0 }} pedidos registrados en el sistema</p>
+        </div>
       </div>
-    </div>
 
-    <!-- ── GRID ──────────────────────────────────────────────────── -->
-    <BaseDataGrid
-      :items="orders"
-      :columns="gridColumns"
-      :loading="loading"
-      :pagination="paginationObj"
-      search-placeholder="Buscar por referencia o cliente…"
-      empty-title="Sin pedidos registrados"
-      empty-icon="fa-solid fa-inbox"
-      empty-description="No hay pedidos que coincidan con los filtros aplicados."
-      compact
-      @search="handleSearch"
-      @page-change="fetchOrders"
-    >
-      <!-- Filtros -->
-      <template #filters>
-        <div class="d-flex gap-2 flex-wrap align-items-center">
-          <BaseFilterSelect
-            v-model="filters.status"
-            :options="statusOptions"
-            width="185px"
-            @update:modelValue="fetchOrders(1)"
-          />
-          <input
-            v-model="filters.from"
-            type="date"
-            class="form-control form-control-sm border rounded-pill px-3"
-            style="height:38px;width:155px;font-size:.8125rem;"
-            @change="fetchOrders(1)"
-          >
-          <input
-            v-model="filters.to"
-            type="date"
-            class="form-control form-control-sm border rounded-pill px-3"
-            style="height:38px;width:155px;font-size:.8125rem;"
-            @change="fetchOrders(1)"
-          >
-          <button
-            v-if="filters.status !== '' || filters.from || filters.to"
-            type="button"
-            class="btn btn-light rounded-pill px-3 border"
-            style="height:38px;font-size:.8125rem;font-weight:600;"
-            @click="clearFilters"
-          >
-            <i class="fa-solid fa-xmark me-1"></i>Limpiar
-          </button>
-        </div>
-      </template>
-
-      <!-- Columna: Referencia + Cliente -->
-      <template #col-order_info="{ item }">
-        <div class="d-flex align-items-center gap-3">
-          <div class="bg-light text-secondary border d-flex align-items-center justify-content-center rounded-3"
-               style="width:40px;height:40px;flex-shrink:0;">
-            <i class="fa-solid fa-box-open" style="font-size:.9rem;"></i>
+      <!-- DataGrid de pedidos -->
+      <BaseDataGrid
+        :items="orders"
+        :columns="gridColumns"
+        :loading="loading"
+        :pagination="paginationObj"
+        search-placeholder="Buscar por referencia o cliente…"
+        empty-title="Sin pedidos registrados"
+        empty-icon="fa-solid fa-inbox"
+        empty-description="No hay pedidos que coincidan con los filtros aplicados."
+        compact
+        @search="handleSearch"
+        @page-change="fetchOrders"
+      >
+        <!-- Filtros -->
+        <template #filters>
+          <div class="d-flex gap-2 flex-wrap align-items-center">
+            <BaseFilterSelect
+              v-model="filters.status"
+              :options="statusOptions"
+              width="185px"
+              @update:modelValue="fetchOrders(1)"
+            />
+            <input
+              v-model="filters.from"
+              type="date"
+              class="form-control form-control-sm border rounded-pill px-3"
+              style="height:38px;width:155px;font-size:.8125rem;"
+              @change="fetchOrders(1)"
+            >
+            <input
+              v-model="filters.to"
+              type="date"
+              class="form-control form-control-sm border rounded-pill px-3"
+              style="height:38px;width:155px;font-size:.8125rem;"
+              @change="fetchOrders(1)"
+            >
+            <button
+              v-if="filters.status !== '' || filters.from || filters.to"
+              type="button"
+              class="btn btn-light rounded-pill px-3 border"
+              style="height:38px;font-size:.8125rem;font-weight:600;"
+              @click="clearFilters"
+            >
+              <i class="fa-solid fa-xmark me-1"></i>Limpiar
+            </button>
           </div>
-          <div>
-            <div class="fw-bold text-body-emphasis small font-monospace">
-              #{{ item.id.slice(0,8).toUpperCase() }}
-            </div>
-            <div class="text-body-secondary smaller mt-1 d-flex align-items-center gap-2">
-              <span>{{ customerName(item.customer) }}</span>
-              <span class="badge rounded-pill px-2 py-0 border"
-                    style="font-size:.58rem;font-weight:700;letter-spacing:.02em;"
-                    :class="item.customer?.customer_type === 'business'
-                      ? 'bg-primary-subtle text-primary border-primary-subtle'
-                      : 'bg-light text-dark border'">
-                {{ item.customer?.customer_type === 'business' ? 'Empresa' : 'Individual' }}
-              </span>
-            </div>
-          </div>
-        </div>
-      </template>
+        </template>
 
-      <!-- Columna: Ítems -->
-      <template #col-items_count="{ item }">
-        <span class="badge rounded-pill bg-light border text-dark px-3 py-1 sol-fw-800 sol-smallest">
-          {{ item.items_count ?? item.items?.length ?? '—' }}
-        </span>
-      </template>
-
-      <!-- Columna: Total -->
-      <template #col-total_amount="{ item }">
-        <span class="fw-bold small text-body-emphasis">Bs. {{ fmtMoney(item.total_amount) }}</span>
-      </template>
-
-      <!-- Columna: Estado -->
-      <template #col-status="{ item }">
-        <span class="badge rounded-pill px-3 py-1 sol-fw-800 sol-smallest border"
-              :class="STATUS_CONFIG[item.status]?.cls ?? 'bg-secondary-subtle text-secondary border-secondary-subtle'">
-          {{ STATUS_CONFIG[item.status]?.label ?? item.status }}
-        </span>
-      </template>
-
-      <!-- Columna: Fecha -->
-      <template #col-created_at="{ item }">
-        <span class="small text-body-secondary">{{ fmtDate(item.created_at) }}</span>
-      </template>
-
-      <!-- Acciones -->
-      <template #item-actions="{ item }">
-        <li>
-          <button class="dropdown-item rounded-3 py-2 small" @click="openDetail(item.id)">
-            <i class="fa-solid fa-eye me-2 text-primary"></i>Ver detalle
-          </button>
-        </li>
-      </template>
-    </BaseDataGrid>
-
-    <!-- ══════════════════════════════════════════════════════════════
-         PANEL DE DETALLE — slide-in lateral
-    ══════════════════════════════════════════════════════════════ -->
-    <div v-if="showDetail" class="detail-overlay" @click.self="closeDetail">
-      <div class="detail-panel animate__animated animate__fadeInRight animate__faster">
-
-        <!-- Header del panel -->
-        <div class="detail-header d-flex align-items-center justify-content-between px-4 py-3 border-bottom">
+        <!-- Columna: Referencia + Cliente -->
+        <template #col-order_info="{ item }">
           <div class="d-flex align-items-center gap-3">
-            <div class="bg-light border d-flex align-items-center justify-content-center rounded-3"
-                 style="width:42px;height:42px;flex-shrink:0;">
-              <i class="fa-solid fa-box-open text-secondary"></i>
+            <div class="bg-light text-secondary border d-flex align-items-center justify-content-center rounded-3"
+                 style="width:40px;height:40px;flex-shrink:0;">
+              <i class="fa-solid fa-box-open" style="font-size:.9rem;"></i>
             </div>
             <div>
-              <h6 class="fw-bold mb-0 font-monospace text-body-emphasis">
-                #{{ selectedOrder?.id?.slice(0,8).toUpperCase() }}
-              </h6>
-              <p class="text-body-secondary smaller mb-0">{{ customerName(selectedOrder?.customer) }}</p>
+              <div class="fw-bold text-body-emphasis small font-monospace">
+                #{{ item.id.slice(0,8).toUpperCase() }}
+              </div>
+              <div class="text-body-secondary smaller mt-1 d-flex align-items-center gap-2">
+                <span>{{ customerName(item.customer) }}</span>
+                <span class="badge rounded-pill px-2 py-0 border"
+                      style="font-size:.58rem;font-weight:700;letter-spacing:.02em;"
+                      :class="item.customer?.customer_type === 'business'
+                        ? 'bg-primary-subtle text-primary border-primary-subtle'
+                        : 'bg-light text-dark border'">
+                  {{ item.customer?.customer_type === 'business' ? 'Empresa' : 'Individual' }}
+                </span>
+              </div>
             </div>
-            <span v-if="selectedOrder"
-                  class="badge rounded-pill px-3 py-1 sol-fw-800 sol-smallest border ms-1"
-                  :class="STATUS_CONFIG[selectedOrder.status]?.cls ?? 'bg-secondary-subtle text-secondary border-secondary-subtle'">
-              {{ STATUS_CONFIG[selectedOrder.status]?.label ?? selectedOrder.status }}
-            </span>
           </div>
-          <button class="btn btn-light rounded-circle p-0 border" style="width:34px;height:34px;" @click="closeDetail">
-            <i class="fa-solid fa-xmark text-body-secondary"></i>
+        </template>
+
+        <!-- Columna: Ítems -->
+        <template #col-items_count="{ item }">
+          <span class="badge rounded-pill bg-light border text-dark px-3 py-1 sol-fw-800 sol-smallest">
+            {{ item.items_count ?? item.items?.length ?? '—' }}
+          </span>
+        </template>
+
+        <!-- Columna: Total -->
+        <template #col-total_amount="{ item }">
+          <span class="fw-bold small text-body-emphasis">Bs. {{ fmtMoney(item.total_amount) }}</span>
+        </template>
+
+        <!-- Columna: Estado -->
+        <template #col-status="{ item }">
+          <span class="badge rounded-pill px-3 py-1 sol-fw-800 sol-smallest border"
+                :class="STATUS_CONFIG[item.status]?.cls ?? 'bg-secondary-subtle text-secondary border-secondary-subtle'">
+            {{ STATUS_CONFIG[item.status]?.label ?? item.status }}
+          </span>
+        </template>
+
+        <!-- Columna: Fecha -->
+        <template #col-created_at="{ item }">
+          <span class="small text-body-secondary">{{ fmtDate(item.created_at) }}</span>
+        </template>
+
+        <!-- Acciones -->
+        <template #item-actions="{ item }">
+          <li>
+            <button class="dropdown-item rounded-3 py-2 small" @click="openDetail(item.id)">
+              <i class="fa-solid fa-eye me-2 text-primary"></i>Ver detalle
+            </button>
+          </li>
+        </template>
+      </BaseDataGrid>
+    </div>
+
+    <!-- ── VISTA 2: SECCIÓN COMPLETA DE DETALLE ───────────────────── -->
+    <div v-else class="animate__animated animate__fadeIn">
+      
+      <!-- Encabezado de detalle premium -->
+      <div class="sol-page-header mb-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <!-- LADO IZQUIERDO: Volver + Título + Cliente -->
+        <div class="d-flex align-items-center gap-3">
+          <!-- Botón de Volver -->
+          <button class="btn btn-back-circle rounded-circle p-0 border d-flex align-items-center justify-content-center shadow-sm" @click="closeDetail" title="Volver al listado de pedidos">
+            <i class="fa-solid fa-arrow-left"></i>
+          </button>
+          
+          <div class="d-flex align-items-center gap-3 flex-wrap">
+            <div>
+              <div class="d-flex align-items-center gap-2 flex-wrap">
+                <h3 class="fw-bold mb-0 font-monospace text-body-emphasis" style="letter-spacing: -0.5px; font-size: 1.5rem;">
+                  Pedido #{{ selectedOrder?.id?.slice(0,8).toUpperCase() }}
+                </h3>
+                <span v-if="selectedOrder"
+                      class="badge rounded-pill px-3 py-1.5 sol-fw-800 sol-smallest border ms-1"
+                      :class="STATUS_CONFIG[selectedOrder.status]?.cls ?? 'bg-secondary-subtle text-secondary border-secondary-subtle'">
+                  {{ STATUS_CONFIG[selectedOrder.status]?.label ?? selectedOrder.status }}
+                </span>
+              </div>
+              <p class="text-body-secondary smaller mb-0 mt-0.5">{{ customerName(selectedOrder?.customer) }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- LADO DERECHO: Botones de Transición (Acciones) -->
+        <div v-if="!detailLoading && selectedOrder?.allowed_transitions?.length" class="d-flex gap-2 flex-wrap align-items-center animate__animated animate__fadeIn">
+          <button
+            v-for="trans in selectedOrder.allowed_transitions"
+            :key="trans"
+            class="btn btn-sm rounded-pill px-3 py-1.5 fw-semibold shadow-sm transition-all"
+            :class="TRANSITION_CONFIG[trans]?.btn ?? 'btn-outline-secondary'"
+            @click="initiateTransition(trans)"
+          >
+            <i class="fa-solid me-1.5" :class="TRANSITION_CONFIG[trans]?.icon ?? 'fa-arrow-right'"></i>
+            {{ TRANSITION_CONFIG[trans]?.label ?? trans }}
           </button>
         </div>
+      </div>
 
-        <!-- Cargando detalle -->
-        <div v-if="detailLoading" class="d-flex align-items-center justify-content-center" style="height:400px;">
-          <div class="spinner-border text-secondary" role="status"></div>
-        </div>
+      <!-- Cargando detalle -->
+      <div v-if="detailLoading" class="d-flex flex-column align-items-center justify-content-center bg-card rounded-4 border p-5 shadow-sm" style="min-height:350px;">
+        <div class="spinner-border text-primary mb-3" role="status"></div>
+        <p class="text-muted small mb-0">Cargando la información detallada del pedido...</p>
+      </div>
 
-        <!-- Cuerpo del panel -->
-        <div v-else-if="selectedOrder" class="detail-body px-4 py-4 overflow-auto">
+      <!-- Información del pedido -->
+      <div v-else-if="selectedOrder" class="animate__animated animate__fadeIn">
 
-          <!-- Acciones de transición -->
-          <div v-if="selectedOrder.allowed_transitions?.length" class="mb-4">
-            <p class="smaller fw-800 text-body-secondary text-uppercase tracking-tighter mb-2">Acciones disponibles</p>
-            <div class="d-flex gap-2 flex-wrap">
-              <button
-                v-for="trans in selectedOrder.allowed_transitions"
-                :key="trans"
-                class="btn btn-sm rounded-pill px-3"
-                :class="TRANSITION_CONFIG[trans]?.btn ?? 'btn-outline-secondary'"
-                @click="initiateTransition(trans)"
-              >
-                <i class="fa-solid me-1" :class="TRANSITION_CONFIG[trans]?.icon ?? 'fa-arrow-right'"></i>
-                {{ TRANSITION_CONFIG[trans]?.label ?? trans }}
-              </button>
-            </div>
-          </div>
-
-          <div class="row g-4">
-
-            <!-- IZQUIERDA: Cliente + Productos -->
-            <div class="col-lg-7">
-
-              <!-- Tarjeta cliente -->
-              <div class="info-card rounded-3 border overflow-hidden mb-4">
-                <div class="info-card-header">
-                  <i class="fa-solid fa-user-circle me-2"></i>Cliente
-                </div>
-                <div class="info-card-body p-3">
-                  <div class="row g-3">
-                    <div class="col-6">
-                      <div class="label-sm">Nombre</div>
-                      <div class="value-sm">{{ selectedOrder.customer?.business_name || selectedOrder.customer?.name }}</div>
-                    </div>
-                    <div class="col-6">
-                      <div class="label-sm">Tipo</div>
-                      <div class="value-sm">
-                        <span class="badge rounded-pill px-2 py-1 sol-smallest border"
-                              :class="selectedOrder.customer?.customer_type === 'business'
-                                ? 'bg-primary-subtle text-primary border-primary-subtle'
-                                : 'bg-light text-dark border'">
-                          {{ selectedOrder.customer?.customer_type === 'business' ? 'Empresa' : 'Individual' }}
-                        </span>
-                      </div>
-                    </div>
-                    <div class="col-6" v-if="selectedOrder.customer?.phone">
-                      <div class="label-sm">Teléfono</div>
-                      <div class="value-sm">{{ selectedOrder.customer.phone }}</div>
-                    </div>
-                    <div class="col-6" v-if="selectedOrder.customer?.email">
-                      <div class="label-sm">Email</div>
-                      <div class="value-sm text-truncate">{{ selectedOrder.customer.email }}</div>
-                    </div>
-                    <div class="col-12">
-                      <div class="label-sm">Dirección de entrega</div>
-                      <div class="value-sm">{{ selectedOrder.shipping_address }}</div>
-                    </div>
-                    <div class="col-12" v-if="selectedOrder.notes">
-                      <div class="label-sm">Notas</div>
-                      <div class="value-sm text-muted fst-italic">{{ selectedOrder.notes }}</div>
-                    </div>
+        <div class="row g-4">
+          <!-- COLUMNA IZQUIERDA: Cliente + Productos -->
+          <div class="col-lg-8">
+            
+            <!-- Tarjeta Cliente -->
+            <div class="info-card rounded-4 mb-4 shadow-sm overflow-hidden">
+              <div class="info-card-header d-flex align-items-center py-3 px-4 bg-light border-bottom">
+                <span class="fw-bold text-uppercase tracking-wider" style="font-size: .8rem;">Información del Cliente</span>
+              </div>
+              <div class="p-4">
+                <div class="row g-3">
+                  <div class="col-sm-6">
+                    <div class="label-sm">Nombre / Razón Social</div>
+                    <div class="value-sm fw-bold text-body-emphasis">{{ selectedOrder.customer?.business_name || selectedOrder.customer?.name }}</div>
                   </div>
-                </div>
-              </div>
-
-              <!-- Tabla de productos -->
-              <div class="info-card rounded-3 border overflow-hidden">
-                <div class="info-card-header">
-                  <i class="fa-solid fa-boxes-stacked me-2"></i>Productos del pedido
-                </div>
-                <div class="table-responsive">
-                  <table class="table table-sm mb-0">
-                    <thead class="bg-body-tertiary">
-                      <tr>
-                        <th class="ps-3 py-2 small fw-semibold text-muted text-uppercase">Producto</th>
-                        <th class="py-2 small fw-semibold text-muted text-uppercase text-center">Cant.</th>
-                        <th class="py-2 small fw-semibold text-muted text-uppercase text-end">P. Unit.</th>
-                        <th class="pe-3 py-2 small fw-semibold text-muted text-uppercase text-end">Subtotal</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr v-for="item in selectedOrder.items" :key="item.id">
-                        <td class="ps-3 py-2">
-                          <div class="small fw-semibold">{{ item.product_name }}</div>
-                          <div v-if="item.customization_notes" class="text-muted" style="font-size:.7rem;">{{ item.customization_notes }}</div>
-                        </td>
-                        <td class="py-2 text-center small">{{ item.quantity }}</td>
-                        <td class="py-2 text-end small">Bs. {{ fmtMoney(item.unit_price) }}</td>
-                        <td class="pe-3 py-2 text-end small fw-bold">Bs. {{ fmtMoney(item.subtotal) }}</td>
-                      </tr>
-                    </tbody>
-                    <tfoot class="border-top bg-body-tertiary">
-                      <tr>
-                        <td colspan="3" class="ps-3 py-2 fw-bold small text-end pe-2">Total</td>
-                        <td class="pe-3 py-2 fw-bold text-end">Bs. {{ fmtMoney(selectedOrder.total_amount) }}</td>
-                      </tr>
-                    </tfoot>
-                  </table>
-                </div>
-              </div>
-
-            </div>
-
-            <!-- DERECHA: Datos + Pago + Historial -->
-            <div class="col-lg-5">
-
-              <!-- Datos del pedido -->
-              <div class="info-card rounded-3 border overflow-hidden mb-4">
-                <div class="info-card-header">
-                  <i class="fa-solid fa-circle-info me-2"></i>Datos del pedido
-                </div>
-                <div class="info-card-body p-3">
-                  <div class="d-flex flex-column gap-3">
-                    <div>
-                      <div class="label-sm">Creado el</div>
-                      <div class="value-sm">{{ fmtDateLong(selectedOrder.created_at) }}</div>
-                    </div>
-                    <div v-if="selectedOrder.expected_delivery_date">
-                      <div class="label-sm">Entrega estimada</div>
-                      <div class="value-sm">{{ fmtDateOnly(selectedOrder.expected_delivery_date) }}</div>
-                    </div>
-                    <div v-if="selectedOrder.created_by">
-                      <div class="label-sm">Registrado por</div>
-                      <div class="value-sm">{{ selectedOrder.created_by?.name ?? 'Cliente Web' }}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Pago -->
-              <div class="info-card rounded-3 border overflow-hidden mb-4" v-if="selectedOrder.payments?.length">
-                <div class="info-card-header">
-                  <i class="fa-solid fa-credit-card me-2"></i>Pago
-                </div>
-                <div class="info-card-body p-3">
-                  <div v-for="pmt in selectedOrder.payments" :key="pmt.id" class="d-flex flex-column gap-2">
-                    <div class="d-flex justify-content-between align-items-center">
-                      <span class="label-sm mb-0">Método</span>
-                      <span class="value-sm">{{ fmtPaymentMethod(pmt.payment_method) }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                      <span class="label-sm mb-0">Monto</span>
-                      <span class="fw-bold small">Bs. {{ fmtMoney(pmt.amount) }}</span>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                      <span class="label-sm mb-0">Estado</span>
-                      <span class="badge rounded-pill px-2 py-1 sol-smallest border"
-                            :class="paymentBadgeCls(pmt.status)">
-                        {{ fmtPaymentStatus(pmt.status) }}
+                  <div class="col-sm-6">
+                    <div class="label-sm">Tipo de Cliente</div>
+                    <div class="value-sm mt-1">
+                      <span class="badge rounded-pill px-2.5 py-1 sol-smallest border"
+                            :class="selectedOrder.customer?.customer_type === 'business'
+                              ? 'bg-primary-subtle text-primary border-primary-subtle'
+                              : 'bg-light text-dark border'">
+                        {{ selectedOrder.customer?.customer_type === 'business' ? 'Empresa' : 'Individual' }}
                       </span>
                     </div>
-                    <div v-if="pmt.paid_at" class="d-flex justify-content-between align-items-center">
-                      <span class="label-sm mb-0">Fecha de pago</span>
-                      <span class="value-sm">{{ fmtDateOnly(pmt.paid_at) }}</span>
+                  </div>
+                  <div class="col-sm-6" v-if="selectedOrder.customer?.phone">
+                    <div class="label-sm">Teléfono de Contacto</div>
+                    <div class="value-sm text-body-emphasis">{{ selectedOrder.customer.phone }}</div>
+                  </div>
+                  <div class="col-sm-6" v-if="selectedOrder.customer?.email">
+                    <div class="label-sm">Correo Electrónico</div>
+                    <div class="value-sm text-body-emphasis text-truncate">{{ selectedOrder.customer.email }}</div>
+                  </div>
+                  <div class="col-12">
+                    <div class="label-sm">Dirección de entrega</div>
+                    <div class="value-sm text-body-emphasis">{{ selectedOrder.shipping_address }}</div>
+                  </div>
+                  <div class="col-12 border-top pt-3 mt-3" v-if="selectedOrder.notes">
+                    <div class="label-sm">Notas del Pedido</div>
+                    <div class="value-sm text-muted fst-italic">"{{ selectedOrder.notes }}"</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tabla de Productos -->
+            <div class="info-card rounded-4 shadow-sm overflow-hidden">
+              <div class="info-card-header d-flex align-items-center py-3 px-4 bg-light border-bottom">
+                <span class="fw-bold text-uppercase tracking-wider" style="font-size: .8rem;">Detalle de Productos</span>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                  <thead class="bg-body-tertiary">
+                    <tr>
+                      <th class="ps-4 py-3 small fw-semibold text-muted text-uppercase">Producto</th>
+                      <th class="py-3 small fw-semibold text-muted text-uppercase text-center" style="width: 100px;">Cantidad</th>
+                      <th class="py-3 small fw-semibold text-muted text-uppercase text-end" style="width: 140px;">P. Unit.</th>
+                      <th class="pe-4 py-3 small fw-semibold text-muted text-uppercase text-end" style="width: 150px;">Subtotal</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="item in selectedOrder.items" :key="item.id">
+                      <td class="ps-4 py-3">
+                        <div class="small fw-semibold text-body-emphasis">{{ item.product_name }}</div>
+                        <div v-if="item.customization_notes" class="text-muted mt-1 small d-flex align-items-center gap-1" style="font-size:.75rem;">
+                          <i class="fa-solid fa-pen-nib text-secondary smaller"></i>
+                          <span>{{ item.customization_notes }}</span>
+                        </div>
+                      </td>
+                      <td class="py-3 text-center small fw-semibold text-body-emphasis">{{ item.quantity }}</td>
+                      <td class="py-3 text-end small text-body-emphasis">Bs. {{ fmtMoney(item.unit_price) }}</td>
+                      <td class="pe-4 py-3 text-end small fw-bold text-body-emphasis">Bs. {{ fmtMoney(item.subtotal) }}</td>
+                    </tr>
+                  </tbody>
+                  <tfoot class="border-top bg-body-tertiary">
+                    <tr>
+                      <td colspan="3" class="ps-4 py-3 fw-bold text-end text-body-emphasis" style="font-size: 0.9rem;">Total a Pagar</td>
+                      <td class="pe-4 py-3 fw-bold text-end text-primary fs-5">Bs. {{ fmtMoney(selectedOrder.total_amount) }}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- COLUMNA DERECHA: Datos + Pago + Historial -->
+          <div class="col-lg-4">
+            
+            <!-- Datos del Pedido -->
+            <div class="info-card rounded-4 mb-4 shadow-sm overflow-hidden">
+              <div class="info-card-header d-flex align-items-center py-3 px-4 bg-light border-bottom">
+                <span class="fw-bold text-uppercase tracking-wider" style="font-size: .8rem;">Datos del Pedido</span>
+              </div>
+              <div class="p-4">
+                <div class="d-flex flex-column gap-3">
+                  <div class="d-flex justify-content-between border-bottom pb-2">
+                    <div>
+                      <div class="label-sm">Creado el</div>
+                      <div class="value-sm fw-semibold text-body-emphasis">{{ fmtDateLong(selectedOrder.created_at) }}</div>
                     </div>
                   </div>
-                  <div v-if="!selectedOrder.payments.some(p => p.status === 'completed')" class="mt-2 pt-2 border-top">
-                    <div class="d-flex justify-content-between">
-                      <span class="text-muted small">Pendiente de cobro</span>
-                      <span class="fw-bold small text-danger">Bs. {{ fmtMoney(selectedOrder.total_amount) }}</span>
+                  <div v-if="selectedOrder.expected_delivery_date" class="d-flex justify-content-between border-bottom pb-2">
+                    <div>
+                      <div class="label-sm">Entrega estimada</div>
+                      <div class="value-sm fw-semibold text-body-emphasis">{{ fmtDateOnly(selectedOrder.expected_delivery_date) }}</div>
+                    </div>
+                  </div>
+                  <div v-if="selectedOrder.created_by" class="d-flex justify-content-between">
+                    <div>
+                      <div class="label-sm">Registrado por</div>
+                      <div class="value-sm fw-semibold text-body-emphasis">{{ selectedOrder.created_by?.name ?? 'Cliente Web' }}</div>
                     </div>
                   </div>
                 </div>
               </div>
+            </div>
 
-              <!-- Historial -->
-              <div class="info-card rounded-3 border overflow-hidden" v-if="selectedOrder.handlers?.length">
-                <div class="info-card-header">
-                  <i class="fa-solid fa-clock-rotate-left me-2"></i>Historial
+            <!-- Pago -->
+            <div class="info-card rounded-4 mb-4 shadow-sm overflow-hidden" v-if="selectedOrder.payments?.length">
+              <div class="info-card-header d-flex align-items-center py-3 px-4 bg-light border-bottom">
+                <span class="fw-bold text-uppercase tracking-wider" style="font-size: .8rem;">Detalles de Pago</span>
+              </div>
+              <div class="p-4">
+                <div v-for="pmt in selectedOrder.payments" :key="pmt.id" class="d-flex flex-column gap-3">
+                  <div class="d-flex justify-content-between align-items-center border-bottom pb-2">
+                    <span class="label-sm mb-0">Método</span>
+                    <span class="value-sm fw-semibold text-body-emphasis">{{ fmtPaymentMethod(pmt.payment_method) }}</span>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center border-bottom pb-2">
+                    <span class="label-sm mb-0">Monto</span>
+                    <span class="fw-bold text-body-emphasis small">Bs. {{ fmtMoney(pmt.amount) }}</span>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center border-bottom pb-2">
+                    <span class="label-sm mb-0">Estado</span>
+                    <span class="badge rounded-pill px-2.5 py-1 sol-smallest border"
+                          :class="paymentBadgeCls(pmt.status)">
+                      {{ fmtPaymentStatus(pmt.status) }}
+                    </span>
+                  </div>
+                  <div v-if="pmt.paid_at" class="d-flex justify-content-between align-items-center">
+                    <span class="label-sm mb-0">Fecha de pago</span>
+                    <span class="value-sm fw-semibold text-body-emphasis">{{ fmtDateOnly(pmt.paid_at) }}</span>
+                  </div>
                 </div>
-                <div class="info-card-body p-3">
-                  <div class="timeline">
-                    <div
-                      v-for="(h, idx) in selectedOrder.handlers"
-                      :key="h.id"
-                      class="timeline-item"
-                      :class="{ last: idx === selectedOrder.handlers.length - 1 }"
-                    >
-                      <div class="timeline-dot"></div>
-                      <div class="timeline-content">
-                        <div class="small fw-semibold text-body-emphasis">{{ h.action_taken }}</div>
-                        <div class="d-flex gap-2 align-items-center mt-1">
-                          <span class="badge rounded-pill bg-light text-muted border sol-smallest">{{ h.handler_role }}</span>
-                          <span class="text-muted" style="font-size:.72rem;">{{ h.handler_name }}</span>
-                        </div>
-                        <div v-if="h.notes" class="text-muted fst-italic mt-1" style="font-size:.72rem;">{{ h.notes }}</div>
-                        <div class="text-muted mt-1" style="font-size:.68rem;">{{ fmtDateLong(h.handled_at) }}</div>
+                <div v-if="!selectedOrder.payments.some(p => p.status === 'completed')" class="mt-3 pt-3 border-top d-flex justify-content-between align-items-center">
+                  <span class="text-danger small fw-bold"><i class="fa-solid fa-triangle-exclamation me-1"></i>Pendiente de cobro</span>
+                  <span class="fw-bold fs-6 text-danger">Bs. {{ fmtMoney(selectedOrder.total_amount) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Historial -->
+            <div class="info-card rounded-4 shadow-sm overflow-hidden" v-if="selectedOrder.handlers?.length">
+              <div class="info-card-header d-flex align-items-center py-3 px-4 bg-light border-bottom">
+                <span class="fw-bold text-uppercase tracking-wider" style="font-size: .8rem;">Historial / Bitácora</span>
+              </div>
+              <div class="p-4">
+                <div class="timeline">
+                  <div
+                    v-for="(h, idx) in selectedOrder.handlers"
+                    :key="h.id"
+                    class="timeline-item"
+                    :class="{ last: idx === selectedOrder.handlers.length - 1 }"
+                  >
+                    <div class="timeline-dot bg-primary"></div>
+                    <div class="timeline-content">
+                      <div class="small fw-bold text-body-emphasis">{{ h.action_taken }}</div>
+                      <div class="d-flex gap-2 align-items-center mt-1.5 flex-wrap">
+                        <span class="badge rounded-pill bg-light text-muted border sol-smallest" style="font-size: 0.65rem;">{{ h.handler_role }}</span>
+                        <span class="text-muted smaller" style="font-size:.72rem;">{{ h.handler_name }}</span>
+                      </div>
+                      <div v-if="h.notes" class="text-muted fst-italic mt-2 p-2 bg-light border rounded-3 small" style="font-size:.75rem;">
+                        "{{ h.notes }}"
+                      </div>
+                      <div class="text-muted mt-2" style="font-size:.68rem;">
+                        <i class="fa-regular fa-clock me-1"></i>{{ fmtDateLong(h.handled_at) }}
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-
             </div>
+
           </div>
         </div>
 
@@ -402,7 +412,7 @@ import BaseFilterSelect from '../components/base/BaseFilterSelect.vue';
 // ── CONSTANTES ────────────────────────────────────────────────────────
 
 const STATUS_CONFIG = {
-  pending:       { label: 'Pendiente',     cls: 'bg-warning-subtle text-warning border-warning-subtle' },
+  pending:       { label: 'Pendiente',     cls: 'badge-sol-pending' },
   confirmed:     { label: 'Confirmado',    cls: 'bg-primary-subtle text-primary border-primary-subtle' },
   in_production: { label: 'En Producción', cls: 'bg-info-subtle text-info border-info-subtle' },
   ready:         { label: 'Listo',         cls: 'bg-success-subtle text-success border-success-subtle' },
@@ -601,39 +611,44 @@ onMounted(() => fetchOrders());
 </script>
 
 <style scoped>
-/* ── Panel de detalle lateral ──────────────────────────────────── */
-.detail-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.4);
-  z-index: 1050;
+/* ── Botón Volver premium ──────────────────────────────────────── */
+.btn-back-circle {
+  width: 40px;
+  height: 40px;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-muted);
+  transition: all 0.2s ease-in-out;
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: center;
+}
+.btn-back-circle:hover {
+  color: var(--color-primary);
+  background-color: var(--bg-hover);
+  transform: translateX(-4px);
+  box-shadow: var(--shadow-sm);
+}
+.btn-back-circle:active {
+  transform: scale(0.92) translateX(-4px);
 }
 
-.detail-panel {
-  width: min(760px, 95vw);
-  height: 100vh;
-  background: var(--bs-body-bg);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  box-shadow: -8px 0 40px rgba(0,0,0,.15);
+/* ── Tarjetas de información premium ───────────────────────────── */
+.info-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.25s ease;
+}
+.info-card:hover {
+  box-shadow: var(--shadow-md);
 }
 
-.detail-header {
-  flex-shrink: 0;
-  background: var(--bs-body-bg);
-  min-height: 68px;
-}
-
-.detail-body { flex: 1; overflow-y: auto; }
-
-/* ── Info cards ────────────────────────────────────────────────── */
 .info-card-header {
   background: var(--bs-tertiary-bg);
   border-bottom: 1px solid var(--bs-border-color);
-  padding: .6rem 1rem;
+  padding: .8rem 1.25rem;
   font-size: .78rem;
   font-weight: 700;
   color: var(--bs-body-color);
@@ -647,36 +662,49 @@ onMounted(() => fetchOrders());
   letter-spacing: .05em;
   color: var(--bs-secondary-color);
   font-weight: 700;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
 }
 
 .value-sm {
-  font-size: .85rem;
+  font-size: .88rem;
   color: var(--bs-body-color);
   font-weight: 500;
 }
 
-/* ── Timeline ──────────────────────────────────────────────────── */
+/* ── Timeline de historial ─────────────────────────────────────── */
 .timeline { position: relative; padding-left: 1.25rem; }
 .timeline-item {
   position: relative;
-  padding-bottom: 1rem;
-  padding-left: 1rem;
+  padding-bottom: 1.5rem;
+  padding-left: 1.25rem;
 }
 .timeline-item:not(.last)::before {
   content: '';
   position: absolute;
   left: 0; top: 10px; bottom: 0;
-  width: 1px;
-  background: var(--bs-border-color);
+  width: 1.5px;
+  background: var(--border-color);
 }
 .timeline-dot {
   position: absolute;
-  left: -4px; top: 4px;
-  width: 9px; height: 9px;
+  left: -4px; top: 5px;
+  width: 10px; height: 10px;
   border-radius: 50%;
-  background: var(--bs-body-emphasis-color);
-  border: 2px solid var(--bs-body-bg);
+  background: var(--color-primary) !important;
+  border: 2px solid var(--bg-card);
 }
 .timeline-content { padding-left: .25rem; }
+
+/* ── Badge especial para Pendiente (Contraste Elevado) ────────── */
+.badge-sol-pending {
+  background-color: #fffbeb !important;
+  color: #78350f !important;
+  border: 1px solid #fde68a !important;
+}
+[data-theme="dark"] .badge-sol-pending,
+[data-theme="semidark"] .badge-sol-pending {
+  background-color: rgba(217, 119, 6, 0.15) !important;
+  color: #fbbf24 !important;
+  border-color: rgba(217, 119, 6, 0.3) !important;
+}
 </style>

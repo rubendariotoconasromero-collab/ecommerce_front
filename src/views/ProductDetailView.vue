@@ -36,16 +36,38 @@
           <!-- Galería de Producto: Estilo Premium -->
           <div class="col-lg-6">
             <div class="product-gallery-sticky sticky-top" style="top: 100px;">
-              <div class="main-image-viewport bg-light overflow-hidden mb-4 d-flex align-items-center justify-content-center p-5 border" style="border-radius: 0px !important;">
+              <div class="main-image-viewport bg-light overflow-hidden mb-4 d-flex align-items-center justify-content-center p-5 border position-relative" style="border-radius: 0px !important;">
+                <!-- Boton Navegación Anterior -->
+                <button 
+                  v-if="product.images && product.images.length > 1" 
+                  class="gallery-nav-btn prev-btn" 
+                  @click="navigateGallery(-1)" 
+                  type="button"
+                  aria-label="Imagen anterior"
+                >
+                  <i class="fa-solid fa-chevron-left"></i>
+                </button>
+
                 <img 
                   :src="selectedImage || '/src/assets/images/product-placeholder.png'" 
                   class="img-fluid main-product-display" 
                   :alt="product.name"
                   style="max-height: 400px; object-fit: contain;"
                 >
+
+                <!-- Boton Navegación Siguiente -->
+                <button 
+                  v-if="product.images && product.images.length > 1" 
+                  class="gallery-nav-btn next-btn" 
+                  @click="navigateGallery(1)" 
+                  type="button"
+                  aria-label="Siguiente imagen"
+                >
+                  <i class="fa-solid fa-chevron-right"></i>
+                </button>
               </div>
               
-              <div v-if="product.images && product.images.length > 1" class="thumbnails-track d-flex gap-3 overflow-auto pb-3 custom-scrollbar">
+              <div v-if="product.images && product.images.length > 1" class="thumbnails-track d-flex gap-3 overflow-auto pt-2 pb-3 px-1 custom-scrollbar">
                 <div
                   v-for="(img, idx) in product.images"
                   :key="idx"
@@ -54,7 +76,7 @@
                   :class="{ 'active-thumbnail': selectedImage === img.image_url }"
                   @click="selectedImage = img.image_url"
                 >
-                  <img :src="img.image_url" class="img-fluid" width="85" alt="Vista miniatura">
+                  <img :src="img.image_url" class="img-fluid thumbnail-img" alt="Vista miniatura">
                 </div>
               </div>
             </div>
@@ -245,6 +267,26 @@ const handleAddToCart = () => {
   });
 };
 
+const navigateGallery = (direction) => {
+  const images = product.value.images || [];
+  if (images.length <= 1) return;
+  
+  // Buscar índice de la imagen actual
+  const currentIndex = images.findIndex(img => img.image_url === selectedImage.value);
+  
+  // Calcular siguiente índice circular
+  let nextIndex = (currentIndex + direction) % images.length;
+  if (nextIndex < 0) {
+    nextIndex = images.length - 1;
+  }
+  
+  // Establecer la nueva imagen activa
+  const nextImg = images[nextIndex];
+  if (nextImg) {
+    selectedImage.value = nextImg.image_url;
+  }
+};
+
 const fetchProduct = async (id) => {
   loading.value = true;
   try {
@@ -276,8 +318,10 @@ const fetchRelated = async (categoryId) => {
         const primary = p.images?.find(img => img.is_primary) || p.images?.[0];
         return {
           id: p.id,
+          sku: p.sku || '',
           name: p.name,
           price: parseFloat(p.sale_price).toFixed(2),
+          sale_price: parseFloat(p.sale_price),
           image: primary ? (primary.url || primary.image_url) : '/src/assets/images/product-placeholder.png'
         }
       });
@@ -320,6 +364,44 @@ watch(() => props.id, (newId) => {
 .fw-900 { font-weight: 900; }
 .pt-10 { padding-top: 6rem; }
 .lh-1 { line-height: 1.1; }
+
+/* Galería de imágenes - Botones de navegación */
+.main-image-viewport {
+  position: relative;
+}
+
+.gallery-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: #121212;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s ease;
+  border-radius: 0px !important;
+}
+
+.gallery-nav-btn:hover {
+  background: #121212;
+  color: #ffffff;
+  border-color: #121212;
+}
+
+.gallery-nav-btn.prev-btn {
+  left: 1rem;
+}
+
+.gallery-nav-btn.next-btn {
+  right: 1rem;
+}
 
 .premium-liquid-bg {
   pointer-events: none;
@@ -425,6 +507,10 @@ watch(() => props.id, (newId) => {
   50% { transform: translateY(-15px); }
 }
 
+.thumbnails-track {
+  margin-top: -8px;
+}
+
 .thumbnail-frame {
   flex-shrink: 0;
   width: 100px;
@@ -432,17 +518,36 @@ watch(() => props.id, (newId) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-color: var(--border-light) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  background: #ffffff;
+  overflow: hidden;
+  opacity: 0.65;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.thumbnail-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .thumbnail-frame:hover {
   border-color: var(--color-primary) !important;
-  transform: scale(1.05);
+  transform: translateY(-4px) scale(1.03);
+  opacity: 1;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+}
+
+.thumbnail-frame:hover .thumbnail-img {
+  transform: scale(1.06);
 }
 
 .active-thumbnail {
   border-color: var(--color-primary) !important;
   border-width: 2px !important;
+  opacity: 1;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
 }
 
 .badge-stock-success {

@@ -2,8 +2,8 @@
   <div class="categorias-page bg-body min-vh-100 d-flex flex-column">
     <PublicNavbar />
 
-    <!-- Hero Section Reducida Shopify Style -->
-    <section class="catalog-hero pt-5 mt-5 pb-4 position-relative overflow-hidden bg-white border-bottom">
+    <!-- Hero Section Reducida Style (idéntico a CatalogView) -->
+    <section class="categorias-hero pt-5 mt-5 pb-4 position-relative overflow-hidden bg-white border-bottom">
       <div class="container py-4 position-relative z-1">
         <div class="row align-items-center gy-4">
           <div class="col-lg-12">
@@ -15,31 +15,31 @@
     </section>
 
     <!-- Contenido principal -->
-    <main class="flex-grow-1 py-8">
+    <main class="flex-grow-1 py-5">
       <div class="container">
 
-        <!-- Barra de búsqueda -->
+        <!-- Barra de búsqueda premium -->
         <div class="row justify-content-center mb-5">
           <div class="col-lg-6">
-            <div class="input-group input-group-lg search-bar border overflow-hidden">
+            <div class="input-group input-group-premium shadow-sm rounded-4 overflow-hidden border">
               <span class="input-group-text bg-white border-0 ps-4">
-                <i class="fa-solid fa-magnifying-glass text-muted" style="font-size: 1.1rem;"></i>
+                <i class="fa-solid fa-magnifying-glass text-primary" style="font-size: 1.1rem;"></i>
               </span>
               <input
                 v-model="searchQuery"
                 type="text"
-                class="form-control bg-white border-0 shadow-none"
-                style="border-radius: 0px !important; font-size: 0.95rem;"
+                class="form-control bg-white border-0 shadow-none py-3"
+                style="font-size: 0.95rem;"
                 placeholder="Buscar categoría..."
               >
-              <button v-if="searchQuery" class="btn bg-white border-0 pe-4" style="border-radius: 0px !important;" @click="searchQuery = ''">
+              <button v-if="searchQuery" class="btn bg-white border-0 pe-4 d-flex align-items-center justify-content-center" @click="searchQuery = ''">
                 <i class="fa-solid fa-xmark text-muted"></i>
               </button>
             </div>
           </div>
         </div>
 
-        <!-- Loading skeletons -->
+        <!-- Loading skeletons premium -->
         <template v-if="isLoading">
           <div class="row g-4">
             <div class="col-xl-3 col-lg-4 col-md-6" v-for="i in 8" :key="i">
@@ -54,13 +54,13 @@
             <i class="fa-solid fa-folder-open display-4 text-body-secondary opacity-30 mb-4 d-block"></i>
             <h4 class="fw-800 text-body-emphasis mb-2">Sin resultados</h4>
             <p class="text-body-secondary">No hay categorías que coincidan con "{{ searchQuery }}".</p>
-            <button class="btn btn-outline-secondary px-4 mt-2" @click="searchQuery = ''">
+            <button class="btn btn-outline-brand rounded-pill px-4 mt-2" @click="searchQuery = ''">
               Limpiar búsqueda
             </button>
           </div>
         </template>
 
-        <!-- Grid de categorías -->
+        <!-- Grid de categorías premium -->
         <template v-else>
           <div class="row g-4">
             <div
@@ -70,46 +70,55 @@
             >
               <router-link
                 :to="{ name: 'catalogo', query: { category: cat.id } }"
-                class="cat-card-link text-decoration-none"
+                class="cat-card-link text-decoration-none d-block h-100"
               >
-                <div class="cat-card animate__animated animate__fadeInUp" :style="{ animationDelay: `${Math.min(idx, 7) * 0.05}s` }">
-                  <!-- Icono / Imagen -->
-                  <div class="cat-img-wrapper">
-                    <img
-                      v-if="cat.image"
-                      :src="cat.image"
-                      :alt="cat.name"
-                      class="cat-img"
-                      @error="handleImageError"
-                    >
-                    <div v-else class="cat-icon-fallback">
-                      <i class="fa-solid fa-boxes-stacked"></i>
+                <div class="premium-cat-card group animate__animated animate__fadeInUp h-100" :style="{ animationDelay: `${Math.min(idx, 7) * 0.05}s` }">
+                  <div class="card-inner-premium h-100 shadow-sm transition-all overflow-hidden bg-white border-0 rounded-4 d-flex flex-column">
+                    <!-- Visual Wrapper -->
+                    <div class="cat-visual-wrapper position-relative overflow-hidden p-3 bg-white">
+                      <!-- Badge productos -->
+                      <span class="badge bg-dark text-white position-absolute top-3 start-3 z-3 px-3 py-1 shadow-sm rounded-pill smaller fw-bold">
+                        {{ cat.products_count ?? 0 }} productos
+                      </span>
+                      
+                      <!-- Image Container -->
+                      <div class="cat-img-main-container d-flex align-items-center justify-content-center p-2 rounded-4">
+                        <img
+                          v-if="(cat.image_url || cat.image) && !imageLoadErrors[cat.id]"
+                          :src="cat.image_url || cat.image"
+                          :alt="cat.name"
+                          class="img-fluid cat-display-img transition-all"
+                          @error="handleImageError(cat.id)"
+                        >
+                        <div v-else class="cat-icon-fallback d-flex align-items-center justify-content-center w-100 h-100 bg-light rounded-4">
+                          <i class="fa-solid fa-boxes-stacked fs-1 text-secondary opacity-30"></i>
+                        </div>
+                      </div>
                     </div>
-                    <!-- Overlay -->
-                    <div class="cat-overlay"></div>
-                    <!-- Badge productos -->
-                    <span class="cat-count-badge">{{ cat.products_count ?? 0 }} productos</span>
-                  </div>
 
-                  <!-- Info -->
-                  <div class="cat-info">
-                    <h5 class="cat-name fw-800 mb-1 text-body-emphasis">{{ cat.name }}</h5>
-                    <p v-if="cat.description" class="cat-desc text-body-secondary smaller mb-0 text-truncate-2">
-                      {{ cat.description }}
-                    </p>
-                    <p v-else class="cat-desc text-body-secondary smaller mb-0 opacity-50">
-                      Ver colección completa
-                    </p>
-                    <span class="cat-cta mt-2 d-flex align-items-center gap-1 text-primary fw-bold smaller">
-                      Explorar <i class="fa-solid fa-arrow-right" style="font-size: 0.75rem;"></i>
-                    </span>
+                    <!-- Info Area -->
+                    <div class="cat-body-premium p-4 text-center border-top bg-white d-flex flex-column flex-grow-1">
+                      <h5 class="fw-bold mb-2 text-dark text-truncate" style="font-size: 1.15rem; line-height: 1.4;">{{ cat.name }}</h5>
+                      <p v-if="cat.description" class="text-muted smaller mb-3 text-truncate-2" style="font-size: 0.825rem; line-height: 1.5; height: 2.5rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                        {{ cat.description }}
+                      </p>
+                      <p v-else class="text-muted smaller mb-3 opacity-50" style="font-size: 0.825rem; line-height: 1.5; height: 2.5rem;">
+                        Ver colección completa de esta línea.
+                      </p>
+                      
+                      <div class="d-grid mt-auto">
+                        <span class="btn btn-premium-action btn-sm py-2 rounded-3 d-flex align-items-center justify-content-center gap-2">
+                          Explorar Línea <i class="fa-solid fa-arrow-right" style="font-size: 0.75rem;"></i>
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </router-link>
             </div>
           </div>
 
-          <div class="text-center mt-5">
+          <div class="text-center mt-5 pt-4">
             <router-link
               :to="{ name: 'catalogo' }"
               class="btn btn-brand btn-lg px-5 py-3 text-decoration-none fw-bold"
@@ -131,9 +140,10 @@ import api from '../plugins/axios';
 import PublicNavbar from '../components/PublicNavbar.vue';
 import PublicFooter from '../components/PublicFooter.vue';
 
-const categories   = ref([]);
-const isLoading    = ref(true);
-const searchQuery  = ref('');
+const categories = ref([]);
+const isLoading = ref(true);
+const searchQuery = ref('');
+const imageLoadErrors = ref({});
 
 const filteredCategories = computed(() => {
   if (!searchQuery.value.trim()) return categories.value;
@@ -155,8 +165,8 @@ const fetchCategories = async () => {
   }
 };
 
-const handleImageError = (e) => {
-  e.target.closest('.cat-img-wrapper').querySelector('.cat-img')?.remove();
+const handleImageError = (id) => {
+  imageLoadErrors.value[id] = true;
 };
 
 onMounted(() => {
@@ -166,174 +176,109 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.fw-900 { font-weight: 900; }
-.py-8  { padding-top: 5rem; padding-bottom: 5rem; }
+.fw-800 { font-weight: 800; }
 .py-10 { padding-top: 7rem; padding-bottom: 7rem; }
-.mt-8  { margin-top: 5rem; }
-.mb-6  { margin-bottom: 4rem; }
-.inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+.max-w-600 { max-width: 600px; }
+.smaller { font-size: 0.75rem; }
 
-/* Hero liquid */
-.premium-liquid-bg {
-  pointer-events: none;
+/* Hero section style */
+.categorias-hero {
+  padding-top: 6rem;
   background: var(--bs-body-bg);
-  overflow: hidden;
-}
-.liquid-blob {
-  position: absolute;
-  filter: blur(140px);
-  border-radius: 50%;
-  opacity: 0.9;
-}
-.blob-1 {
-  width: 600px; height: 600px;
-  background: rgb(17, 92, 255);
-  filter: blur(140px) brightness(1.1) hue-rotate(10deg);
-  top: -20%; left: -10%;
-  animation: lmove1 6s infinite alternate;
-}
-.blob-2 {
-  width: 400px; height: 400px;
-  background: rgb(17, 92, 255);
-  filter: blur(140px) brightness(1.2) hue-rotate(-20deg);
-  bottom: -20%; right: -5%;
-  animation: lmove2 8s infinite alternate;
-}
-.liquid-overlay {
-  position: absolute; inset: 0;
-  background: radial-gradient(circle at 50% 50%, transparent 0%, var(--bs-body-bg) 85%);
-  opacity: 0.65;
-}
-@keyframes lmove1 { to { transform: translate(60px, 30px) scale(1.1); } }
-@keyframes lmove2 { to { transform: translate(-40px, -20px) scale(1.12); } }
-
-/* Search bar */
-.search-bar {
-  border: 1px solid #e8e8e1 !important;
-  border-radius: 0px !important;
-  box-shadow: none !important;
-  transition: all 0.2s ease;
-}
-.search-bar:focus-within {
-  border-color: #121212 !important;
 }
 
-/* Category cards */
-.cat-card-link:hover { text-decoration: none; }
-
-.cat-card {
+/* Input group premium */
+.input-group-premium {
+  border-color: rgba(0, 0, 0, 0.05);
   background: white;
-  border-radius: 0px !important;
-  overflow: hidden;
-  border: 1px solid #e8e8e1 !important;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  cursor: pointer;
-  box-shadow: none !important;
+  transition: all 0.3s ease;
 }
 
-.cat-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.05) !important;
+.input-group-premium:focus-within {
+  border-color: #121212 !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05) !important;
+}
+
+/* Premium Category Cards */
+.premium-cat-card {
+  perspective: 1000px;
+}
+
+.card-inner-premium {
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  background: white;
+  position: relative;
+  border: 1px solid rgba(0,0,0,0.05) !important;
+}
+
+.premium-cat-card:hover .card-inner-premium {
+  transform: translateY(-12px);
+  box-shadow: 0 40px 80px rgba(0,0,0,0.08) !important;
   border-color: #121212 !important;
 }
 
-/* Image */
-.cat-img-wrapper {
-  position: relative;
-  height: 180px;
-  overflow: hidden;
-  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+.cat-visual-wrapper {
+  z-index: 1;
 }
 
-.cat-img {
+.cat-img-main-container {
+  aspect-ratio: 1 / 1.1;
+  overflow: hidden;
+  background: #f8fafc;
+  transition: all 0.5s ease;
+  width: 100%;
+}
+
+.premium-cat-card:hover .cat-img-main-container {
+  background: white;
+}
+
+.cat-display-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s ease;
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.cat-card:hover .cat-img {
+.premium-cat-card:hover .cat-display-img {
   transform: scale(1.08);
 }
 
 .cat-icon-fallback {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   height: 100%;
-  font-size: 3rem;
-  color: var(--color-primary);
-  opacity: 0.35;
+  width: 100%;
+  transition: all 0.5s ease;
 }
 
-.cat-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.3) 0%, transparent 60%);
-  transition: opacity 0.3s ease;
-  opacity: 0;
-}
-
-.cat-card:hover .cat-overlay {
-  opacity: 1;
-}
-
-.cat-count-badge {
-  position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
-  background: #121212 !important;
-  color: #ffffff !important;
-  font-size: 0.65rem;
+/* Action button inside card */
+.btn-premium-action {
+  background: #f1f5f9;
+  color: #475569;
+  border: none;
   font-weight: 700;
-  letter-spacing: 0.05em;
   text-transform: uppercase;
-  padding: 0.3rem 0.8rem;
-  border-radius: 0px !important;
-  border: none !important;
+  font-size: 0.725rem;
+  letter-spacing: 0.05em;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Info */
-.cat-info {
-  padding: 1.25rem;
+.premium-cat-card:hover .btn-premium-action {
+  background: #121212;
+  color: white;
+  box-shadow: 0 10px 20px rgba(18, 18, 18, 0.15);
 }
 
-.cat-name {
-  font-size: 1.1rem;
-  line-height: 1.3;
-  transition: color 0.2s ease;
-}
-
-.cat-card:hover .cat-name {
-  color: var(--color-primary) !important;
-}
-
-.cat-desc {
-  font-size: 0.83rem;
-  line-height: 1.5;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.cat-cta {
-  transition: gap 0.2s ease;
-}
-
-.cat-card:hover .cat-cta {
-  gap: 0.5rem !important;
-}
-
-/* Skeleton */
+/* Skeletons */
 .skeleton-cat-card {
-  height: 280px;
-  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  height: 460px;
+  background: linear-gradient(90deg, #f8fafc 25%, #f1f5f9 50%, #f8fafc 75%);
   background-size: 200% 100%;
   animation: skel-load 1.5s infinite;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
+
 @keyframes skel-load {
-  0%   { background-position: 200% 0; }
+  0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
 
@@ -359,19 +304,17 @@ onMounted(() => {
 :deep(.btn-brand:hover) {
   background-color: #333333 !important;
   border-color: #333333 !important;
-  transform: none !important;
 }
 
-:deep(.btn-outline-secondary) {
+:deep(.btn-outline-brand) {
   border: 1px solid #121212 !important;
   color: #121212 !important;
   background: transparent !important;
 }
 
-:deep(.btn-outline-secondary:hover) {
+:deep(.btn-outline-brand:hover) {
   background-color: #121212 !important;
   color: #ffffff !important;
-  transform: none !important;
 }
 
 /* NAVBAR */
@@ -419,7 +362,6 @@ onMounted(() => {
   background: #121212 !important;
   color: #ffffff !important;
   box-shadow: none !important;
-  transform: none !important;
 }
 
 :deep(.cart-badge-pill) {

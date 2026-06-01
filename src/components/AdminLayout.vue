@@ -285,6 +285,9 @@ onMounted(() => {
   z-index: 1040;
   flex-shrink: 0;
   transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 100vh;
+  position: sticky;
+  top: 0;
 }
 
 .sidebar-collapsed { width: 72px !important; }

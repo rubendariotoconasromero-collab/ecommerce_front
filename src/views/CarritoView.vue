@@ -1,32 +1,34 @@
 <template>
-  <div class="cart-page bg-white min-vh-100 d-flex flex-column">
+  <div class="cart-page bg-body min-vh-100 d-flex flex-column">
     <PublicNavbar />
 
-    <!-- Hero -->
-    <section class="cart-hero pt-5 mt-5 pb-4 position-relative bg-light border-bottom flex-shrink-0">
+    <!-- Header -->
+    <section class="pt-5 mt-5 pb-4 position-relative overflow-hidden bg-white border-bottom">
       <div class="container py-4 position-relative z-1">
         <nav aria-label="breadcrumb" class="mb-3">
           <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item">
-              <router-link to="/" class="text-body-secondary text-decoration-none small opacity-60">Inicio</router-link>
+              <router-link to="/" class="text-body-secondary opacity-60 hover-opacity-100 transition-all text-decoration-none small">Inicio</router-link>
             </li>
-            <li class="breadcrumb-item active text-dark fw-bold small">Carrito</li>
+            <li class="breadcrumb-item active text-dark fw-bold small" aria-current="page">Carrito</li>
           </ol>
         </nav>
-        <div class="d-flex align-items-center gap-3 flex-wrap">
-          <h1 class="display-6 fw-bold mb-0 lh-1 text-dark">
-            <i class="fa-solid fa-shopping-bag text-dark me-2" style="font-size: 1.5rem;"></i>
-            Tu Carrito
-          </h1>
-          <span v-if="cartStore.cartQty > 0" class="badge rounded-0 border border-dark bg-dark text-white px-3 py-2 fw-bold smaller text-uppercase">
+        <div class="d-flex align-items-center gap-3 flex-wrap mb-2">
+          <h1 class="display-4 fw-900 mb-0 lh-1 text-dark" style="letter-spacing: -0.04em;">Tu Carrito</h1>
+          <span v-if="cartStore.cartQty > 0"
+                class="badge border text-dark px-3 py-2 fw-800 smaller text-uppercase"
+                style="background:rgba(18,18,18,.06);border-color:rgba(18,18,18,.15)!important;letter-spacing:.06em;">
             {{ cartStore.cartQty }} {{ cartStore.cartQty === 1 ? 'artículo' : 'artículos' }}
           </span>
         </div>
+        <p class="lead text-muted mb-0" style="font-size:1rem;">
+          {{ cartStore.cartQty > 0 ? 'Revisa tu selección y procede al pago cuando estés listo.' : 'Aún no tienes productos en tu carrito.' }}
+        </p>
       </div>
     </section>
 
     <!-- Content -->
-    <section class="cart-content py-5 flex-grow-1">
+    <section class="py-5 flex-grow-1">
       <div class="container">
 
         <!-- Carrito vacío -->
@@ -203,6 +205,51 @@ const handleClearCart = () => {
 <style scoped>
 .fw-800 { font-weight: 800; }
 .smaller { font-size: 0.75rem; }
+
+/* ── Navbar overrides — igual que CatalogView / ProductDetailView ── */
+:deep(.glass-navbar) {
+  background: #ffffff !important;
+  backdrop-filter: none !important;
+  border-bottom: 1px solid #e8e8e1 !important;
+  box-shadow: none !important;
+  padding-top: 1rem !important;
+  padding-bottom: 1rem !important;
+}
+:deep(.nav-link) {
+  color: #121212 !important;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.82rem;
+  letter-spacing: 0.1em;
+  opacity: 0.75;
+}
+:deep(.nav-link:hover),
+:deep(.nav-link.active) { opacity: 1; }
+:deep(.nav-link::after) { display: none !important; }
+:deep(.cart-btn-desktop),
+:deep(.cart-btn-mobile) {
+  border-radius: 0px !important;
+  border: 1px solid #121212 !important;
+  background: transparent !important;
+  color: #121212 !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+}
+:deep(.cart-btn-desktop:hover),
+:deep(.cart-btn-mobile:hover) {
+  background: #121212 !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+:deep(.cart-badge-pill) {
+  border-radius: 0px !important;
+  background-color: #121212 !important;
+  color: #ffffff !important;
+  font-weight: 800;
+}
 
 /* Cart card */
 .cart-card {

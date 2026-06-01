@@ -191,7 +191,11 @@
             <template v-else>
               <div class="row g-4">
                 <div class="col-md-6 col-lg-4" v-for="product in paginatedProducts" :key="product.id">
-                  <div class="premium-product-card group animate__animated animate__fadeInUp">
+                  <div 
+                    class="premium-product-card group animate__animated animate__fadeInUp"
+                    @mouseenter="handleMouseEnter(product)"
+                    @mouseleave="handleMouseLeave(product)"
+                  >
                     <div class="card-inner-premium h-100 shadow-sm transition-all overflow-hidden bg-white border-0 rounded-4">
                       <!-- Image Wrapper -->
                       <div class="product-visual-wrapper position-relative overflow-hidden p-3 bg-white">
@@ -454,11 +458,40 @@ const resetFilters = () => {
   currentPage.value = 1;
 };
 
+const activeImageIndexes = ref({});
+const hoverIntervals = ref({});
+
 const getProductImage = (product) => {
-  if (product.primaryImage) {
-    return product.primaryImage;
+  const images = product.images || [];
+  if (images.length === 0) {
+    return product.primaryImage || 'https://images.unsplash.com/photo-1560393464-5c69a73c5770?q=80&w=400&auto=format&fit=crop';
   }
-  return 'https://images.unsplash.com/photo-1560393464-5c69a73c5770?q=80&w=400&auto=format&fit=crop';
+  const currentIndex = activeImageIndexes.value[product.id] || 0;
+  const img = images[currentIndex] || images[0];
+  return img ? (img.image_url || img.url) : 'https://images.unsplash.com/photo-1560393464-5c69a73c5770?q=80&w=400&auto=format&fit=crop';
+};
+
+const handleMouseEnter = (product) => {
+  const images = product.images || [];
+  if (images.length <= 1) return;
+  
+  if (hoverIntervals.value[product.id]) {
+    clearInterval(hoverIntervals.value[product.id]);
+  }
+  
+  hoverIntervals.value[product.id] = setInterval(() => {
+    const currentIndex = activeImageIndexes.value[product.id] || 0;
+    const nextIndex = (currentIndex + 1) % images.length;
+    activeImageIndexes.value[product.id] = nextIndex;
+  }, 1250);
+};
+
+const handleMouseLeave = (product) => {
+  if (hoverIntervals.value[product.id]) {
+    clearInterval(hoverIntervals.value[product.id]);
+    delete hoverIntervals.value[product.id];
+  }
+  activeImageIndexes.value[product.id] = 0;
 };
 
 const handleImageError = (e) => {
@@ -607,6 +640,10 @@ watch(() => route.query.category, () => {
   transition: all 0.3s ease;
 }
 
+input[type="radio"].form-check-input {
+  border-radius: 50% !important;
+}
+
 .form-check-input:checked {
   background-color: var(--color-primary);
   border-color: var(--color-primary);
@@ -651,7 +688,9 @@ watch(() => route.query.category, () => {
 }
 
 .product-display-img {
-  max-height: 85%;
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
   object-fit: contain;
   transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
