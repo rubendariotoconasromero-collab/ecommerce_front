@@ -51,6 +51,13 @@
                 <div class="checkout-section-header">
                   <span class="checkout-step-num">1</span>
                   <h5 class="fw-bold mb-0 text-dark">Información del Cliente</h5>
+                  <button
+                    type="button"
+                    class="lookup-link ms-auto"
+                    @click="openLookupModal"
+                  >
+                    <i class="fa-solid fa-magnifying-glass me-1"></i>¿Ya eres cliente?
+                  </button>
                 </div>
                 <div class="checkout-section-body">
                   <div class="row g-3">
@@ -295,6 +302,69 @@
     </div>
 
     <PublicFooter />
+
+    <!-- Modal: Buscar cliente por NIT/CI -->
+    <BaseModal v-model="showLookupModal" title="Buscar cliente registrado" size="sm">
+      <template #icon><i class="fa-solid fa-user-magnifying-glass"></i></template>
+
+      <p class="text-muted small mb-3">
+        Ingresa tu NIT o CI para cargar automáticamente tus datos en el formulario.
+      </p>
+
+      <div class="d-flex gap-2 mb-3">
+        <input
+          v-model="lookupTaxId"
+          type="text"
+          class="form-control"
+          placeholder="Ej: 12345678"
+          @keyup.enter="searchCustomer"
+          :disabled="isSearching"
+        >
+        <button
+          type="button"
+          class="btn btn-brand px-3 flex-shrink-0"
+          @click="searchCustomer"
+          :disabled="isSearching || !lookupTaxId.trim()"
+        >
+          <span v-if="isSearching"><span class="spinner-border spinner-border-sm"></span></span>
+          <span v-else><i class="fa-solid fa-magnifying-glass"></i></span>
+        </button>
+      </div>
+
+      <!-- Resultado encontrado -->
+      <div v-if="lookupResult" class="lookup-result-card mb-1">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <i class="fa-solid fa-circle-check text-success"></i>
+          <span class="fw-bold text-dark small">Cliente encontrado</span>
+        </div>
+        <div class="small text-muted d-flex flex-column gap-1">
+          <span><span class="fw-bold text-dark">Nombre:</span> {{ lookupResult.name }}</span>
+          <span><span class="fw-bold text-dark">NIT/CI:</span> {{ lookupResult.tax_id }}</span>
+          <span v-if="lookupResult.phone"><span class="fw-bold text-dark">Teléfono:</span> {{ lookupResult.phone }}</span>
+          <span v-if="lookupResult.email"><span class="fw-bold text-dark">Correo:</span> {{ lookupResult.email }}</span>
+        </div>
+      </div>
+
+      <!-- No encontrado -->
+      <div v-if="lookupNotFound" class="alert alert-warning rounded-0 py-2 px-3 small mb-1">
+        <i class="fa-solid fa-triangle-exclamation me-2"></i>
+        No se encontró ningún cliente con ese NIT/CI.
+      </div>
+
+      <template #footer>
+        <button type="button" class="btn btn-outline-dark rounded-0 px-4 py-2 small fw-bold" @click="showLookupModal = false">
+          Cancelar
+        </button>
+        <button
+          type="button"
+          class="btn btn-brand rounded-0 px-4 py-2 small fw-bold"
+          :disabled="!lookupResult"
+          @click="applyLookupResult"
+        >
+          <i class="fa-solid fa-file-import me-2"></i>Cargar datos
+        </button>
+      </template>
+    </BaseModal>
   </div>
 </template>
 
@@ -304,8 +374,49 @@ import { useCartStore } from '../stores/cart';
 import api from '../plugins/axios';
 import PublicNavbar from '../components/PublicNavbar.vue';
 import PublicFooter from '../components/PublicFooter.vue';
+import BaseModal from '../components/base/BaseModal.vue';
 
 const cartStore = useCartStore();
+
+// --- Lookup modal ---
+const showLookupModal = ref(false);
+const lookupTaxId    = ref('');
+const isSearching    = ref(false);
+const lookupResult   = ref(null);
+const lookupNotFound = ref(false);
+
+const openLookupModal = () => {
+  lookupTaxId.value    = '';
+  lookupResult.value   = null;
+  lookupNotFound.value = false;
+  showLookupModal.value = true;
+};
+
+const searchCustomer = async () => {
+  if (!lookupTaxId.value.trim()) return;
+  isSearching.value    = true;
+  lookupResult.value   = null;
+  lookupNotFound.value = false;
+  try {
+    const { data } = await api.get('/public/customers/lookup', {
+      params: { tax_id: lookupTaxId.value.trim() },
+    });
+    lookupResult.value = data;
+  } catch (e) {
+    if (e.response?.status === 404) lookupNotFound.value = true;
+  } finally {
+    isSearching.value = false;
+  }
+};
+
+const applyLookupResult = () => {
+  if (!lookupResult.value) return;
+  form.name   = lookupResult.value.name   || form.name;
+  form.tax_id = lookupResult.value.tax_id || form.tax_id;
+  form.phone  = lookupResult.value.phone  || form.phone;
+  form.email  = lookupResult.value.email  || form.email;
+  showLookupModal.value = false;
+};
 
 const isSubmitting = ref(false);
 const orderSuccess = ref(false);
@@ -576,5 +687,33 @@ const submitOrder = async () => {
 .checkout-hero {
   padding-top: 6rem;
   background: var(--bs-body-bg);
+}
+
+/* Lookup link */
+.lookup-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #121212;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: #a0a0a0;
+  cursor: pointer;
+  opacity: 0.65;
+  transition: opacity 0.2s ease;
+  letter-spacing: 0.02em;
+}
+.lookup-link:hover {
+  opacity: 1;
+  text-decoration-color: #121212;
+}
+
+/* Lookup result card */
+.lookup-result-card {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  padding: 0.875rem 1rem;
 }
 </style>
