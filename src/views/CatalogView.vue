@@ -34,7 +34,7 @@
                 <label class="form-label fw-800 smaller text-uppercase">Buscar Producto</label>
                 <div class="input-group input-group-premium">
                   <span class="input-group-text bg-transparent border-end-0">
-                    <i class="fa-solid fa-magnifying-glass text-primary"></i>
+                    <i class="fa-solid fa-magnifying-glass text-dark"></i>
                   </span>
                   <input 
                     v-model="filters.search" 
@@ -201,41 +201,36 @@
                       <div class="product-visual-wrapper position-relative overflow-hidden p-3 bg-white">
                         <BaseBadge v-if="product.is_featured" variant="warning" class="position-absolute top-3 start-3 z-3 px-3 py-1 shadow-sm rounded-pill smaller fw-bold">DESTACADO</BaseBadge>
                         
-                        <div class="product-img-main-container d-flex align-items-center justify-content-center p-2">
+                        <router-link :to="{ name: 'producto-detalle', params: { id: product.id } }" class="product-img-main-container d-flex align-items-center justify-content-center p-2 text-decoration-none">
                           <img
                             :src="getProductImage(product)"
                             @error="handleImageError"
                             class="img-fluid product-display-img transition-all"
                             :alt="product.name"
                           >
-                        </div>
-
-                        <!-- Action Overlay -->
-                        <div class="product-overlay-actions d-flex flex-column gap-2 position-absolute top-3 end-3 opacity-0 transition-all translate-x-10">
-                          <router-link :to="{ name: 'producto-detalle', params: { id: product.id } }" class="btn btn-icon-glass shadow-sm" title="Vista Rápida">
-                            <i class="bi bi-eye"></i>
-                          </router-link>
-                          <button class="btn btn-icon-glass shadow-sm" title="Añadir al Carrito" @click="handleAddToCart(product)">
-                            <i class="bi bi-cart-plus-fill"></i>
-                          </button>
-                        </div>
+                        </router-link>
                       </div>
 
-                        <!-- Info Area -->
-                        <div class="product-body-premium p-3 text-center border-top bg-white">
-                          <div class="text-muted smaller mb-1 text-uppercase tracking-wider" style="font-size: 0.65rem; font-weight: 700;">{{ product.category?.name || 'General' }}</div>
-                          <h6 class="fw-bold mb-2 text-dark text-truncate" style="font-size: 0.95rem; line-height: 1.3;">{{ product.name }}</h6>
-                          
-                          <div class="price-container-premium mb-3">
-                            <span class="price-value fs-5 fw-bold text-dark">Bs. {{ parseFloat(product.sale_price).toLocaleString() }}</span>
-                          </div>
- 
-                          <div class="d-grid">
-                            <router-link :to="{ name: 'producto-detalle', params: { id: product.id } }" class="btn btn-brand btn-sm py-2">
-                              Ver Detalles
-                            </router-link>
-                          </div>
+                      <!-- Info Area -->
+                      <div class="product-body-premium p-3 text-center border-top bg-white">
+                        <div class="text-muted smaller mb-1 text-uppercase tracking-wider" style="font-size: 0.65rem; font-weight: 700;">{{ product.category?.name || 'General' }}</div>
+                        <router-link :to="{ name: 'producto-detalle', params: { id: product.id } }" class="text-decoration-none">
+                          <h6 class="fw-bold mb-2 text-dark text-truncate product-title-hover" style="font-size: 0.95rem; line-height: 1.3;">{{ product.name }}</h6>
+                        </router-link>
+                        
+                        <div class="price-container-premium mb-3">
+                          <span class="price-value fs-5 fw-bold text-dark">Bs. {{ parseFloat(product.sale_price).toLocaleString() }}</span>
                         </div>
+
+                        <div class="d-grid gap-2">
+                          <button class="btn btn-brand btn-sm btn-card-action py-2" @click="handleAddToCart(product)">
+                            <i class="bi bi-cart-plus-fill me-1"></i> Agregar
+                          </button>
+                          <router-link :to="{ name: 'producto-detalle', params: { id: product.id } }" class="btn btn-outline-brand btn-sm btn-card-action py-2">
+                            Ver Detalles
+                          </router-link>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -762,6 +757,25 @@ input[type="radio"].form-check-input {
   background: var(--color-primary);
   color: white;
   box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2);
+}
+
+/* Card title hover effect */
+.product-title-hover {
+  transition: color 0.2s ease;
+}
+.product-title-hover:hover {
+  color: var(--sol-color-primary) !important;
+}
+
+/* Custom card actions */
+:deep(.btn-card-action) {
+  padding: 0.5rem 1.2rem !important;
+  font-size: 0.72rem !important;
+  letter-spacing: 0.1em !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 /* SHOPIFY GLOBAL STYLING OVERRIDES FOR VUE COMPONENTS */

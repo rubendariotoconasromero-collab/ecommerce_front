@@ -28,6 +28,7 @@
       main-col-label="CLIENTE"
       search-placeholder="Buscar por nombre, correo, empresa o NIT..."
       compact
+      :show-avatar="false"
       empty-title="Sin clientes registrados"
       empty-icon="fa-solid fa-users-slash"
       @search="handleSearch"

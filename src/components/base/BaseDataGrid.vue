@@ -38,7 +38,7 @@
             v-if="loading" 
             :rows="5" 
             :columns="visibleColumns.length + (titleKey ? 1 : 0)" 
-            :hasAvatar="!!titleKey" 
+            :hasAvatar="showAvatar && !!titleKey" 
           />
 
           <tbody v-else-if="items.length === 0">
@@ -58,7 +58,7 @@
             >
               <td v-if="titleKey" class="ps-4">
                 <div class="d-flex align-items-center gap-3 py-1">
-                  <slot name="item-avatar" :item="item">
+                  <slot v-if="showAvatar" name="item-avatar" :item="item">
                     <div class="avatar-circle-sm bg-soft-primary text-primary fw-bold">
                       {{ item[titleKey]?.charAt(0).toUpperCase() || '?' }}
                     </div>
@@ -123,7 +123,7 @@
             <div class="card h-100 border-0 shadow-sm rounded-4 bg-body hover-translate-y transition-all">
               <div class="card-body p-3">
                 <div class="d-flex align-items-center gap-3 mb-3">
-                  <slot name="item-avatar" :item="item">
+                  <slot v-if="showAvatar" name="item-avatar" :item="item">
                     <div class="avatar-circle-sm bg-soft-primary text-primary fw-bold">
                       {{ item[titleKey]?.charAt(0).toUpperCase() || '?' }}
                     </div>
@@ -238,6 +238,10 @@ const props = defineProps({
   getRowClass: {
     type: Function,
     default: null
+  },
+  showAvatar: {
+    type: Boolean,
+    default: true
   }
 });
 

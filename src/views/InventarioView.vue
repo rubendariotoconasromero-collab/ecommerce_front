@@ -83,27 +83,22 @@
 
       <!-- Columna: Producto y SKU -->
       <template #col-product_info="{ item }">
-        <div class="d-flex align-items-center gap-3">
-          <div class="bg-light text-secondary border d-flex align-items-center justify-content-center rounded-3" style="width: 40px; height: 40px; flex-shrink: 0;">
-            <i class="fa-solid fa-boxes-stacked" style="font-size: 0.95rem;"></i>
+        <div>
+          <div class="fw-bold text-body-emphasis fs-6 d-flex align-items-center flex-wrap gap-2 mb-0.5">
+            {{ item.product?.name }}
+            <span
+              v-if="item.qty_available < item.qty_reserved"
+              class="badge rounded-pill px-2 py-0.5 sol-fw-800"
+              style="background: rgba(239, 68, 68, 0.1); color: var(--sol-color-danger); border: 1px solid rgba(239, 68, 68, 0.15); font-size: 0.6rem; letter-spacing: 0.02em;"
+              title="El stock físico es menor al stock reservado por pedidos activos."
+            >
+              <i class="fa-solid fa-triangle-exclamation me-1"></i>Conflicto
+            </span>
           </div>
-          <div>
-            <div class="fw-bold text-body-emphasis fs-6 d-flex align-items-center flex-wrap gap-2 mb-0.5">
-              {{ item.product?.name }}
-              <span
-                v-if="item.qty_available < item.qty_reserved"
-                class="badge rounded-pill px-2 py-0.5 sol-fw-800"
-                style="background: rgba(239, 68, 68, 0.1); color: var(--sol-color-danger); border: 1px solid rgba(239, 68, 68, 0.15); font-size: 0.6rem; letter-spacing: 0.02em;"
-                title="El stock físico es menor al stock reservado por pedidos activos."
-              >
-                <i class="fa-solid fa-triangle-exclamation me-1"></i>Conflicto
-              </span>
-            </div>
-            <div class="text-body-secondary smaller mt-0.5 d-flex align-items-center flex-wrap gap-2">
-              <span>SKU: <span class="fw-semibold text-primary">{{ item.product?.sku }}</span></span>
-              <span class="opacity-50">&bull;</span>
-              <span class="badge bg-light border text-dark px-2 py-0.5 rounded" style="font-size: 0.62rem; font-weight: 700; letter-spacing: 0.01em;">{{ item.product?.category?.name || 'Sin Categoría' }}</span>
-            </div>
+          <div class="text-body-secondary smaller mt-0.5 d-flex align-items-center flex-wrap gap-2">
+            <span>SKU: <span class="fw-semibold text-primary">{{ item.product?.sku }}</span></span>
+            <span class="opacity-50">&bull;</span>
+            <span class="badge bg-light border text-dark px-2 py-0.5 rounded" style="font-size: 0.62rem; font-weight: 700; letter-spacing: 0.01em;">{{ item.product?.category?.name || 'Sin Categoría' }}</span>
           </div>
         </div>
       </template>

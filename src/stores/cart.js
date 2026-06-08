@@ -6,7 +6,8 @@ export const useCartStore = defineStore('cart', () => {
   const items = ref(JSON.parse(localStorage.getItem('soluplast_cart') || '[]'))
 
   // Getters
-  const cartQty = computed(() => items.value.reduce((acc, item) => acc + item.qty, 0))
+  const cartQty = computed(() => items.value.length)
+  const totalUnits = computed(() => items.value.reduce((acc, item) => acc + item.qty, 0))
   const cartSubtotal = computed(() => items.value.reduce((acc, item) => acc + (parseFloat(item.sale_price || item.price) * item.qty), 0))
   const cartShipping = computed(() => items.value.length > 0 ? 150.00 : 0) // Flete industrial estándar
   const cartTotal = computed(() => cartSubtotal.value + cartShipping.value)
@@ -66,6 +67,7 @@ export const useCartStore = defineStore('cart', () => {
   return {
     items,
     cartQty,
+    totalUnits,
     cartSubtotal,
     cartShipping,
     cartTotal,

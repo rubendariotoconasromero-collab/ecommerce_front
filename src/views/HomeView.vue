@@ -209,39 +209,36 @@
                   <div class="product-visual-wrapper position-relative overflow-hidden p-3 bg-white">
                     <BaseBadge v-if="product.is_new" variant="primary" class="position-absolute top-3 start-3 z-3 px-3 py-1 shadow-sm rounded-pill smaller fw-bold">NUEVO</BaseBadge>
                     
-                    <div class="product-img-main-container d-flex align-items-center justify-content-center p-2">
+                    <router-link :to="{ name: 'producto-detalle', params: { id: product.id } }" class="product-img-main-container d-flex align-items-center justify-content-center p-2 text-decoration-none">
                       <img
                         :src="product.image || '/src/assets/images/product-placeholder.png'"
                         @error="handleImageError"
                         class="img-fluid product-display-img transition-all"
                         :alt="product.name"
                       >
-                    </div>
+                    </router-link>
+                  </div>
 
-                    <!-- Action Overlay -->
-                    <div class="product-overlay-actions d-flex flex-column gap-2 position-absolute top-3 end-3 opacity-0 transition-all translate-x-10">
-                      <router-link :to="{ name: 'producto-detalle', params: { id: product.id } }" class="btn btn-icon-glass shadow-sm" title="Ver Detalles">
-                        <i class="bi bi-eye"></i>
-                      </router-link>
-                      <button class="btn btn-icon-glass shadow-sm" title="Añadir al Carrito" @click="handleAddToCart(product)">
-                        <i class="bi bi-cart-plus-fill"></i>
-                      </button>
-                    </div>
-                        <!-- Info Area -->
+                  <!-- Info Area -->
                   <div class="product-body-premium p-3 text-center border-top bg-white">
                     <div class="text-muted smaller mb-1 text-uppercase tracking-wider" style="font-size: 0.65rem; font-weight: 700;">{{ product.category }}</div>
-                    <h6 class="fw-bold mb-2 text-dark text-truncate" style="font-size: 0.95rem; line-height: 1.3;">{{ product.name }}</h6>
+                    <router-link :to="{ name: 'producto-detalle', params: { id: product.id } }" class="text-decoration-none">
+                      <h6 class="fw-bold mb-2 text-dark text-truncate product-title-hover" style="font-size: 0.95rem; line-height: 1.3;">{{ product.name }}</h6>
+                    </router-link>
                     
                     <div class="price-container-premium mb-3">
                       <span class="price-value fs-5 fw-bold text-dark">Bs. {{ product.price }}</span>
                     </div>
  
-                    <div class="d-grid">
-                      <router-link :to="{ name: 'producto-detalle', params: { id: product.id } }" class="btn btn-brand btn-sm py-2">
+                    <div class="d-grid gap-2">
+                      <button class="btn btn-brand btn-sm btn-card-action py-2" @click="handleAddToCart(product)">
+                        <i class="bi bi-cart-plus-fill me-1"></i> Agregar
+                      </button>
+                      <router-link :to="{ name: 'producto-detalle', params: { id: product.id } }" class="btn btn-outline-brand btn-sm btn-card-action py-2">
                         Ver Detalles
                       </router-link>
                     </div>
-                  </div>              </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -559,7 +556,8 @@ onUnmounted(() => {
   min-height: 100vh;
   display: flex;
   align-items: center;
-  background: #0a0a0a;
+  /* Vivid solid celestial blue gradient */
+  background: linear-gradient(135deg, #7dd3fc 0%, #0ea5e9 100%);
 }
 
 /* Slide track — absolute, covers entire hero */
@@ -574,6 +572,7 @@ onUnmounted(() => {
   inset: 0;
   opacity: 0;
   transition: opacity 1.4s cubic-bezier(.16,1,.3,1);
+  overflow: hidden;
 }
 .hero-slide--on { opacity: 1; }
 
@@ -583,6 +582,17 @@ onUnmounted(() => {
   object-fit: cover;
   object-position: center;
   display: block;
+  /* Enhance contrast, saturation, and brightness for vivid, punchy colors */
+  filter: contrast(1.2) saturate(1.3) brightness(1.05);
+  /* Slight opacity so the light celestial background blends in, adding clarity */
+  opacity: 0.90;
+  /* Smooth zoom animation to make the images feel alive and powerful */
+  transform: scale(1);
+  transition: transform 8s ease-out;
+}
+
+.hero-slide--on .hero-slide__img {
+  transform: scale(1.08);
 }
 
 /* Skeleton while loading */
@@ -590,33 +600,33 @@ onUnmounted(() => {
   position: absolute;
   inset: 0;
   z-index: 0;
-  background: linear-gradient(90deg, #141414 25%, #1e1e1e 50%, #141414 75%);
+  background: linear-gradient(90deg, #e0f2fe 25%, #bae6fd 50%, #e0f2fe 75%);
   background-size: 200% 100%;
   animation: skeleton-loading 1.5s infinite;
 }
 
-/* Overlay — left-side darkness for text legibility */
+/* Overlay — left-side darkness for text legibility with a premium celestial tone */
 .hero-overlay {
   position: absolute;
   inset: 0;
   z-index: 1;
   background: linear-gradient(
     100deg,
-    rgba(0,0,0,.75) 0%,
-    rgba(0,0,0,.48) 45%,
-    rgba(0,0,0,.10) 100%
+    rgba(0, 41, 84, 0.8) 0%,        /* Deep navy on the left for maximum text readability */
+    rgba(14, 165, 233, 0.35) 45%,   /* Transition to celestial blue */
+    rgba(14, 165, 233, 0.05) 100%   /* Very soft celestial tint on the right to let images pop */
   );
 }
 
-/* Overlay — bottom darkness for controls */
+/* Overlay — bottom darkness for controls with a celestial accent */
 .hero-overlay-bottom {
   position: absolute;
   inset: 0;
   z-index: 1;
   background: linear-gradient(
     to top,
-    rgba(0,0,0,.6) 0%,
-    transparent 40%
+    rgba(14, 165, 233, 0.3) 0%,
+    transparent 30%
   );
 }
 
@@ -1223,6 +1233,25 @@ p {
 
 .smaller { font-size: 0.75rem; }
 .smallest { font-size: 0.65rem; }
+
+/* Card title hover effect */
+.product-title-hover {
+  transition: color 0.2s ease;
+}
+.product-title-hover:hover {
+  color: var(--sol-color-primary) !important;
+}
+
+/* Custom card actions */
+:deep(.btn-card-action) {
+  padding: 0.5rem 1.2rem !important;
+  font-size: 0.72rem !important;
+  letter-spacing: 0.1em !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
 
 /* ANIMATIONS & TRANSITIONS */
 .transition-slow { transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }

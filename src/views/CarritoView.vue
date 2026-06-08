@@ -105,11 +105,11 @@
 
                   <!-- Eliminar -->
                   <button
-                    class="btn btn-link text-muted border-0 p-1 flex-shrink-0 hover-dark-text"
+                    class="btn btn-link text-muted border-0 p-1 flex-shrink-0 hover-danger-text"
                     @click="cartStore.removeFromCart(item.id)"
                     aria-label="Eliminar"
                   >
-                    <i class="fa-solid fa-xmark"></i>
+                    <i class="fa-solid fa-trash-can"></i>
                   </button>
                 </div>
               </div>
@@ -354,6 +354,14 @@ const handleClearCart = () => {
 }
 .hover-dark-text:hover {
   color: #121212 !important;
+}
+
+.hover-danger-text {
+  color: #888888 !important;
+  transition: color 0.2s ease;
+}
+.hover-danger-text:hover {
+  color: #dc3545 !important;
 }
 
 @media (max-width: 575px) {
