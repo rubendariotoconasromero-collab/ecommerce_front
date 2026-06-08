@@ -149,7 +149,7 @@
                     <td class="py-3 text-end small">Bs. {{ fmtMoney(item.unit_price) }}</td>
                     <td class="py-3 text-end small fw-bold">Bs. {{ fmtMoney(item.subtotal) }}</td>
                     <td v-if="showProductionCol" class="pe-4 py-3 text-center">
-                      <button v-if="item.production_status === 'none'"
+                      <button v-if="item.production_status === 'none' && item.stock && item.stock.available < item.quantity"
                               class="btn btn-prod rounded-pill px-2 py-1"
                               :disabled="producingItemId === item.id"
                               @click="produceItem(item)">
@@ -158,6 +158,9 @@
                         </span>
                         <span v-else><i class="fa-solid fa-gears me-1"></i>Producir</span>
                       </button>
+                      <span v-else-if="item.production_status === 'none'" class="text-success small fw-semibold">
+                        <i class="fa-solid fa-circle-check me-1"></i>Stock suficiente
+                      </span>
                       <span v-else-if="item.production_status"
                             class="badge rounded-pill px-2 py-1 border sol-fw-800"
                             style="font-size:.65rem;"
@@ -669,7 +672,7 @@ const showReturnsSection = computed(() =>
 
 const needsProductionAttention = computed(() => {
   if (!order.value || order.value.status !== 'in_production') return false;
-  return order.value.items?.some(i => i.production_status === 'none') ?? false;
+  return order.value.items?.some(i => i.production_status === 'none' && i.stock && i.stock.available < i.quantity) ?? false;
 });
 
 // ── CARGA DE DATOS ───────────────────────────────────────────────────
